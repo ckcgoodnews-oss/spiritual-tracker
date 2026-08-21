@@ -1,0 +1,45 @@
+[
+  {
+    "id": "usr-1",
+    "name": "Household Lead",
+    "username": "admin",
+    "password": "admin123",
+    "role": "admin"
+  },
+  {
+    "id": "usr-2",
+    "name": "Adult Child",
+    "username": "child",
+    "password": "pass123",
+    "role": "readwrite"
+  },
+  {
+    "id": "usr-3",
+    "name": "Family Auditor",
+    "username": "guest",
+    "password": "view123",
+    "role": "readonly"
+  },
+  {
+    "id": "usr-4",
+    "name": "Dad",
+    "username": "dad",
+    "password": "dad123",
+    "role": "admin"
+  },
+  {
+    "id": "usr-5",
+    "name": "Mom",
+    "username": "mom",
+    "password": "mom123",
+    "role": "admin"
+  },
+  {
+    "id": "usr-6",
+    "name": "Charles J",
+    "username": "cj",
+    "password": "cj123",
+    "role": "readonly"
+  }
+]
+
