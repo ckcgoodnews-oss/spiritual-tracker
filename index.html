@@ -897,7 +897,7 @@
     };
 
     let state = {
-      currentUser: null, // null requires login first
+      currentUser: null,
       accounts: JSON.parse(JSON.stringify(DEFAULT_ACCOUNTS)),
       weekStart: '',
       days: [],
@@ -911,6 +911,9 @@
       incidentStatus: '',
       customOptions: JSON.parse(JSON.stringify(DEFAULT_OPTIONS))
     };
+
+    // Unified storage key to prevent data loss across updates
+    const STORAGE_KEY = 'spiritual_accountability_unified_state';
 
     function handleFrontLogin() {
       const u = document.getElementById('front-login-username').value.trim();
@@ -1289,14 +1292,48 @@
     });
 
     function saveToStorage() {
-      localStorage.setItem('spiritual_tracker_state_frontlogin', JSON.stringify(state));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     }
 
     function loadFromStorage() {
-      const saved = localStorage.getItem('spiritual_tracker_state_frontlogin');
-      if (saved) {
-        state = JSON.parse(saved);
-        if (!state.accounts) state.accounts = JSON.parse(JSON.stringify(DEFAULT_ACCOUNTS));
+      // 1. Check for legacy version keys to seamlessly migrate existing accounts
+      const legacyKeys = [
+        'spiritual_tracker_state_v4',
+        'spiritual_tracker_state_v3',
+        'spiritual_tracker_state_v2',
+        'spiritual_tracker_state',
+        'spiritual_tracker_state_frontlogin'
+      ];
+
+      let loadedState = null;
+      const currentSaved = localStorage.getItem(STORAGE_KEY);
+      if (currentSaved) {
+        loadedState = JSON.parse(currentSaved);
+      } else {
+        for (const k of legacyKeys) {
+          const oldData = localStorage.getItem(k);
+          if (oldData) {
+            try {
+              loadedState = JSON.parse(oldData);
+              break;
+            } catch (e) {}
+          }
+        }
+      }
+
+      if (loadedState) {
+        state = Object.assign(state, loadedState);
+
+        // Merge existing accounts with default accounts to guarantee no account loss
+        if (loadedState.accounts && Array.isArray(loadedState.accounts)) {
+          const existingMap = new Map();
+          DEFAULT_ACCOUNTS.forEach(a => existingMap.set(a.username.toLowerCase(), a));
+          loadedState.accounts.forEach(a => {
+            if (a.username) existingMap.set(a.username.toLowerCase(), a);
+          });
+          state.accounts = Array.from(existingMap.values());
+        }
+
         if (!state.customOptions) state.customOptions = JSON.parse(JSON.stringify(DEFAULT_OPTIONS));
       } else {
         const today = new Date();
@@ -1306,13 +1343,18 @@
         state.weekStart = monday.toISOString().split('T')[0];
         initDays();
       }
-      document.getElementById('week-start-date').value = state.weekStart;
-      document.getElementById('count-vulg').textContent = state.vulgCount;
-      document.getElementById('count-warnings').textContent = state.warningsCount;
-      document.getElementById('count-respect-offenses').textContent = state.respectOffenses;
-      document.getElementById('count-hiphop').textContent = state.hiphopCount;
-      document.getElementById('study-conduct-bonus').value = state.studyConductBonus;
-      document.getElementById('sel-attitude-rating').value = state.attitudeRating;
+
+      if (!state.days || state.days.length === 0) initDays();
+
+      document.getElementById('week-start-date').value = state.weekStart || '';
+      document.getElementById('count-vulg').textContent = state.vulgCount || 0;
+      document.getElementById('count-warnings').textContent = state.warningsCount || 0;
+      document.getElementById('count-respect-offenses').textContent = state.respectOffenses || 0;
+      document.getElementById('count-hiphop').textContent = state.hiphopCount || 0;
+      document.getElementById('study-conduct-bonus').value = state.studyConductBonus || 0;
+      document.getElementById('sel-attitude-rating').value = state.attitudeRating || 5;
+
+      saveToStorage();
 
       // Check for active session
       const activeSessionUser = sessionStorage.getItem('spiritual_logged_in_user');
