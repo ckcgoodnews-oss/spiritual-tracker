@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -29,7 +28,7 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     body { background-color: var(--bg-main); color: var(--text-main); -webkit-tap-highlight-color: transparent; }
 
-    /* FRONT-FACING SECURE LOGIN SCREEN */
+    /* FRONT-FACING SECURE LOGIN */
     #login-screen {
       min-height: 100vh;
       display: flex;
@@ -150,7 +149,7 @@
       border: 1px solid var(--border-color);
       border-radius: 8px;
       padding: 10px;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
       background-color: #fafbfc;
     }
     .day-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
@@ -159,7 +158,7 @@
     .form-group { margin-bottom: 8px; }
     .form-group:last-child { margin-bottom: 0; }
     label { display: block; font-size: 11px; font-weight: 600; color: var(--text-muted); margin-bottom: 3px; }
-    select, input[type="text"], input[type="number"], input[type="password"] {
+    select, input[type="text"], input[type="number"], input[type="password"], textarea {
       width: 100%;
       padding: 8px 10px;
       border-radius: 6px;
@@ -169,7 +168,8 @@
       color: var(--text-main);
       outline: none;
     }
-    select:focus, input:focus { border-color: var(--accent-blue); }
+    textarea { resize: vertical; min-height: 55px; font-family: inherit; }
+    select:focus, input:focus, textarea:focus { border-color: var(--accent-blue); }
     .select-with-add { display: flex; gap: 6px; }
     .btn-small-add {
       background-color: var(--slate-hdr);
@@ -181,18 +181,39 @@
       font-weight: bold;
       cursor: pointer;
     }
-    .check-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      margin-top: 8px;
+
+    /* Proof Section Styles */
+    .proof-input-box {
       background-color: #ffffff;
-      padding: 8px;
-      border-radius: 6px;
       border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 8px;
+      margin-top: 6px;
     }
-    .check-item { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; }
-    .check-item input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--accent-blue); }
+    .verification-box {
+      margin-top: 8px;
+      padding: 8px;
+      background-color: #f8fafc;
+      border: 1px dashed var(--border-color);
+      border-radius: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .verification-box.verified {
+      background-color: var(--green-bg);
+      border-color: #a7f3d0;
+    }
+    .status-tag {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+      text-transform: uppercase;
+    }
+    .status-tag.pending { background-color: var(--amber-bg); color: var(--amber-text); }
+    .status-tag.approved { background-color: var(--green-bg); color: var(--green-text); }
+
     .calc-row {
       display: flex;
       justify-content: space-between;
@@ -308,13 +329,13 @@
 </head>
 <body>
 
-  <!-- 1. FRONT-FACING SECURE LOGIN VIEW (NO PASSWORDS EXPOSED) -->
+  <!-- 1. FRONT-FACING SECURE LOGIN -->
   <div id="login-screen">
     <div class="login-container">
       <div class="login-header-logo">
         <div class="login-logo-icon">📖</div>
         <div class="login-title">Spiritual Proofs & Accountability</div>
-        <div class="login-subtitle">Sign in to access your weekly portal</div>
+        <div class="login-subtitle">Sign in to record & verify weekly logs</div>
       </div>
 
       <div id="login-error-msg" class="login-error"></div>
@@ -369,11 +390,11 @@
           <div class="payout-amount" id="disp-net-payout">$0.00</div>
           <div class="summary-stats">
             <div>
-              <div>Ministry Outings</div>
+              <div>Verified Ministry</div>
               <div class="summary-stat-val" id="disp-stat-outings">0 / 3</div>
             </div>
             <div>
-              <div>Study Days</div>
+              <div>Verified Studies</div>
               <div class="summary-stat-val" id="disp-stat-study">0 / 7</div>
             </div>
             <div>
@@ -462,12 +483,12 @@
         </div>
       </div>
 
-      <!-- TAB 2: SPIRITUAL PROOFS LOG -->
+      <!-- TAB 2: SPIRITUAL PROOFS LOG (User Entry + Admin Verification) -->
       <div id="tab-spiritual" class="tab-content">
         <div class="card">
           <div class="card-title">
             <span>Daily Spiritual Proofs & Ministry</span>
-            <span style="font-size:11px; color:var(--text-muted);" id="study-count-badge">0/7 Days</span>
+            <span style="font-size:11px; color:var(--text-muted);" id="study-count-badge">0/7 Days Verified</span>
           </div>
           <div id="days-container"></div>
         </div>
@@ -583,7 +604,7 @@
         </div>
       </div>
 
-      <!-- TAB 5: ADMIN CONSOLE & RBAC MANAGEMENT (Visible to Admins) -->
+      <!-- TAB 5: ADMIN CONSOLE & RBAC MANAGEMENT -->
       <div id="tab-admin" class="tab-content">
         <div class="card" id="admin-user-management-card">
           <div class="card-title">Add User (RBAC Authorization)</div>
@@ -737,7 +758,6 @@
       const p = document.getElementById('front-login-password').value.trim();
       const errBox = document.getElementById('login-error-msg');
 
-      // Guarantee default accounts are merged into local storage state
       DEFAULT_ACCOUNTS.forEach(def => {
         const existing = state.accounts.find(a => a.username.toLowerCase() === def.username.toLowerCase());
         if (!existing) {
@@ -789,8 +809,10 @@
         offset: i,
         topic: state.customOptions.studyTopics[i % state.customOptions.studyTopics.length],
         minutes: 20,
-        studyProof: true,
+        userProofText: '',
+        studyVerified: false,
         serviceOuting: i === 1 || i === 3 || i === 5,
+        serviceVerified: false,
         outingDetail: i === 1 || i === 3 || i === 5 ? state.customOptions.outingDetails[i % 3] : state.customOptions.outingDetails[7]
       }));
     }
@@ -819,7 +841,7 @@
       document.getElementById('readonly-banner').style.display = canWrite ? 'none' : 'block';
 
       document.querySelectorAll('.write-control').forEach(el => {
-        if (el.tagName === 'BUTTON' || el.tagName === 'INPUT' || el.tagName === 'SELECT') {
+        if (el.tagName === 'BUTTON' || el.tagName === 'INPUT' || el.tagName === 'SELECT' || el.tagName === 'TEXTAREA') {
           el.disabled = !canWrite;
           el.style.opacity = canWrite ? '1' : '0.5';
         } else {
@@ -889,7 +911,9 @@
       const container = document.getElementById('days-container');
       container.innerHTML = '';
       const baseDate = new Date(state.weekStart + 'T00:00:00');
-      const canWrite = getCurrentUser() && (getCurrentUser().role !== 'readonly');
+      const user = getCurrentUser();
+      const isAdmin = user && (user.role === 'admin');
+      const canWrite = user && (user.role === 'admin' || user.role === 'readwrite');
 
       state.days.forEach((d, idx) => {
         const dDate = new Date(baseDate);
@@ -903,6 +927,7 @@
             <span class="day-name">${d.name}</span>
             <span class="day-date">${dateStr}</span>
           </div>
+
           <div class="form-group">
             <label>Bible Study Topic / Meditation Material</label>
             <div class="select-with-add">
@@ -912,7 +937,19 @@
               ${canWrite ? `<button class="btn-small-add" title="Add topic" onclick="promptAddNewOption('studyTopics', ${idx})">+</button>` : ''}
             </div>
           </div>
+
           <div class="form-group">
+            <label>Study Minutes</label>
+            <input type="number" min="0" max="180" value="${d.minutes || 0}" ${!canWrite ? 'disabled' : ''} onchange="updateDayMinutes(${idx}, this.value)" />
+          </div>
+
+          <!-- USER PROOF ENTRY BOX -->
+          <div class="form-group">
+            <label>Participant Proof Entry (Scriptures, Notes & Reflections)</label>
+            <textarea placeholder="Type your personal study proof, key scriptures read, and meditation takeaways here..." ${!canWrite ? 'disabled' : ''} oninput="updateDayProofText(${idx}, this.value)">${d.userProofText || ''}</textarea>
+          </div>
+
+          <div class="form-group" style="margin-top:6px;">
             <label>Service Outing / Activity Details</label>
             <div class="select-with-add">
               <select ${!canWrite ? 'disabled' : ''} onchange="updateDayOutingDetail(${idx}, this.value)">
@@ -921,23 +958,55 @@
               ${canWrite ? `<button class="btn-small-add" title="Add outing" onclick="promptAddNewOption('outingDetails', ${idx})">+</button>` : ''}
             </div>
           </div>
-          <div class="form-group">
-            <label>Study Minutes</label>
-            <input type="number" min="0" max="180" value="${d.minutes}" ${!canWrite ? 'disabled' : ''} onchange="updateDayMinutes(${idx}, this.value)" />
+
+          <!-- ADMIN VERIFICATION CONTROL BOX -->
+          <div class="verification-box ${d.studyVerified ? 'verified' : ''}">
+            <div>
+              <div style="font-size:11px; font-weight:700; color:var(--navy-dark);">
+                Study Proof (15m+)
+                <span class="status-tag ${d.studyVerified ? 'approved' : 'pending'}">${d.studyVerified ? 'Verified' : 'Pending'}</span>
+              </div>
+              <div style="font-size:10px; color:var(--text-muted);">Admin review required for $1.00 payout</div>
+            </div>
+            <div>
+              <input type="checkbox" ${d.studyVerified ? 'checked' : ''} ${!isAdmin ? 'disabled' : ''} onchange="toggleAdminStudyVerification(${idx}, this.checked)" style="width:20px; height:20px; accent-color:var(--accent-blue);" />
+            </div>
           </div>
-          <div class="check-grid">
-            <label class="check-item">
-              <input type="checkbox" ${d.studyProof ? 'checked' : ''} ${!canWrite ? 'disabled' : ''} onchange="toggleDayStudyProof(${idx}, this.checked)" />
-              <span>Study Proof (&ge;15m)</span>
-            </label>
-            <label class="check-item">
-              <input type="checkbox" ${d.serviceOuting ? 'checked' : ''} ${!canWrite ? 'disabled' : ''} onchange="toggleDayService(${idx}, this.checked)" />
-              <span>Field Service</span>
-            </label>
+
+          <div class="verification-box ${d.serviceVerified ? 'verified' : ''}" style="margin-top:4px;">
+            <div>
+              <div style="font-size:11px; font-weight:700; color:var(--navy-dark);">
+                Field Ministry Outing
+                <span class="status-tag ${d.serviceVerified ? 'approved' : 'pending'}">${d.serviceVerified ? 'Verified' : 'Pending'}</span>
+              </div>
+              <div style="font-size:10px; color:var(--text-muted);">Admin verification towards 3x outing target</div>
+            </div>
+            <div>
+              <input type="checkbox" ${d.serviceVerified ? 'checked' : ''} ${!isAdmin ? 'disabled' : ''} onchange="toggleAdminServiceVerification(${idx}, this.checked)" style="width:20px; height:20px; accent-color:var(--accent-blue);" />
+            </div>
           </div>
         `;
         container.appendChild(row);
       });
+    }
+
+    function updateDayProofText(idx, val) {
+      state.days[idx].userProofText = val;
+      saveToStorage();
+    }
+
+    function toggleAdminStudyVerification(idx, val) {
+      state.days[idx].studyVerified = val;
+      saveToStorage();
+      calculateSettlement();
+      renderDays();
+    }
+
+    function toggleAdminServiceVerification(idx, val) {
+      state.days[idx].serviceVerified = val;
+      saveToStorage();
+      calculateSettlement();
+      renderDays();
     }
 
     function renderSelectDropdowns() {
@@ -1011,10 +1080,12 @@
     }
 
     function calculateSettlement() {
-      const outingsCount = state.days.filter(d => d.serviceOuting).length;
+      // Ministry outings count only when verified by Admin
+      const outingsCount = state.days.filter(d => d.serviceVerified).length;
       const baseEarned = 50.00;
 
-      const studyDaysCount = state.days.filter(d => d.studyProof && d.minutes >= 15).length;
+      // Study days count towards $1/day only when verified by Admin AND minutes >= 15
+      const studyDaysCount = state.days.filter(d => d.studyVerified && (d.minutes >= 15)).length;
       const studyEarned = studyDaysCount * 1.00;
       const studyBonus = parseFloat(state.studyConductBonus) || 0.00;
       const totalStudyEarned = studyEarned + studyBonus;
@@ -1050,7 +1121,7 @@
       document.getElementById('disp-stat-outings').textContent = `${outingsCount} / 3`;
       document.getElementById('disp-stat-study').textContent = `${studyDaysCount} / 7`;
       document.getElementById('disp-stat-deductions').textContent = `-$${totalDeductions.toFixed(2)}`;
-      document.getElementById('study-count-badge').textContent = `${studyDaysCount} / 7 Days`;
+      document.getElementById('study-count-badge').textContent = `${studyDaysCount} / 7 Days Verified`;
 
       document.getElementById('earn-base').textContent = `$${baseEarned.toFixed(2)}`;
       document.getElementById('earn-study').textContent = `$${studyEarned.toFixed(2)}`;
@@ -1098,8 +1169,6 @@
     function updateDayTopic(idx, val) { state.days[idx].topic = val; saveToStorage(); }
     function updateDayOutingDetail(idx, val) { state.days[idx].outingDetail = val; saveToStorage(); }
     function updateDayMinutes(idx, val) { state.days[idx].minutes = parseInt(val) || 0; calculateSettlement(); saveToStorage(); }
-    function toggleDayStudyProof(idx, val) { state.days[idx].studyProof = val; calculateSettlement(); saveToStorage(); }
-    function toggleDayService(idx, val) { state.days[idx].serviceOuting = val; calculateSettlement(); saveToStorage(); }
 
     document.getElementById('week-start-date').addEventListener('change', (e) => {
       state.weekStart = e.target.value;
@@ -1193,12 +1262,10 @@
 
     function saveWeekData() {
       saveToStorage();
-      alert('Weekly settlement data successfully saved to device!');
+      alert('Weekly settlement and proof entries successfully saved to device!');
     }
 
     window.onload = loadFromStorage;
   </script>
 </body>
 </html>
-
-```
