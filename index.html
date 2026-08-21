@@ -3,17 +3,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Spiritual Proofs & Accountability</title>
+  <title>Spiritual Proofs & Accountability System</title>
   <meta name="theme-color" content="#0f172a" />
-  <meta name="mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <link rel="manifest" href="manifest.json" />
   <style>
     :root {
       --bg-main: #f1f5f9;
       --card-bg: #ffffff;
       --navy-dark: #0f172a;
       --navy-mid: #1e293b;
+      --slate-hdr: #334155;
       --accent-blue: #2563eb;
       --text-main: #1e293b;
       --text-muted: #64748b;
@@ -89,7 +87,7 @@
     }
     .container {
       padding: 12px;
-      max-width: 600px;
+      max-width: 700px;
       margin: 0 auto;
     }
     .tab-content {
@@ -167,6 +165,23 @@
     select:focus, input:focus {
       border-color: var(--accent-blue);
     }
+    .select-with-add {
+      display: flex;
+      gap: 6px;
+    }
+    .btn-small-add {
+      background-color: var(--slate-hdr);
+      color: #ffffff;
+      border: none;
+      padding: 0 12px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
     .check-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -219,8 +234,8 @@
       gap: 10px;
     }
     .stepper button {
-      width: 28px;
-      height: 28px;
+      width: 32px;
+      height: 32px;
       border-radius: 6px;
       background-color: #e2e8f0;
       border: 1px solid #cbd5e1;
@@ -234,7 +249,7 @@
     .stepper span {
       font-weight: 700;
       font-size: 13px;
-      min-width: 20px;
+      min-width: 24px;
       text-align: center;
     }
     .summary-box {
@@ -269,6 +284,29 @@
       font-size: 13px;
       font-weight: 700;
       color: #ffffff;
+    }
+    .tag-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+    .tag-item {
+      background-color: #f1f5f9;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      padding: 4px 8px;
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .tag-item button {
+      background: none;
+      border: none;
+      color: var(--red-text);
+      font-weight: bold;
+      cursor: pointer;
     }
     nav.bottom-nav {
       position: fixed;
@@ -325,7 +363,7 @@
     <div class="header-content">
       <div>
         <div class="header-title">Spiritual Proofs & Accountability</div>
-        <div class="header-subtitle">Field Service, Study & Conduct Tracker</div>
+        <div class="header-subtitle">Dynamic Weekly Option Customizer</div>
       </div>
       <div class="net-badge" id="header-net-payout">$0.00</div>
     </div>
@@ -338,7 +376,7 @@
 
   <div class="container">
 
-    <!-- TAB 1: SUMMARY & SETTLEMENT -->
+    <!-- TAB 1: WEEKLY SETTLEMENT -->
     <div id="tab-settlement" class="tab-content active">
       <div class="summary-box">
         <div class="payout-title">Total Net Settlement Payout</div>
@@ -360,13 +398,13 @@
       </div>
 
       <div class="card">
-        <div class="card-title">Earnings Breakdown</div>
+        <div class="card-title">1. Base Allowance & Incentive Earnings</div>
         <div class="calc-row">
           <div class="calc-label">Base Chores & Ministry (3x Goal)</div>
           <div class="calc-val green" id="earn-base">$50.00</div>
         </div>
         <div class="calc-row">
-          <div class="calc-label">Daily Personal Study ($1/day)</div>
+          <div class="calc-label">Daily Personal Study ($1/day verified)</div>
           <div class="calc-val green" id="earn-study">$0.00</div>
         </div>
         <div class="calc-row">
@@ -374,7 +412,7 @@
           <div class="calc-val green" id="earn-study-bonus">$0.00</div>
         </div>
         <div class="calc-row">
-          <div class="calc-label">Tablet Incentive (Year 1)</div>
+          <div class="calc-label">Tablet Incentive (Year 1 Active)</div>
           <div class="calc-val green" id="earn-tablet">$15.00</div>
         </div>
         <div class="calc-row">
@@ -388,7 +426,18 @@
       </div>
 
       <div class="card">
-        <div class="card-title">Deductions Breakdown</div>
+        <div class="card-title">Performance / Proof Status (Weekly Select)</div>
+        <div class="form-group">
+          <label>Select or Add Status for this Week</label>
+          <div class="select-with-add">
+            <select id="sel-perf-status" onchange="state.perfStatus = this.value; saveToStorage();"></select>
+            <button class="btn-small-add" title="Add new option" onclick="promptAddNewOption('perfStatus')">+</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">2. Conduct Standards & Penalty Deductions</div>
         <div class="calc-row">
           <div class="calc-label">Foul Language / Single Vulgarity</div>
           <div class="calc-val red" id="ded-lang">-$0.00</div>
@@ -398,58 +447,58 @@
           <div class="calc-val red" id="ded-excess-lang">-$0.00</div>
         </div>
         <div class="calc-row">
-          <div class="calc-label">Maternal Disrespect Offenses</div>
+          <div class="calc-label">Maternal Disrespect Offenses (-$5/off.)</div>
           <div class="calc-val red" id="ded-respect">-$0.00</div>
         </div>
         <div class="calc-row">
-          <div class="calc-label">Intentional Hip-Hop Violations</div>
+          <div class="calc-label">Intentional Hip-Hop Violations (Tiered)</div>
           <div class="calc-val red" id="ded-hiphop">-$0.00</div>
         </div>
         <div class="calc-row" style="font-weight:700; border-top:1px solid #cbd5e1; padding-top:8px;">
-          <div class="calc-label">Total Penalties</div>
+          <div class="calc-label">Total Conduct Deductions</div>
           <div class="calc-val red" id="ded-total">-$0.00</div>
         </div>
       </div>
 
       <div class="card">
-        <div class="card-title">Weekly Sign-Off & Verification</div>
+        <div class="card-title">Incident Count / Proof (Weekly Select)</div>
         <div class="form-group">
-          <label>Participant Status</label>
-          <select id="sel-participant-status">
-            <option>Verified: 3 Outings + Chores Complete</option>
-            <option>Active (Year 1 Agreement)</option>
-            <option>Partial: Chores Incomplete</option>
-            <option>Pending Weekly Review</option>
-          </select>
+          <label>Select or Add Incident Proof Summary</label>
+          <div class="select-with-add">
+            <select id="sel-incident-status" onchange="state.incidentStatus = this.value; saveToStorage();"></select>
+            <button class="btn-small-add" title="Add new option" onclick="promptAddNewOption('incidentStatus')">+</button>
+          </div>
         </div>
-        <button class="btn-action" onclick="saveWeekData()">Save Current Week Data</button>
+      </div>
+
+      <div class="card">
+        <button class="btn-action" onclick="saveWeekData()">Save & Finalize Week</button>
       </div>
     </div>
 
-    <!-- TAB 2: SPIRITUAL PROOFS -->
+    <!-- TAB 2: SPIRITUAL PROOFS LOG -->
     <div id="tab-spiritual" class="tab-content">
       <div class="card">
         <div class="card-title">
-          <span>Daily Spiritual Proofs</span>
+          <span>Daily Spiritual Proofs & Ministry</span>
           <span style="font-size:11px; color:var(--text-muted);" id="study-count-badge">0/7 Days</span>
         </div>
         <div id="days-container"></div>
       </div>
 
       <div class="card">
-        <div class="card-title">Spiritual Study Conduct Boost</div>
+        <div class="card-title">Conduct Effort Bonus</div>
         <div class="form-group">
-          <label>Additional Conduct Effort Bonus ($)</label>
+          <label>Additional Study Conduct Increase ($)</label>
           <input type="number" id="study-conduct-bonus" min="0" max="10" step="1" value="0" />
         </div>
       </div>
     </div>
 
-    <!-- TAB 3: CONDUCT & ATTITUDE -->
+    <!-- TAB 3: CONDUCT & ATTITUDE LOG -->
     <div id="tab-conduct" class="tab-content">
-      <!-- Section A: Language -->
       <div class="card">
-        <div class="card-title">Language & Profanity Tracker</div>
+        <div class="card-title">Language & Vulgarity Tracker</div>
         <div class="form-group">
           <label>Logged Occurrences ("F-word" / Vulgarity)</label>
           <div class="stepper">
@@ -463,11 +512,10 @@
         </div>
       </div>
 
-      <!-- Section B: Respect -->
       <div class="card">
-        <div class="card-title">Maternal Respect Standard</div>
+        <div class="card-title">Family Respect Standard (Maternal Disrespect)</div>
         <div class="form-group">
-          <label>Informal Discretionary Warnings Issued</label>
+          <label>Informal Warnings Issued (Mother's Discretion)</label>
           <div class="stepper">
             <button onclick="updateStepper('count-warnings', -1)">-</button>
             <span id="count-warnings">0</span>
@@ -482,16 +530,12 @@
             <button onclick="updateStepper('count-respect-offenses', 1)">+</button>
           </div>
         </div>
-        <div style="font-size:11px; color:var(--text-muted);">
-          * Assessed solely at Mother's discretion upon any infraction occurrence.
-        </div>
       </div>
 
-      <!-- Section C: Hip Hop & Attitude -->
       <div class="card">
-        <div class="card-title">Intentional Hip-Hop Violations</div>
+        <div class="card-title">Intentional Hip-Hop & Attitude Reward</div>
         <div class="form-group">
-          <label>Intentional Violations Count</label>
+          <label>Intentional Hip-Hop Violations Count</label>
           <div class="stepper">
             <button onclick="updateStepper('count-hiphop', -1)">-</button>
             <span id="count-hiphop">0</span>
@@ -514,6 +558,45 @@
       </div>
     </div>
 
+    <!-- TAB 4: OPTIONS MANAGER -->
+    <div id="tab-options" class="tab-content">
+      <div class="card">
+        <div class="card-title">Manage Bible Reading / Study Topics</div>
+        <div class="form-group select-with-add">
+          <input type="text" id="input-new-topic" placeholder="Enter new custom study topic..." />
+          <button class="btn-small-add" onclick="addCustomOption('studyTopics', 'input-new-topic')">Add</button>
+        </div>
+        <div class="tag-list" id="list-studyTopics"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Manage Service Outing Details</div>
+        <div class="form-group select-with-add">
+          <input type="text" id="input-new-outing" placeholder="Enter new service outing detail..." />
+          <button class="btn-small-add" onclick="addCustomOption('outingDetails', 'input-new-outing')">Add</button>
+        </div>
+        <div class="tag-list" id="list-outingDetails"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Manage Performance / Proof Statuses</div>
+        <div class="form-group select-with-add">
+          <input type="text" id="input-new-perf" placeholder="Enter new performance status..." />
+          <button class="btn-small-add" onclick="addCustomOption('perfStatus', 'input-new-perf')">Add</button>
+        </div>
+        <div class="tag-list" id="list-perfStatus"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Manage Incident Count / Proof Options</div>
+        <div class="form-group select-with-add">
+          <input type="text" id="input-new-inc" placeholder="Enter new incident proof text..." />
+          <button class="btn-small-add" onclick="addCustomOption('incidentStatus', 'input-new-inc')">Add</button>
+        </div>
+        <div class="tag-list" id="list-incidentStatus"></div>
+      </div>
+    </div>
+
   </div>
 
   <!-- BOTTOM NAVIGATION -->
@@ -524,38 +607,66 @@
     </button>
     <button class="nav-btn" onclick="switchTab('spiritual', this)">
       <span class="nav-icon">📖</span>
-      <span>Spiritual Proofs</span>
+      <span>Spiritual</span>
     </button>
     <button class="nav-btn" onclick="switchTab('conduct', this)">
       <span class="nav-icon">⚖️</span>
-      <span>Conduct Log</span>
+      <span>Conduct</span>
+    </button>
+    <button class="nav-btn" onclick="switchTab('options', this)">
+      <span class="nav-icon">⚙️</span>
+      <span>Options</span>
     </button>
   </nav>
 
   <script>
     const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-    const STUDY_TOPICS = [
-      "Matthew Ch. 5-7 (Sermon on the Mount Meditation)",
-      "Weekly Bible Reading: 1 Corinthians 13",
-      "Watchtower Study Article & Paragraph Prep",
-      "Proverbs 3-4 Personal Reflection & Application",
-      "JW Broadcasting Monthly Program & Study Notes",
-      "Midweek Meeting Workbook Preparation",
-      "Return Visits & Scripture Practice",
-      "Sunday Public Discourse Scripture Review",
-      "Psalms Meditation & Personal Prayer",
-      "Family Worship Scripture Discussion"
-    ];
-    const OUTING_DETAILS = [
-      "Morning Group Field Service (2.0 hrs)",
-      "Weekend Door-to-Door Ministry (2.5 hrs)",
-      "Evening Cart / Public Witnessing (1.5 hrs)",
-      "Return Visits & Bible Studies (2.0 hrs)",
-      "Informal & Letter/Phone Witnessing (1.0 hr)",
-      "Midweek Ministry Outing (1.5 hrs)",
-      "Congregation Meeting Prep / Rest Day",
-      "No Service Scheduled"
-    ];
+
+    const DEFAULT_OPTIONS = {
+      studyTopics: [
+        "Matthew Ch. 5-7 (Sermon on the Mount Meditation)",
+        "Weekly Bible Reading: 1 Corinthians 13",
+        "Watchtower Study Article & Paragraph Prep",
+        "Proverbs 3-4 Personal Reflection & Application",
+        "JW Broadcasting Monthly Program & Study Notes",
+        "Midweek Meeting Workbook Preparation",
+        "Return Visits & Scripture Practice",
+        "Sunday Public Discourse Scripture Review",
+        "Psalms Meditation & Personal Prayer",
+        "Family Worship Scripture Discussion"
+      ],
+      outingDetails: [
+        "Morning Group Field Service (2.0 hrs)",
+        "Weekend Door-to-Door Ministry (2.5 hrs)",
+        "Evening Cart / Public Witnessing (1.5 hrs)",
+        "Return Visits & Bible Studies (2.0 hrs)",
+        "Informal & Letter/Phone Witnessing (1.0 hr)",
+        "Midweek Ministry Outing (1.5 hrs)",
+        "Congregation Meeting Prep / Rest Day",
+        "No Service Scheduled"
+      ],
+      perfStatus: [
+        "Verified: 3 Outings + Chores Complete",
+        "Verified from 'Spiritual Proofs' (7/7 days)",
+        "Verified: Study Proof Provided (Partial)",
+        "Active (Year 1 Agreement)",
+        "Attitude Score: Good (Linked from Conduct Tab)",
+        "Attitude Score: Exemplary (Linked from Conduct Tab)",
+        "Partial: Chores Incomplete",
+        "Pending Weekly Review"
+      ],
+      incidentStatus: [
+        "0 occurrences logged (Clean week)",
+        "1 occurrence logged (-$5.00)",
+        "2 occurrences logged (-$5.00)",
+        "3 occurrences logged (-$5.00)",
+        "4 occurrences logged (-$5.00)",
+        "5+ occurrences logged (Excessive: -$15.00 total)",
+        "0 formal penalties assessed (In full standing)",
+        "1 formal warning issued (No penalty applied)",
+        "1 penalty assessed by Mother (-$5.00)"
+      ]
+    };
 
     let state = {
       weekStart: '',
@@ -565,18 +676,21 @@
       warningsCount: 0,
       respectOffenses: 0,
       hiphopCount: 0,
-      attitudeRating: 5
+      attitudeRating: 5,
+      perfStatus: '',
+      incidentStatus: '',
+      customOptions: JSON.parse(JSON.stringify(DEFAULT_OPTIONS))
     };
 
     function initDays() {
       state.days = DAYS.map((name, i) => ({
         name,
         offset: i,
-        topic: STUDY_TOPICS[i % STUDY_TOPICS.length],
+        topic: state.customOptions.studyTopics[i % state.customOptions.studyTopics.length],
         minutes: 20,
         studyProof: true,
         serviceOuting: i === 1 || i === 3 || i === 5,
-        outingDetail: i === 1 || i === 3 || i === 5 ? OUTING_DETAILS[i % 3] : OUTING_DETAILS[7]
+        outingDetail: i === 1 || i === 3 || i === 5 ? state.customOptions.outingDetails[i % 3] : state.customOptions.outingDetails[7]
       }));
     }
 
@@ -599,15 +713,21 @@
           </div>
           <div class="form-group">
             <label>Bible Study Topic / Meditation Material</label>
-            <select onchange="updateDayTopic(${idx}, this.value)">
-              ${STUDY_TOPICS.map(t => `<option value="${t}" ${t === d.topic ? 'selected' : ''}>${t}</option>`).join('')}
-            </select>
+            <div class="select-with-add">
+              <select onchange="updateDayTopic(${idx}, this.value)">
+                ${state.customOptions.studyTopics.map(t => `<option value="${t}" ${t === d.topic ? 'selected' : ''}>${t}</option>`).join('')}
+              </select>
+              <button class="btn-small-add" title="Add topic" onclick="promptAddNewOption('studyTopics', ${idx})">+</button>
+            </div>
           </div>
           <div class="form-group">
             <label>Service Outing / Activity Details</label>
-            <select onchange="updateDayOutingDetail(${idx}, this.value)">
-              ${OUTING_DETAILS.map(o => `<option value="${o}" ${o === d.outingDetail ? 'selected' : ''}>${o}</option>`).join('')}
-            </select>
+            <div class="select-with-add">
+              <select onchange="updateDayOutingDetail(${idx}, this.value)">
+                ${state.customOptions.outingDetails.map(o => `<option value="${o}" ${o === d.outingDetail ? 'selected' : ''}>${o}</option>`).join('')}
+              </select>
+              <button class="btn-small-add" title="Add outing" onclick="promptAddNewOption('outingDetails', ${idx})">+</button>
+            </div>
           </div>
           <div class="form-group">
             <label>Study Minutes</label>
@@ -628,20 +748,88 @@
       });
     }
 
+    function renderSelectDropdowns() {
+      // 1. Performance status
+      const selPerf = document.getElementById('sel-perf-status');
+      selPerf.innerHTML = state.customOptions.perfStatus.map(s => `<option value="${s}" ${s === state.perfStatus ? 'selected' : ''}>${s}</option>`).join('');
+      if (!state.perfStatus && state.customOptions.perfStatus.length > 0) {
+        state.perfStatus = state.customOptions.perfStatus[0];
+      }
+
+      // 2. Incident status
+      const selInc = document.getElementById('sel-incident-status');
+      selInc.innerHTML = state.customOptions.incidentStatus.map(s => `<option value="${s}" ${s === state.incidentStatus ? 'selected' : ''}>${s}</option>`).join('');
+      if (!state.incidentStatus && state.customOptions.incidentStatus.length > 0) {
+        state.incidentStatus = state.customOptions.incidentStatus[0];
+      }
+    }
+
+    function renderOptionManagerLists() {
+      ['studyTopics', 'outingDetails', 'perfStatus', 'incidentStatus'].forEach(key => {
+        const container = document.getElementById(`list-${key}`);
+        if (!container) return;
+        container.innerHTML = state.customOptions[key].map((item, idx) => `
+          <div class="tag-item">
+            <span>${item}</span>
+            <button onclick="removeCustomOption('${key}', ${idx})" title="Remove option">&times;</button>
+          </div>
+        `).join('');
+      });
+    }
+
+    function addCustomOption(key, inputId) {
+      const input = document.getElementById(inputId);
+      const val = input.value.trim();
+      if (val && !state.customOptions[key].includes(val)) {
+        state.customOptions[key].push(val);
+        input.value = '';
+        saveToStorage();
+        renderOptionManagerLists();
+        renderSelectDropdowns();
+        renderDays();
+      }
+    }
+
+    function promptAddNewOption(key, dayIdx = null) {
+      const val = prompt(`Enter new option to add to this week's dropdown list:`);
+      if (val && val.trim()) {
+        const cleanVal = val.trim();
+        if (!state.customOptions[key].includes(cleanVal)) {
+          state.customOptions[key].push(cleanVal);
+        }
+        if (dayIdx !== null) {
+          if (key === 'studyTopics') state.days[dayIdx].topic = cleanVal;
+          if (key === 'outingDetails') state.days[dayIdx].outingDetail = cleanVal;
+        } else {
+          if (key === 'perfStatus') state.perfStatus = cleanVal;
+          if (key === 'incidentStatus') state.incidentStatus = cleanVal;
+        }
+        saveToStorage();
+        renderOptionManagerLists();
+        renderSelectDropdowns();
+        renderDays();
+      }
+    }
+
+    function removeCustomOption(key, idx) {
+      state.customOptions[key].splice(idx, 1);
+      saveToStorage();
+      renderOptionManagerLists();
+      renderSelectDropdowns();
+      renderDays();
+    }
+
     function calculateSettlement() {
-      // 1. Ministry & Base Chores ($50)
       const outingsCount = state.days.filter(d => d.serviceOuting).length;
       const baseEarned = 50.00;
 
-      // 2. Study Bonus ($1/day verified)
       const studyDaysCount = state.days.filter(d => d.studyProof && d.minutes >= 15).length;
       const studyEarned = studyDaysCount * 1.00;
       const studyBonus = parseFloat(state.studyConductBonus) || 0.00;
+      const totalStudyEarned = studyEarned + studyBonus;
 
-      // 3. Tablet Incentive ($15)
       const tabletEarned = 15.00;
 
-      // 4. Media & Attitude Reward ($5 to $7, $0 if Hip-Hop > 0)
       let mediaEarned = 0.00;
       if (state.hiphopCount === 0) {
         if (state.attitudeRating >= 4) mediaEarned = 7.00;
@@ -649,7 +837,7 @@
         else mediaEarned = 5.00;
       }
 
-      const grossEarnings = baseEarned + studyEarned + studyBonus + tabletEarned + mediaEarned;
+      const grossEarnings = baseEarned + totalStudyEarned + tabletEarned + mediaEarned;
 
       // Deductions
       let langDed = 0.00;
@@ -661,8 +849,8 @@
 
       let hiphopDed = 0.00;
       if (state.hiphopCount === 1) hiphopDed = 2.00;
-      else if (state.hiphopCount === 2) hiphopDed = 5.00; // 2 + 3
-      else if (state.hiphopCount === 3) hiphopDed = 9.00; // 2 + 3 + 4
+      else if (state.hiphopCount === 2) hiphopDed = 5.00;
+      else if (state.hiphopCount === 3) hiphopDed = 9.00;
       else if (state.hiphopCount > 3) hiphopDed = 9.00 + ((state.hiphopCount - 3) * 5.00);
 
       const totalDeductions = langDed + excessLangDed + respectDed + hiphopDed;
@@ -740,13 +928,16 @@
     });
 
     function saveToStorage() {
-      localStorage.setItem('spiritual_tracker_state', JSON.stringify(state));
+      localStorage.setItem('spiritual_tracker_state_v2', JSON.stringify(state));
     }
 
     function loadFromStorage() {
-      const saved = localStorage.getItem('spiritual_tracker_state');
+      const saved = localStorage.getItem('spiritual_tracker_state_v2');
       if (saved) {
         state = JSON.parse(saved);
+        if (!state.customOptions) {
+          state.customOptions = JSON.parse(JSON.stringify(DEFAULT_OPTIONS));
+        }
       } else {
         const today = new Date();
         const day = today.getDay();
@@ -762,20 +953,16 @@
       document.getElementById('count-hiphop').textContent = state.hiphopCount;
       document.getElementById('study-conduct-bonus').value = state.studyConductBonus;
       document.getElementById('sel-attitude-rating').value = state.attitudeRating;
+
+      renderOptionManagerLists();
+      renderSelectDropdowns();
       renderDays();
       calculateSettlement();
     }
 
     function saveWeekData() {
       saveToStorage();
-      alert('Weekly report successfully reconciled and saved!');
-    }
-
-    // Register Service Worker for PWA
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js').catch(() => {});
-      });
+      alert('Weekly report and custom dropdown options successfully saved!');
     }
 
     window.onload = loadFromStorage;
