@@ -29,7 +29,7 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     body { background-color: var(--bg-main); color: var(--text-main); -webkit-tap-highlight-color: transparent; }
 
-    /* FRONT-FACING SECURE LOGIN */
+    /* FRONT-FACING LOGIN & SELF-RESET */
     #login-screen {
       min-height: 100vh;
       display: flex;
@@ -63,6 +63,30 @@
       border: 1px solid #fecaca;
       margin-bottom: 12px;
       display: none;
+    }
+    .login-success {
+      background-color: var(--green-bg);
+      color: var(--green-text);
+      font-size: 11.5px;
+      font-weight: 600;
+      padding: 8px 10px;
+      border-radius: 6px;
+      border: 1px solid #a7f3d0;
+      margin-bottom: 12px;
+      display: none;
+    }
+    .link-action {
+      background: none;
+      border: none;
+      color: var(--accent-blue);
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: underline;
+      display: inline-block;
+      margin-top: 10px;
+      width: 100%;
+      text-align: center;
     }
 
     /* MAIN APP SHELL */
@@ -123,7 +147,7 @@
       outline: none;
     }
 
-    /* LEFT SIDEBAR NAVIGATION LAYOUT */
+    /* LEFT SIDEBAR NAVIGATION */
     .app-body-layout {
       display: flex;
       min-height: calc(100vh - 100px);
@@ -150,42 +174,21 @@
       border: none;
       border-radius: 10px;
       color: #94a3b8;
-      font-size: 9.5px;
+      font-size: 9px;
       font-weight: 700;
       gap: 4px;
       cursor: pointer;
-      padding: 10px 2px;
+      padding: 9px 2px;
       transition: all 0.2s ease;
-      position: relative;
     }
-    .nav-btn .nav-icon { font-size: 20px; }
+    .nav-btn .nav-icon { font-size: 19px; }
 
-    /* DISTINCT VIBRANT COLORS FOR EACH LEFT TAB */
-    .nav-btn.tab-settlement.active {
-      background: linear-gradient(135deg, #10b981, #059669);
-      color: #ffffff;
-      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
-    }
-    .nav-btn.tab-spiritual.active {
-      background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-      color: #ffffff;
-      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
-    }
-    .nav-btn.tab-conduct.active {
-      background: linear-gradient(135deg, #f59e0b, #d97706);
-      color: #ffffff;
-      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
-    }
-    .nav-btn.tab-options.active {
-      background: linear-gradient(135deg, #06b6d4, #0891b2);
-      color: #ffffff;
-      box-shadow: 0 4px 12px rgba(6, 182, 212, 0.4);
-    }
-    .nav-btn.tab-admin.active {
-      background: linear-gradient(135deg, #8b5cf6, #6d28d9);
-      color: #ffffff;
-      box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
-    }
+    .nav-btn.tab-settlement.active { background: linear-gradient(135deg, #10b981, #059669); color: #ffffff; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4); }
+    .nav-btn.tab-spiritual.active { background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: #ffffff; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4); }
+    .nav-btn.tab-conduct.active { background: linear-gradient(135deg, #f59e0b, #d97706); color: #ffffff; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4); }
+    .nav-btn.tab-options.active { background: linear-gradient(135deg, #06b6d4, #0891b2); color: #ffffff; box-shadow: 0 4px 12px rgba(6, 182, 212, 0.4); }
+    .nav-btn.tab-profile.active { background: linear-gradient(135deg, #ec4899, #be185d); color: #ffffff; box-shadow: 0 4px 12px rgba(236, 72, 153, 0.4); }
+    .nav-btn.tab-admin.active { background: linear-gradient(135deg, #8b5cf6, #6d28d9); color: #ffffff; box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4); }
 
     .container {
       flex: 1;
@@ -263,17 +266,8 @@
       justify-content: space-between;
       align-items: center;
     }
-    .verification-box.verified {
-      background-color: var(--green-bg);
-      border-color: #a7f3d0;
-    }
-    .status-tag {
-      font-size: 10px;
-      font-weight: 700;
-      padding: 2px 6px;
-      border-radius: 4px;
-      text-transform: uppercase;
-    }
+    .verification-box.verified { background-color: var(--green-bg); border-color: #a7f3d0; }
+    .status-tag { font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; }
     .status-tag.pending { background-color: var(--amber-bg); color: var(--amber-text); }
     .status-tag.approved { background-color: var(--green-bg); color: var(--green-text); }
 
@@ -359,21 +353,24 @@
       cursor: pointer;
       margin-top: 8px;
     }
+    .btn-action.secondary { background-color: #475569; }
   </style>
 </head>
 <body>
 
-  <!-- 1. FRONT-FACING SECURE LOGIN -->
+  <!-- 1. FRONT-FACING SECURE LOGIN & SELF PASSWORD RESET -->
   <div id="login-screen">
     <div class="login-container">
       <div class="login-header-logo">
         <div class="login-logo-icon">📖</div>
         <div class="login-title">Spiritual Proofs & Accountability</div>
-        <div class="login-subtitle">Sign in to record & verify weekly logs</div>
+        <div class="login-subtitle" id="auth-screen-subtitle">Sign in to access your portal</div>
       </div>
 
       <div id="login-error-msg" class="login-error"></div>
+      <div id="login-success-msg" class="login-success"></div>
 
+      <!-- STANDARD LOGIN FORM -->
       <form id="front-login-form" onsubmit="event.preventDefault(); handleFrontLogin();">
         <div class="form-group">
           <label>Username</label>
@@ -384,6 +381,25 @@
           <input type="password" id="front-login-password" placeholder="Enter password..." autocomplete="current-password" required />
         </div>
         <button type="submit" class="btn-action" style="padding:12px; font-size:13px;">Sign In</button>
+        <button type="button" class="link-action" onclick="toggleResetForm(true)">Forgot / Reset Password?</button>
+      </form>
+
+      <!-- SELF-SERVICE PASSWORD RESET FORM -->
+      <form id="front-reset-form" style="display:none;" onsubmit="event.preventDefault(); handleSelfPasswordReset();">
+        <div class="form-group">
+          <label>Your Username</label>
+          <input type="text" id="reset-self-username" placeholder="Enter your username..." required />
+        </div>
+        <div class="form-group">
+          <label>Current Password (or Admin Temporary PIN)</label>
+          <input type="password" id="reset-self-oldpass" placeholder="Enter existing password..." required />
+        </div>
+        <div class="form-group">
+          <label>New Password</label>
+          <input type="password" id="reset-self-newpass" placeholder="Enter new password..." required />
+        </div>
+        <button type="submit" class="btn-action" style="padding:12px; font-size:13px;">Save & Update Password</button>
+        <button type="button" class="link-action" onclick="toggleResetForm(false)">Back to Sign In</button>
       </form>
     </div>
   </div>
@@ -432,6 +448,10 @@
         <button class="nav-btn tab-options" onclick="switchTab('options', this)">
           <span class="nav-icon">⚙️</span>
           <span>Options</span>
+        </button>
+        <button class="nav-btn tab-profile" onclick="switchTab('profile', this)">
+          <span class="nav-icon">🔑</span>
+          <span>Security</span>
         </button>
         <button class="nav-btn tab-admin" id="nav-btn-admin" onclick="switchTab('admin', this)">
           <span class="nav-icon">👤</span>
@@ -666,7 +686,31 @@
           </div>
         </div>
 
-        <!-- TAB 5: ADMIN CONSOLE & RBAC MANAGEMENT -->
+        <!-- TAB 5: USER SELF-SERVICE PASSWORD SETTINGS -->
+        <div id="tab-profile" class="tab-content">
+          <div class="card">
+            <div class="card-title">My Account Security & Password</div>
+            <div class="form-group">
+              <label>Logged In User</label>
+              <input type="text" id="prof-display-username" disabled style="background-color:#f1f5f9; color:var(--text-muted);" />
+            </div>
+            <div class="form-group">
+              <label>Current Password</label>
+              <input type="password" id="prof-current-pass" placeholder="Enter current password..." />
+            </div>
+            <div class="form-group">
+              <label>New Password</label>
+              <input type="password" id="prof-new-pass" placeholder="Enter new password..." />
+            </div>
+            <div class="form-group">
+              <label>Confirm New Password</label>
+              <input type="password" id="prof-confirm-pass" placeholder="Re-enter new password..." />
+            </div>
+            <button class="btn-action" onclick="handleInAppPasswordChange()">Save & Update My Password</button>
+          </div>
+        </div>
+
+        <!-- TAB 6: ADMIN CONSOLE & USER MANAGEMENT (With Admin Password Resets) -->
         <div id="tab-admin" class="tab-content">
           <div class="card" id="admin-user-management-card">
             <div class="card-title">Add User (RBAC Authorization)</div>
@@ -692,8 +736,9 @@
             </div>
             <button class="btn-action" onclick="addNewAccountWithAuth()">Create Authorized Account</button>
 
+            <!-- REGISTERED ACCOUNTS WITH ADMIN PASSWORD RESET BUTTON -->
             <div style="margin-top:16px;">
-              <div class="card-title">Registered System Accounts</div>
+              <div class="card-title">Registered Accounts & Admin Password Resets</div>
               <div style="overflow-x: auto;">
                 <table class="user-table">
                   <thead>
@@ -792,6 +837,14 @@
 
     const STORAGE_KEY = 'spiritual_accountability_unified_state';
 
+    function toggleResetForm(show) {
+      document.getElementById('front-login-form').style.display = show ? 'none' : 'block';
+      document.getElementById('front-reset-form').style.display = show ? 'block' : 'none';
+      document.getElementById('auth-screen-subtitle').textContent = show ? 'Self-service password update' : 'Sign in to access your portal';
+      document.getElementById('login-error-msg').style.display = 'none';
+      document.getElementById('login-success-msg').style.display = 'none';
+    }
+
     function handleFrontLogin() {
       const u = document.getElementById('front-login-username').value.trim();
       const p = document.getElementById('front-login-password').value.trim();
@@ -817,6 +870,89 @@
       } else {
         errBox.textContent = 'Invalid username or password. Please try again.';
         errBox.style.display = 'block';
+      }
+    }
+
+    function handleSelfPasswordReset() {
+      const u = document.getElementById('reset-self-username').value.trim();
+      const oldP = document.getElementById('reset-self-oldpass').value.trim();
+      const newP = document.getElementById('reset-self-newpass').value.trim();
+      const errBox = document.getElementById('login-error-msg');
+      const succBox = document.getElementById('login-success-msg');
+
+      const found = state.accounts.find(a => a.username.toLowerCase() === u.toLowerCase());
+      if (!found) {
+        errBox.textContent = 'Username not found in system.';
+        errBox.style.display = 'block';
+        succBox.style.display = 'none';
+        return;
+      }
+
+      if (found.password !== oldP) {
+        errBox.textContent = 'Current password or PIN is incorrect.';
+        errBox.style.display = 'block';
+        succBox.style.display = 'none';
+        return;
+      }
+
+      if (!newP || newP.length < 4) {
+        errBox.textContent = 'New password must be at least 4 characters long.';
+        errBox.style.display = 'block';
+        succBox.style.display = 'none';
+        return;
+      }
+
+      found.password = newP;
+      saveToStorage();
+
+      errBox.style.display = 'none';
+      succBox.textContent = 'Password reset successfully! You can now sign in.';
+      succBox.style.display = 'block';
+      toggleResetForm(false);
+    }
+
+    function handleInAppPasswordChange() {
+      const user = getCurrentUser();
+      if (!user) return;
+
+      const curr = document.getElementById('prof-current-pass').value.trim();
+      const newP = document.getElementById('prof-new-pass').value.trim();
+      const confP = document.getElementById('prof-confirm-pass').value.trim();
+
+      if (user.password !== curr) {
+        alert('Current password does not match.');
+        return;
+      }
+      if (!newP || newP.length < 4) {
+        alert('New password must be at least 4 characters.');
+        return;
+      }
+      if (newP !== confP) {
+        alert('New passwords do not match.');
+        return;
+      }
+
+      user.password = newP;
+      saveToStorage();
+
+      document.getElementById('prof-current-pass').value = '';
+      document.getElementById('prof-new-pass').value = '';
+      document.getElementById('prof-confirm-pass').value = '';
+      alert('Your password has been successfully updated!');
+    }
+
+    function adminResetUserPassword(userId) {
+      const target = state.accounts.find(a => a.id === userId);
+      if (!target) return;
+
+      const newPass = prompt(`Enter new password for ${target.name} (@${target.username}):`);
+      if (newPass && newPass.trim().length >= 4) {
+        target.password = newPass.trim();
+        saveToStorage();
+        renderUserAdminSection();
+        alert(`Password for @${target.username} has been updated to: ${target.password}`);
+      } else if (newPass !== null) {
+        alert('Password was not saved. It must be at least 4 characters.');
       }
     }
 
@@ -878,6 +1014,7 @@
       }
 
       document.getElementById('readonly-banner').style.display = canWrite ? 'none' : 'block';
+      document.getElementById('prof-display-username').value = `${user.name} (@${user.username}) [${user.role.toUpperCase()}]`;
 
       document.querySelectorAll('.write-control').forEach(el => {
         if (el.tagName === 'BUTTON' || el.tagName === 'INPUT' || el.tagName === 'SELECT' || el.tagName === 'TEXTAREA') {
@@ -897,8 +1034,9 @@
           <td style="font-weight:600;">${a.name}</td>
           <td style="color:var(--text-muted);">@${a.username}</td>
           <td><span class="role-badge role-${a.role}">${a.role}</span></td>
-          <td>
-            ${state.accounts.length > 1 && a.id !== state.currentUser ? `<button style="color:var(--red-text); border:none; background:none; cursor:pointer; font-weight:bold;" onclick="removeAccount('${a.id}')">Delete</button>` : '<span style="color:#94a3b8; font-size:10px;">Active/Lock</span>'}
+          <td style="display:flex; gap:6px; flex-wrap:wrap;">
+            <button style="color:var(--accent-blue); border:none; background:none; cursor:pointer; font-weight:bold; font-size:11px;" onclick="adminResetUserPassword('${a.id}')">Reset Pass</button>
+            ${state.accounts.length > 1 && a.id !== state.currentUser ? `<button style="color:var(--red-text); border:none; background:none; cursor:pointer; font-weight:bold; font-size:11px;" onclick="removeAccount('${a.id}')">Delete</button>` : ''}
           </td>
         </tr>
       `).join('');
@@ -982,7 +1120,6 @@
             <input type="number" min="0" max="180" value="${d.minutes || 0}" ${!canWrite ? 'disabled' : ''} onchange="updateDayMinutes(${idx}, this.value)" />
           </div>
 
-          <!-- USER PROOF ENTRY BOX -->
           <div class="form-group">
             <label>Participant Proof Entry (Scriptures, Notes & Reflections)</label>
             <textarea placeholder="Type your personal study proof, key scriptures read, and meditation takeaways here..." ${!canWrite ? 'disabled' : ''} oninput="updateDayProofText(${idx}, this.value)">${d.userProofText || ''}</textarea>
@@ -998,7 +1135,6 @@
             </div>
           </div>
 
-          <!-- ADMIN VERIFICATION CONTROL BOX -->
           <div class="verification-box ${d.studyVerified ? 'verified' : ''}">
             <div>
               <div style="font-size:11px; font-weight:700; color:var(--navy-dark);">
@@ -1029,37 +1165,18 @@
       });
     }
 
-    function updateDayProofText(idx, val) {
-      state.days[idx].userProofText = val;
-      saveToStorage();
-    }
-
-    function toggleAdminStudyVerification(idx, val) {
-      state.days[idx].studyVerified = val;
-      saveToStorage();
-      calculateSettlement();
-      renderDays();
-    }
-
-    function toggleAdminServiceVerification(idx, val) {
-      state.days[idx].serviceVerified = val;
-      saveToStorage();
-      calculateSettlement();
-      renderDays();
-    }
+    function updateDayProofText(idx, val) { state.days[idx].userProofText = val; saveToStorage(); }
+    function toggleAdminStudyVerification(idx, val) { state.days[idx].studyVerified = val; saveToStorage(); calculateSettlement(); renderDays(); }
+    function toggleAdminServiceVerification(idx, val) { state.days[idx].serviceVerified = val; saveToStorage(); calculateSettlement(); renderDays(); }
 
     function renderSelectDropdowns() {
       const selPerf = document.getElementById('sel-perf-status');
       selPerf.innerHTML = state.customOptions.perfStatus.map(s => `<option value="${s}" ${s === state.perfStatus ? 'selected' : ''}>${s}</option>`).join('');
-      if (!state.perfStatus && state.customOptions.perfStatus.length > 0) {
-        state.perfStatus = state.customOptions.perfStatus[0];
-      }
+      if (!state.perfStatus && state.customOptions.perfStatus.length > 0) state.perfStatus = state.customOptions.perfStatus[0];
 
       const selInc = document.getElementById('sel-incident-status');
       selInc.innerHTML = state.customOptions.incidentStatus.map(s => `<option value="${s}" ${s === state.incidentStatus ? 'selected' : ''}>${s}</option>`).join('');
-      if (!state.incidentStatus && state.customOptions.incidentStatus.length > 0) {
-        state.incidentStatus = state.customOptions.incidentStatus[0];
-      }
+      if (!state.incidentStatus && state.customOptions.incidentStatus.length > 0) state.incidentStatus = state.customOptions.incidentStatus[0];
     }
 
     function renderOptionManagerLists() {
@@ -1093,9 +1210,7 @@
       const val = prompt(`Enter new option to add to this week's dropdown list:`);
       if (val && val.trim()) {
         const cleanVal = val.trim();
-        if (!state.customOptions[key].includes(cleanVal)) {
-          state.customOptions[key].push(cleanVal);
-        }
+        if (!state.customOptions[key].includes(cleanVal)) state.customOptions[key].push(cleanVal);
         if (dayIdx !== null) {
           if (key === 'studyTopics') state.days[dayIdx].topic = cleanVal;
           if (key === 'outingDetails') state.days[dayIdx].outingDetail = cleanVal;
@@ -1121,12 +1236,10 @@
     function calculateSettlement() {
       const outingsCount = state.days.filter(d => d.serviceVerified).length;
       const baseEarned = 50.00;
-
       const studyDaysCount = state.days.filter(d => d.studyVerified && (d.minutes >= 15)).length;
       const studyEarned = studyDaysCount * 1.00;
       const studyBonus = parseFloat(state.studyConductBonus) || 0.00;
       const totalStudyEarned = studyEarned + studyBonus;
-
       const tabletEarned = 15.00;
 
       let mediaEarned = 0.00;
@@ -1179,9 +1292,7 @@
       document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
       document.getElementById(`tab-${tabId}`).classList.add('active');
       el.classList.add('active');
-      if (tabId === 'admin') {
-        renderUserAdminSection();
-      }
+      if (tabId === 'admin') renderUserAdminSection();
     }
 
     function updateStepper(id, delta) {
