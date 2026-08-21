@@ -34,8 +34,78 @@
     body {
       background-color: var(--bg-main);
       color: var(--text-main);
-      padding-bottom: 75px;
       -webkit-tap-highlight-color: transparent;
+    }
+
+    /* FRONT-FACING LOGIN SCREEN */
+    #login-screen {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      background: radial-gradient(circle at top, #1e293b, #0f172a);
+      color: #ffffff;
+    }
+    .login-container {
+      width: 100%;
+      max-width: 380px;
+      background: #ffffff;
+      color: var(--text-main);
+      border-radius: 14px;
+      padding: 26px 20px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+    }
+    .login-header-logo {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .login-logo-icon {
+      font-size: 38px;
+      display: inline-block;
+      margin-bottom: 6px;
+    }
+    .login-title {
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--navy-dark);
+      letter-spacing: 0.3px;
+    }
+    .login-subtitle {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+    .login-error {
+      background-color: var(--red-bg);
+      color: var(--red-text);
+      font-size: 11.5px;
+      font-weight: 600;
+      padding: 8px 10px;
+      border-radius: 6px;
+      border: 1px solid #fecaca;
+      margin-bottom: 12px;
+      display: none;
+    }
+    .login-defaults-box {
+      background-color: #f8fafc;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 10px;
+      margin-top: 16px;
+      font-size: 10.5px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+    .login-defaults-box strong {
+      color: var(--navy-mid);
+    }
+
+    /* MAIN APP SHELL */
+    #app-shell {
+      display: none;
+      padding-bottom: 75px;
     }
     header {
       background-color: var(--navy-dark);
@@ -52,13 +122,14 @@
       align-items: center;
     }
     .header-title {
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 700;
       letter-spacing: 0.3px;
     }
-    .header-subtitle {
-      font-size: 11px;
-      color: #94a3b8;
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
     .user-pill {
       display: flex;
@@ -80,6 +151,16 @@
     .role-admin { background-color: var(--purple-bg); color: var(--purple-text); }
     .role-readwrite { background-color: var(--green-bg); color: var(--green-text); }
     .role-readonly { background-color: var(--amber-bg); color: var(--amber-text); }
+    .btn-logout {
+      background-color: #334155;
+      border: none;
+      color: #ffffff;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+    }
 
     .date-bar {
       background-color: var(--navy-mid);
@@ -351,30 +432,6 @@
       margin-bottom: 10px;
       display: none;
     }
-    .auth-modal {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-color: rgba(15, 23, 42, 0.85);
-      z-index: 1000;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 16px;
-    }
-    .auth-modal.active {
-      display: flex;
-    }
-    .auth-card {
-      background: #ffffff;
-      border-radius: 12px;
-      padding: 20px;
-      width: 100%;
-      max-width: 360px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-    }
     nav.bottom-nav {
       position: fixed;
       bottom: 0;
@@ -425,363 +482,364 @@
     .btn-action.secondary {
       background-color: #64748b;
     }
-    .btn-action.danger {
-      background-color: var(--red-text);
-    }
   </style>
 </head>
 <body>
 
-  <!-- MODAL: LOGIN / RE-AUTH -->
-  <div id="login-modal" class="auth-modal">
-    <div class="auth-card">
-      <div style="font-size:16px; font-weight:700; color:var(--navy-dark); margin-bottom:4px;">Account Login</div>
-      <div style="font-size:11px; color:var(--text-muted); margin-bottom:14px;">Sign in with your username and password</div>
-      <div class="form-group">
-        <label>Username</label>
-        <input type="text" id="login-username" placeholder="Enter username..." />
-      </div>
-      <div class="form-group">
-        <label>Password</label>
-        <input type="password" id="login-password" placeholder="Enter password..." />
-      </div>
-      <button class="btn-action" onclick="handleLogin()">Sign In</button>
-      <div style="font-size:10px; color:var(--text-muted); margin-top:12px; line-height:1.4;">
-        Default Admin: <strong>admin</strong> / <strong>admin123</strong><br>
-        Default Child: <strong>child</strong> / <strong>pass123</strong>
-      </div>
-    </div>
-  </div>
-
-  <header>
-    <div class="header-content">
-      <div>
-        <div class="header-title">Spiritual Proofs & Accountability</div>
-        <div class="header-subtitle">RBAC Secure Account & Admin System</div>
-      </div>
-      <div class="user-pill">
-        <span id="current-user-name" style="font-weight:600;">Admin</span>
-        <span class="role-badge role-admin" id="current-role-badge">ADMIN</span>
-      </div>
-    </div>
-  </header>
-
-  <div class="date-bar">
-    <span>Week Commencing (Mon):</span>
-    <input type="date" id="week-start-date" />
-  </div>
-
-  <div class="container">
-    <div class="readonly-banner" id="readonly-banner">
-      ⚠️ <strong>Read-Only Mode:</strong> You are logged in with view-only permissions. To modify records, sign in with a Read/Write or Admin account.
-    </div>
-
-    <!-- TAB 1: WEEKLY SETTLEMENT -->
-    <div id="tab-settlement" class="tab-content active">
-      <div class="summary-box">
-        <div class="payout-title">Total Net Settlement Payout</div>
-        <div class="payout-amount" id="disp-net-payout">$0.00</div>
-        <div class="summary-stats">
-          <div>
-            <div>Ministry Outings</div>
-            <div class="summary-stat-val" id="disp-stat-outings">0 / 3</div>
-          </div>
-          <div>
-            <div>Study Days</div>
-            <div class="summary-stat-val" id="disp-stat-study">0 / 7</div>
-          </div>
-          <div>
-            <div>Total Deductions</div>
-            <div class="summary-stat-val" style="color:#f87171;" id="disp-stat-deductions">-$0.00</div>
-          </div>
-        </div>
+  <!-- 1. FRONT-FACING LOGIN VIEW -->
+  <div id="login-screen">
+    <div class="login-container">
+      <div class="login-header-logo">
+        <div class="login-logo-icon">📖</div>
+        <div class="login-title">Spiritual Proofs & Accountability</div>
+        <div class="login-subtitle">Sign in to access your weekly portal</div>
       </div>
 
-      <div class="card">
-        <div class="card-title">1. Base Allowance & Incentive Earnings</div>
-        <div class="calc-row">
-          <div class="calc-label">Base Chores & Ministry (3x Goal)</div>
-          <div class="calc-val green" id="earn-base">$50.00</div>
-        </div>
-        <div class="calc-row">
-          <div class="calc-label">Daily Personal Study ($1/day verified)</div>
-          <div class="calc-val green" id="earn-study">$0.00</div>
-        </div>
-        <div class="calc-row">
-          <div class="calc-label">Conduct Study Bonus Increase</div>
-          <div class="calc-val green" id="earn-study-bonus">$0.00</div>
-        </div>
-        <div class="calc-row">
-          <div class="calc-label">Tablet Incentive (Year 1 Active)</div>
-          <div class="calc-val green" id="earn-tablet">$15.00</div>
-        </div>
-        <div class="calc-row">
-          <div class="calc-label">Media & Attitude Reward (No Hip Hop)</div>
-          <div class="calc-val green" id="earn-media">$5.00</div>
-        </div>
-        <div class="calc-row" style="font-weight:700; border-top:1px solid #cbd5e1; padding-top:8px;">
-          <div class="calc-label">Total Gross Earnings</div>
-          <div class="calc-val green" id="earn-total">$70.00</div>
-        </div>
-      </div>
+      <div id="login-error-msg" class="login-error"></div>
 
-      <div class="card">
-        <div class="card-title">Performance / Proof Status (Weekly Select)</div>
-        <div class="form-group">
-          <label>Select or Add Status for this Week</label>
-          <div class="select-with-add">
-            <select id="sel-perf-status" onchange="state.perfStatus = this.value; saveToStorage();"></select>
-            <button class="btn-small-add write-control" title="Add new option" onclick="promptAddNewOption('perfStatus')">+</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">2. Conduct Standards & Penalty Deductions</div>
-        <div class="calc-row">
-          <div class="calc-label">Foul Language / Single Vulgarity</div>
-          <div class="calc-val red" id="ded-lang">-$0.00</div>
-        </div>
-        <div class="calc-row">
-          <div class="calc-label">Excessive Vulgarity (>4x)</div>
-          <div class="calc-val red" id="ded-excess-lang">-$0.00</div>
-        </div>
-        <div class="calc-row">
-          <div class="calc-label">Maternal Disrespect Offenses (-$5/off.)</div>
-          <div class="calc-val red" id="ded-respect">-$0.00</div>
-        </div>
-        <div class="calc-row">
-          <div class="calc-label">Intentional Hip-Hop Violations (Tiered)</div>
-          <div class="calc-val red" id="ded-hiphop">-$0.00</div>
-        </div>
-        <div class="calc-row" style="font-weight:700; border-top:1px solid #cbd5e1; padding-top:8px;">
-          <div class="calc-label">Total Conduct Deductions</div>
-          <div class="calc-val red" id="ded-total">-$0.00</div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">Incident Count / Proof (Weekly Select)</div>
-        <div class="form-group">
-          <label>Select or Add Incident Proof Summary</label>
-          <div class="select-with-add">
-            <select id="sel-incident-status" onchange="state.incidentStatus = this.value; saveToStorage();"></select>
-            <button class="btn-small-add write-control" title="Add new option" onclick="promptAddNewOption('incidentStatus')">+</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="card write-control">
-        <button class="btn-action" onclick="saveWeekData()">Save & Finalize Week</button>
-      </div>
-    </div>
-
-    <!-- TAB 2: SPIRITUAL PROOFS LOG -->
-    <div id="tab-spiritual" class="tab-content">
-      <div class="card">
-        <div class="card-title">
-          <span>Daily Spiritual Proofs & Ministry</span>
-          <span style="font-size:11px; color:var(--text-muted);" id="study-count-badge">0/7 Days</span>
-        </div>
-        <div id="days-container"></div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">Conduct Effort Bonus</div>
-        <div class="form-group">
-          <label>Additional Study Conduct Increase ($)</label>
-          <input type="number" id="study-conduct-bonus" class="write-control" min="0" max="10" step="1" value="0" />
-        </div>
-      </div>
-    </div>
-
-    <!-- TAB 3: CONDUCT & ATTITUDE LOG -->
-    <div id="tab-conduct" class="tab-content">
-      <div class="card">
-        <div class="card-title">Language & Vulgarity Tracker</div>
-        <div class="form-group">
-          <label>Logged Occurrences ("F-word" / Vulgarity)</label>
-          <div class="stepper">
-            <button class="write-control" onclick="updateStepper('count-vulg', -1)">-</button>
-            <span id="count-vulg">0</span>
-            <button class="write-control" onclick="updateStepper('count-vulg', 1)">+</button>
-          </div>
-        </div>
-        <div style="font-size:11px; color:var(--text-muted); margin-top:6px;">
-          * -$5.00 for $\ge$1 occurrence; Additional -$10.00 if >4 occurrences.
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">Family Respect Standard (Maternal Disrespect)</div>
-        <div class="form-group">
-          <label>Informal Warnings Issued (Mother's Discretion)</label>
-          <div class="stepper">
-            <button class="write-control" onclick="updateStepper('count-warnings', -1)">-</button>
-            <span id="count-warnings">0</span>
-            <button class="write-control" onclick="updateStepper('count-warnings', 1)">+</button>
-          </div>
-        </div>
-        <div class="form-group">
-          <label>Formal Charged Offenses (-$5.00 each)</label>
-          <div class="stepper">
-            <button class="write-control" onclick="updateStepper('count-respect-offenses', -1)">-</button>
-            <span id="count-respect-offenses">0</span>
-            <button class="write-control" onclick="updateStepper('count-respect-offenses', 1)">+</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">Intentional Hip-Hop & Attitude Reward</div>
-        <div class="form-group">
-          <label>Intentional Hip-Hop Violations Count</label>
-          <div class="stepper">
-            <button class="write-control" onclick="updateStepper('count-hiphop', -1)">-</button>
-            <span id="count-hiphop">0</span>
-            <button class="write-control" onclick="updateStepper('count-hiphop', 1)">+</button>
-          </div>
-        </div>
-        <div style="font-size:11px; color:var(--text-muted); margin-bottom:10px;">
-          * 1st: -$2 | 2nd: -$3 | 3rd: -$4 | $\ge$4th: -$5 each (Forfeits Media Reward).
-        </div>
-        <div class="form-group">
-          <label>Attitude & Demeanor Rating (Scales $5.00 to $7.00)</label>
-          <select id="sel-attitude-rating" class="write-control">
-            <option value="5">5 - Exemplary ($7.00 Max Reward)</option>
-            <option value="4">4 - Very Good ($7.00 Reward)</option>
-            <option value="3">3 - Good / Cooperative ($6.00 Reward)</option>
-            <option value="2">2 - Fair ($5.00 Base Floor)</option>
-            <option value="1">1 - Poor / Resistant ($5.00 Base Floor)</option>
-          </select>
-        </div>
-      </div>
-    </div>
-
-    <!-- TAB 4: OPTIONS MANAGER -->
-    <div id="tab-options" class="tab-content">
-      <div class="card">
-        <div class="card-title">Manage Bible Reading / Study Topics</div>
-        <div class="form-group select-with-add write-control">
-          <input type="text" id="input-new-topic" placeholder="Enter new custom study topic..." />
-          <button class="btn-small-add" onclick="addCustomOption('studyTopics', 'input-new-topic')">Add</button>
-        </div>
-        <div class="tag-list" id="list-studyTopics"></div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">Manage Service Outing Details</div>
-        <div class="form-group select-with-add write-control">
-          <input type="text" id="input-new-outing" placeholder="Enter new service outing detail..." />
-          <button class="btn-small-add" onclick="addCustomOption('outingDetails', 'input-new-outing')">Add</button>
-        </div>
-        <div class="tag-list" id="list-outingDetails"></div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">Manage Performance / Proof Statuses</div>
-        <div class="form-group select-with-add write-control">
-          <input type="text" id="input-new-perf" placeholder="Enter new performance status..." />
-          <button class="btn-small-add" onclick="addCustomOption('perfStatus', 'input-new-perf')">Add</button>
-        </div>
-        <div class="tag-list" id="list-perfStatus"></div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">Manage Incident Count / Proof Options</div>
-        <div class="form-group select-with-add write-control">
-          <input type="text" id="input-new-inc" placeholder="Enter new incident proof text..." />
-          <button class="btn-small-add" onclick="addCustomOption('incidentStatus', 'input-new-inc')">Add</button>
-        </div>
-        <div class="tag-list" id="list-incidentStatus"></div>
-      </div>
-    </div>
-
-    <!-- TAB 5: ADMIN & ACCOUNT MANAGEMENT -->
-    <div id="tab-admin" class="tab-content">
-      <!-- Current Session & Switch Account -->
-      <div class="card">
-        <div class="card-title">Active User Session</div>
-        <div class="calc-row">
-          <div class="calc-label">Logged In User</div>
-          <div class="calc-val" id="session-user-display">Admin</div>
-        </div>
-        <div class="calc-row">
-          <div class="calc-label">Assigned Role</div>
-          <div class="calc-val" id="session-role-display">ADMIN</div>
-        </div>
-        <button class="btn-action secondary" onclick="showLoginModal()">Switch / Log In With Another Account</button>
-      </div>
-
-      <!-- Add User with Username & Password (Admin Only) -->
-      <div class="card" id="admin-user-management-card">
-        <div class="card-title">Add User (RBAC Authorization)</div>
-        <div class="form-group">
-          <label>Display / Full Name</label>
-          <input type="text" id="new-user-fullname" placeholder="e.g. Lead Developer, Child, Mother" />
-        </div>
+      <form id="front-login-form" onsubmit="event.preventDefault(); handleFrontLogin();">
         <div class="form-group">
           <label>Username</label>
-          <input type="text" id="new-user-username" placeholder="e.g. jdoe, mother, elder1" />
+          <input type="text" id="front-login-username" placeholder="Enter username..." autocomplete="username" required />
         </div>
         <div class="form-group">
           <label>Password</label>
-          <input type="password" id="new-user-password" placeholder="Enter secure password..." />
+          <input type="password" id="front-login-password" placeholder="Enter password..." autocomplete="current-password" required />
         </div>
-        <div class="form-group">
-          <label>RBAC Role</label>
-          <select id="new-user-role">
-            <option value="admin">Admin (Full Control, User Management & Edits)</option>
-            <option value="readwrite">Read/Write (Can Edit Proofs, Chores & Conduct)</option>
-            <option value="readonly">Read-Only (Can View Payouts & Proofs Only)</option>
-          </select>
-        </div>
-        <button class="btn-action" onclick="addNewAccountWithAuth()">Create Authorized Account</button>
+        <button type="submit" class="btn-action" style="padding:12px; font-size:13px;">Sign In</button>
+      </form>
 
-        <div style="margin-top:14px;">
-          <label>Registered System Accounts</label>
-          <div style="overflow-x: auto;">
-            <table class="user-table">
-              <thead>
-                <tr>
-                  <th>Display Name</th>
-                  <th>Username</th>
-                  <th>Role</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody id="user-table-body"></tbody>
-            </table>
+      <div class="login-defaults-box">
+        <div><strong>Default Accounts:</strong></div>
+        <div>• <strong>admin</strong> / <strong>admin123</strong> (Administrator)</div>
+        <div>• <strong>child</strong> / <strong>pass123</strong> (Read/Write)</div>
+        <div>• <strong>guest</strong> / <strong>view123</strong> (Read-Only)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. AUTHENTICATED APP SHELL -->
+  <div id="app-shell">
+
+    <header>
+      <div class="header-content">
+        <div>
+          <div class="header-title">Spiritual Proofs & Accountability</div>
+          <div class="header-subtitle" id="header-user-role-label">Authenticated Portal</div>
+        </div>
+        <div class="header-actions">
+          <div class="user-pill">
+            <span id="current-user-name" style="font-weight:600;">Admin</span>
+            <span class="role-badge role-admin" id="current-role-badge">ADMIN</span>
+          </div>
+          <button class="btn-logout" onclick="handleLogout()" title="Log out">Sign Out</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="date-bar">
+      <span>Week Commencing (Mon):</span>
+      <input type="date" id="week-start-date" />
+    </div>
+
+    <div class="container">
+      <div class="readonly-banner" id="readonly-banner">
+        ⚠️ <strong>Read-Only Mode:</strong> You are signed in with view-only permissions. Modifying data requires a Read/Write or Admin account.
+      </div>
+
+      <!-- TAB 1: WEEKLY SETTLEMENT -->
+      <div id="tab-settlement" class="tab-content active">
+        <div class="summary-box">
+          <div class="payout-title">Total Net Settlement Payout</div>
+          <div class="payout-amount" id="disp-net-payout">$0.00</div>
+          <div class="summary-stats">
+            <div>
+              <div>Ministry Outings</div>
+              <div class="summary-stat-val" id="disp-stat-outings">0 / 3</div>
+            </div>
+            <div>
+              <div>Study Days</div>
+              <div class="summary-stat-val" id="disp-stat-study">0 / 7</div>
+            </div>
+            <div>
+              <div>Total Deductions</div>
+              <div class="summary-stat-val" style="color:#f87171;" id="disp-stat-deductions">-$0.00</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">1. Base Allowance & Incentive Earnings</div>
+          <div class="calc-row">
+            <div class="calc-label">Base Chores & Ministry (3x Goal)</div>
+            <div class="calc-val green" id="earn-base">$50.00</div>
+          </div>
+          <div class="calc-row">
+            <div class="calc-label">Daily Personal Study ($1/day verified)</div>
+            <div class="calc-val green" id="earn-study">$0.00</div>
+          </div>
+          <div class="calc-row">
+            <div class="calc-label">Conduct Study Bonus Increase</div>
+            <div class="calc-val green" id="earn-study-bonus">$0.00</div>
+          </div>
+          <div class="calc-row">
+            <div class="calc-label">Tablet Incentive (Year 1 Active)</div>
+            <div class="calc-val green" id="earn-tablet">$15.00</div>
+          </div>
+          <div class="calc-row">
+            <div class="calc-label">Media & Attitude Reward (No Hip Hop)</div>
+            <div class="calc-val green" id="earn-media">$5.00</div>
+          </div>
+          <div class="calc-row" style="font-weight:700; border-top:1px solid #cbd5e1; padding-top:8px;">
+            <div class="calc-label">Total Gross Earnings</div>
+            <div class="calc-val green" id="earn-total">$70.00</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Performance / Proof Status (Weekly Select)</div>
+          <div class="form-group">
+            <label>Select or Add Status for this Week</label>
+            <div class="select-with-add">
+              <select id="sel-perf-status" onchange="state.perfStatus = this.value; saveToStorage();"></select>
+              <button class="btn-small-add write-control" title="Add new option" onclick="promptAddNewOption('perfStatus')">+</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">2. Conduct Standards & Penalty Deductions</div>
+          <div class="calc-row">
+            <div class="calc-label">Foul Language / Single Vulgarity</div>
+            <div class="calc-val red" id="ded-lang">-$0.00</div>
+          </div>
+          <div class="calc-row">
+            <div class="calc-label">Excessive Vulgarity (>4x)</div>
+            <div class="calc-val red" id="ded-excess-lang">-$0.00</div>
+          </div>
+          <div class="calc-row">
+            <div class="calc-label">Maternal Disrespect Offenses (-$5/off.)</div>
+            <div class="calc-val red" id="ded-respect">-$0.00</div>
+          </div>
+          <div class="calc-row">
+            <div class="calc-label">Intentional Hip-Hop Violations (Tiered)</div>
+            <div class="calc-val red" id="ded-hiphop">-$0.00</div>
+          </div>
+          <div class="calc-row" style="font-weight:700; border-top:1px solid #cbd5e1; padding-top:8px;">
+            <div class="calc-label">Total Conduct Deductions</div>
+            <div class="calc-val red" id="ded-total">-$0.00</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Incident Count / Proof (Weekly Select)</div>
+          <div class="form-group">
+            <label>Select or Add Incident Proof Summary</label>
+            <div class="select-with-add">
+              <select id="sel-incident-status" onchange="state.incidentStatus = this.value; saveToStorage();"></select>
+              <button class="btn-small-add write-control" title="Add new option" onclick="promptAddNewOption('incidentStatus')">+</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card write-control">
+          <button class="btn-action" onclick="saveWeekData()">Save & Finalize Week</button>
+        </div>
+      </div>
+
+      <!-- TAB 2: SPIRITUAL PROOFS LOG -->
+      <div id="tab-spiritual" class="tab-content">
+        <div class="card">
+          <div class="card-title">
+            <span>Daily Spiritual Proofs & Ministry</span>
+            <span style="font-size:11px; color:var(--text-muted);" id="study-count-badge">0/7 Days</span>
+          </div>
+          <div id="days-container"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Conduct Effort Bonus</div>
+          <div class="form-group">
+            <label>Additional Study Conduct Increase ($)</label>
+            <input type="number" id="study-conduct-bonus" class="write-control" min="0" max="10" step="1" value="0" />
           </div>
         </div>
       </div>
+
+      <!-- TAB 3: CONDUCT & ATTITUDE LOG -->
+      <div id="tab-conduct" class="tab-content">
+        <div class="card">
+          <div class="card-title">Language & Vulgarity Tracker</div>
+          <div class="form-group">
+            <label>Logged Occurrences ("F-word" / Vulgarity)</label>
+            <div class="stepper">
+              <button class="write-control" onclick="updateStepper('count-vulg', -1)">-</button>
+              <span id="count-vulg">0</span>
+              <button class="write-control" onclick="updateStepper('count-vulg', 1)">+</button>
+            </div>
+          </div>
+          <div style="font-size:11px; color:var(--text-muted); margin-top:6px;">
+            * -$5.00 for $\ge$1 occurrence; Additional -$10.00 if >4 occurrences.
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Family Respect Standard (Maternal Disrespect)</div>
+          <div class="form-group">
+            <label>Informal Warnings Issued (Mother's Discretion)</label>
+            <div class="stepper">
+              <button class="write-control" onclick="updateStepper('count-warnings', -1)">-</button>
+              <span id="count-warnings">0</span>
+              <button class="write-control" onclick="updateStepper('count-warnings', 1)">+</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Formal Charged Offenses (-$5.00 each)</label>
+            <div class="stepper">
+              <button class="write-control" onclick="updateStepper('count-respect-offenses', -1)">-</button>
+              <span id="count-respect-offenses">0</span>
+              <button class="write-control" onclick="updateStepper('count-respect-offenses', 1)">+</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Intentional Hip-Hop & Attitude Reward</div>
+          <div class="form-group">
+            <label>Intentional Hip-Hop Violations Count</label>
+            <div class="stepper">
+              <button class="write-control" onclick="updateStepper('count-hiphop', -1)">-</button>
+              <span id="count-hiphop">0</span>
+              <button class="write-control" onclick="updateStepper('count-hiphop', 1)">+</button>
+            </div>
+          </div>
+          <div style="font-size:11px; color:var(--text-muted); margin-bottom:10px;">
+            * 1st: -$2 | 2nd: -$3 | 3rd: -$4 | $\ge$4th: -$5 each (Forfeits Media Reward).
+          </div>
+          <div class="form-group">
+            <label>Attitude & Demeanor Rating (Scales $5.00 to $7.00)</label>
+            <select id="sel-attitude-rating" class="write-control">
+              <option value="5">5 - Exemplary ($7.00 Max Reward)</option>
+              <option value="4">4 - Very Good ($7.00 Reward)</option>
+              <option value="3">3 - Good / Cooperative ($6.00 Reward)</option>
+              <option value="2">2 - Fair ($5.00 Base Floor)</option>
+              <option value="1">1 - Poor / Resistant ($5.00 Base Floor)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 4: OPTIONS MANAGER -->
+      <div id="tab-options" class="tab-content">
+        <div class="card">
+          <div class="card-title">Manage Bible Reading / Study Topics</div>
+          <div class="form-group select-with-add write-control">
+            <input type="text" id="input-new-topic" placeholder="Enter new custom study topic..." />
+            <button class="btn-small-add" onclick="addCustomOption('studyTopics', 'input-new-topic')">Add</button>
+          </div>
+          <div class="tag-list" id="list-studyTopics"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Manage Service Outing Details</div>
+          <div class="form-group select-with-add write-control">
+            <input type="text" id="input-new-outing" placeholder="Enter new service outing detail..." />
+            <button class="btn-small-add" onclick="addCustomOption('outingDetails', 'input-new-outing')">Add</button>
+          </div>
+          <div class="tag-list" id="list-outingDetails"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Manage Performance / Proof Statuses</div>
+          <div class="form-group select-with-add write-control">
+            <input type="text" id="input-new-perf" placeholder="Enter new performance status..." />
+            <button class="btn-small-add" onclick="addCustomOption('perfStatus', 'input-new-perf')">Add</button>
+          </div>
+          <div class="tag-list" id="list-perfStatus"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Manage Incident Count / Proof Options</div>
+          <div class="form-group select-with-add write-control">
+            <input type="text" id="input-new-inc" placeholder="Enter new incident proof text..." />
+            <button class="btn-small-add" onclick="addCustomOption('incidentStatus', 'input-new-inc')">Add</button>
+          </div>
+          <div class="tag-list" id="list-incidentStatus"></div>
+        </div>
+      </div>
+
+      <!-- TAB 5: ADMIN & RBAC USER CREATOR (Admin Only) -->
+      <div id="tab-admin" class="tab-content">
+        <div class="card" id="admin-user-management-card">
+          <div class="card-title">Add User (RBAC Authorization)</div>
+          <div class="form-group">
+            <label>Display / Full Name</label>
+            <input type="text" id="new-user-fullname" placeholder="e.g. Lead Developer, Child, Mother" />
+          </div>
+          <div class="form-group">
+            <label>Username</label>
+            <input type="text" id="new-user-username" placeholder="e.g. jdoe, mother, elder1" />
+          </div>
+          <div class="form-group">
+            <label>Password</label>
+            <input type="password" id="new-user-password" placeholder="Enter secure password..." />
+          </div>
+          <div class="form-group">
+            <label>RBAC Role</label>
+            <select id="new-user-role">
+              <option value="admin">Admin (Full Control, User Management & Edits)</option>
+              <option value="readwrite">Read/Write (Can Edit Proofs, Chores & Conduct)</option>
+              <option value="readonly">Read-Only (Can View Payouts & Proofs Only)</option>
+            </select>
+          </div>
+          <button class="btn-action" onclick="addNewAccountWithAuth()">Create Authorized Account</button>
+
+          <div style="margin-top:14px;">
+            <label>Registered System Accounts</label>
+            <div style="overflow-x: auto;">
+              <table class="user-table">
+                <thead>
+                  <tr>
+                    <th>Display Name</th>
+                    <th>Username</th>
+                    <th>Role</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="user-table-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
 
-  </div>
+    <!-- BOTTOM NAVIGATION -->
+    <nav class="bottom-nav">
+      <button class="nav-btn active" onclick="switchTab('settlement', this)">
+        <span class="nav-icon">📊</span>
+        <span>Settlement</span>
+      </button>
+      <button class="nav-btn" onclick="switchTab('spiritual', this)">
+        <span class="nav-icon">📖</span>
+        <span>Spiritual</span>
+      </button>
+      <button class="nav-btn" onclick="switchTab('conduct', this)">
+        <span class="nav-icon">⚖️</span>
+        <span>Conduct</span>
+      </button>
+      <button class="nav-btn" onclick="switchTab('options', this)">
+        <span class="nav-icon">⚙️</span>
+        <span>Options</span>
+      </button>
+      <button class="nav-btn" id="nav-btn-admin" onclick="switchTab('admin', this)">
+        <span class="nav-icon">👤</span>
+        <span>Admin</span>
+      </button>
+    </nav>
 
-  <!-- BOTTOM NAVIGATION -->
-  <nav class="bottom-nav">
-    <button class="nav-btn active" onclick="switchTab('settlement', this)">
-      <span class="nav-icon">📊</span>
-      <span>Settlement</span>
-    </button>
-    <button class="nav-btn" onclick="switchTab('spiritual', this)">
-      <span class="nav-icon">📖</span>
-      <span>Spiritual</span>
-    </button>
-    <button class="nav-btn" onclick="switchTab('conduct', this)">
-      <span class="nav-icon">⚖️</span>
-      <span>Conduct</span>
-    </button>
-    <button class="nav-btn" onclick="switchTab('options', this)">
-      <span class="nav-icon">⚙️</span>
-      <span>Options</span>
-    </button>
-    <button class="nav-btn" onclick="switchTab('admin', this)">
-      <span class="nav-icon">👤</span>
-      <span>Admin</span>
-    </button>
-  </nav>
+  </div>
 
   <script>
     const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
@@ -839,7 +897,7 @@
     };
 
     let state = {
-      currentUser: 'usr-1',
+      currentUser: null, // null requires login first
       accounts: JSON.parse(JSON.stringify(DEFAULT_ACCOUNTS)),
       weekStart: '',
       days: [],
@@ -854,6 +912,46 @@
       customOptions: JSON.parse(JSON.stringify(DEFAULT_OPTIONS))
     };
 
+    function handleFrontLogin() {
+      const u = document.getElementById('front-login-username').value.trim();
+      const p = document.getElementById('front-login-password').value.trim();
+      const errBox = document.getElementById('login-error-msg');
+
+      const found = state.accounts.find(a => a.username.toLowerCase() === u.toLowerCase() && a.password === p);
+      if (found) {
+        errBox.style.display = 'none';
+        state.currentUser = found.id;
+        sessionStorage.setItem('spiritual_logged_in_user', found.id);
+        saveToStorage();
+        showAppShell();
+      } else {
+        errBox.textContent = 'Invalid username or password. Please try again.';
+        errBox.style.display = 'block';
+      }
+    }
+
+    function handleLogout() {
+      state.currentUser = null;
+      sessionStorage.removeItem('spiritual_logged_in_user');
+      document.getElementById('front-login-username').value = '';
+      document.getElementById('front-login-password').value = '';
+      document.getElementById('login-error-msg').style.display = 'none';
+
+      document.getElementById('app-shell').style.display = 'none';
+      document.getElementById('login-screen').style.display = 'flex';
+    }
+
+    function showAppShell() {
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('app-shell').style.display = 'block';
+      applyRolePermissions();
+      renderDays();
+      renderUserAdminSection();
+      renderOptionManagerLists();
+      renderSelectDropdowns();
+      calculateSettlement();
+    }
+
     function initDays() {
       state.days = DAYS.map((name, i) => ({
         name,
@@ -867,77 +965,52 @@
     }
 
     function getCurrentUser() {
-      return state.accounts.find(a => a.id === state.currentUser) || state.accounts[0];
+      return state.accounts.find(a => a.id === state.currentUser) || null;
     }
 
     function applyRolePermissions() {
       const user = getCurrentUser();
+      if (!user) return;
+
       const isAdmin = user.role === 'admin';
       const canWrite = user.role === 'admin' || user.role === 'readwrite';
 
-      // Update header banner
+      // Header info
       document.getElementById('current-user-name').textContent = user.name;
       const roleBadge = document.getElementById('current-role-badge');
       roleBadge.textContent = user.role.toUpperCase();
       roleBadge.className = `role-badge role-${user.role}`;
 
-      // Update session card
-      document.getElementById('session-user-display').textContent = `${user.name} (@${user.username})`;
-      document.getElementById('session-role-display').textContent = user.role.toUpperCase();
+      // Admin nav tab visibility
+      document.getElementById('nav-btn-admin').style.display = isAdmin ? 'flex' : 'none';
 
-      // Show / hide read-only banner
+      // Read-only notification
       document.getElementById('readonly-banner').style.display = canWrite ? 'none' : 'block';
 
-      // Enable / disable inputs
+      // Enable/Disable write controls
       document.querySelectorAll('.write-control').forEach(el => {
         if (el.tagName === 'BUTTON' || el.tagName === 'INPUT' || el.tagName === 'SELECT') {
           el.disabled = !canWrite;
-          if (!canWrite) el.style.opacity = '0.5';
-          else el.style.opacity = '1';
+          el.style.opacity = canWrite ? '1' : '0.5';
         } else {
           el.style.display = canWrite ? '' : 'none';
         }
       });
-
-      // Admin only card
-      document.getElementById('admin-user-management-card').style.display = isAdmin ? 'block' : 'none';
     }
 
     function renderUserAdminSection() {
       const tbody = document.getElementById('user-table-body');
+      if (!tbody) return;
       tbody.innerHTML = state.accounts.map(a => `
         <tr>
           <td style="font-weight:600;">${a.name}</td>
           <td style="color:var(--text-muted);">@${a.username}</td>
           <td><span class="role-badge role-${a.role}">${a.role}</span></td>
           <td>
-            ${state.accounts.length > 1 ? `<button style="color:var(--red-text); border:none; background:none; cursor:pointer; font-weight:bold;" onclick="removeAccount('${a.id}')">Delete</button>` : 'Protected'}
+            ${state.accounts.length > 1 && a.id !== state.currentUser ? `<button style="color:var(--red-text); border:none; background:none; cursor:pointer; font-weight:bold;" onclick="removeAccount('${a.id}')">Delete</button>` : '<span style="color:#94a3b8; font-size:10px;">Active/Lock</span>'}
           </td>
         </tr>
       `).join('');
-    }
-
-    function showLoginModal() {
-      document.getElementById('login-username').value = '';
-      document.getElementById('login-password').value = '';
-      document.getElementById('login-modal').classList.add('active');
-    }
-
-    function handleLogin() {
-      const u = document.getElementById('login-username').value.trim();
-      const p = document.getElementById('login-password').value.trim();
-
-      const found = state.accounts.find(a => a.username.toLowerCase() === u.toLowerCase() && a.password === p);
-      if (found) {
-        state.currentUser = found.id;
-        document.getElementById('login-modal').classList.remove('active');
-        saveToStorage();
-        applyRolePermissions();
-        renderDays();
-        alert(`Welcome back, ${found.name}! Logged in as [${found.role.toUpperCase()}].`);
-      } else {
-        alert('Invalid username or password. Please try again.');
-      }
     }
 
     function addNewAccountWithAuth() {
@@ -952,12 +1025,12 @@
       const role = roleInput.value;
 
       if (!name || !username || !password) {
-        alert('Please provide a full display name, username, and password.');
+        alert('Please provide a display name, username, and password.');
         return;
       }
 
       if (state.accounts.some(a => a.username.toLowerCase() === username)) {
-        alert('This username already exists. Please choose a different username.');
+        alert('This username is already taken. Please choose another.');
         return;
       }
 
@@ -969,7 +1042,7 @@
 
       saveToStorage();
       renderUserAdminSection();
-      alert(`User account for "${name}" (@${username}) created successfully with [${role.toUpperCase()}] role.`);
+      alert(`User account "${name}" (@${username}) created successfully with role [${role.toUpperCase()}].`);
     }
 
     function removeAccount(userId) {
@@ -978,19 +1051,15 @@
         return;
       }
       state.accounts = state.accounts.filter(a => a.id !== userId);
-      if (state.currentUser === userId) {
-        state.currentUser = state.accounts[0].id;
-      }
       saveToStorage();
       renderUserAdminSection();
-      applyRolePermissions();
     }
 
     function renderDays() {
       const container = document.getElementById('days-container');
       container.innerHTML = '';
       const baseDate = new Date(state.weekStart + 'T00:00:00');
-      const canWrite = getCurrentUser().role !== 'readonly';
+      const canWrite = getCurrentUser() && (getCurrentUser().role !== 'readonly');
 
       state.days.forEach((d, idx) => {
         const dDate = new Date(baseDate);
@@ -1056,7 +1125,7 @@
     }
 
     function renderOptionManagerLists() {
-      const canWrite = getCurrentUser().role !== 'readonly';
+      const canWrite = getCurrentUser() && (getCurrentUser().role !== 'readonly');
       ['studyTopics', 'outingDetails', 'perfStatus', 'incidentStatus'].forEach(key => {
         const container = document.getElementById(`list-${key}`);
         if (!container) return;
@@ -1149,7 +1218,6 @@
       const netPayout = Math.max(0, grossEarnings - totalDeductions);
 
       // Update DOM
-      document.getElementById('header-net-payout').textContent = `$${netPayout.toFixed(2)}`;
       document.getElementById('disp-net-payout').textContent = `$${netPayout.toFixed(2)}`;
       document.getElementById('disp-stat-outings').textContent = `${outingsCount} / 3`;
       document.getElementById('disp-stat-study').textContent = `${studyDaysCount} / 7`;
@@ -1178,7 +1246,7 @@
     }
 
     function updateStepper(id, delta) {
-      if (getCurrentUser().role === 'readonly') return;
+      if (getCurrentUser() && getCurrentUser().role === 'readonly') return;
       if (id === 'count-vulg') {
         state.vulgCount = Math.max(0, state.vulgCount + delta);
         document.getElementById(id).textContent = state.vulgCount;
@@ -1221,15 +1289,14 @@
     });
 
     function saveToStorage() {
-      localStorage.setItem('spiritual_tracker_state_v4', JSON.stringify(state));
+      localStorage.setItem('spiritual_tracker_state_frontlogin', JSON.stringify(state));
     }
 
     function loadFromStorage() {
-      const saved = localStorage.getItem('spiritual_tracker_state_v4');
+      const saved = localStorage.getItem('spiritual_tracker_state_frontlogin');
       if (saved) {
         state = JSON.parse(saved);
         if (!state.accounts) state.accounts = JSON.parse(JSON.stringify(DEFAULT_ACCOUNTS));
-        if (!state.currentUser) state.currentUser = state.accounts[0].id;
         if (!state.customOptions) state.customOptions = JSON.parse(JSON.stringify(DEFAULT_OPTIONS));
       } else {
         const today = new Date();
@@ -1247,12 +1314,15 @@
       document.getElementById('study-conduct-bonus').value = state.studyConductBonus;
       document.getElementById('sel-attitude-rating').value = state.attitudeRating;
 
-      renderUserAdminSection();
-      applyRolePermissions();
-      renderOptionManagerLists();
-      renderSelectDropdowns();
-      renderDays();
-      calculateSettlement();
+      // Check for active session
+      const activeSessionUser = sessionStorage.getItem('spiritual_logged_in_user');
+      if (activeSessionUser && state.accounts.some(a => a.id === activeSessionUser)) {
+        state.currentUser = activeSessionUser;
+        showAppShell();
+      } else {
+        document.getElementById('login-screen').style.display = 'flex';
+        document.getElementById('app-shell').style.display = 'none';
+      }
     }
 
     function saveWeekData() {
