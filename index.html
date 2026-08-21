@@ -28,7 +28,7 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     body { background-color: var(--bg-main); color: var(--text-main); -webkit-tap-highlight-color: transparent; }
 
-    /* FRONT-FACING LOGIN SCREEN */
+    /* FRONT-FACING SECURE LOGIN SCREEN */
     #login-screen {
       min-height: 100vh;
       display: flex;
@@ -45,13 +45,13 @@
       background: #ffffff;
       color: var(--text-main);
       border-radius: 14px;
-      padding: 26px 20px;
+      padding: 28px 22px;
       box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
     }
-    .login-header-logo { text-align: center; margin-bottom: 20px; }
+    .login-header-logo { text-align: center; margin-bottom: 22px; }
     .login-logo-icon { font-size: 38px; display: inline-block; margin-bottom: 6px; }
     .login-title { font-size: 17px; font-weight: 800; color: var(--navy-dark); }
-    .login-subtitle { font-size: 11.5px; color: var(--text-muted); margin-top: 2px; }
+    .login-subtitle { font-size: 11.5px; color: var(--text-muted); margin-top: 3px; }
     .login-error {
       background-color: var(--red-bg);
       color: var(--red-text);
@@ -63,17 +63,6 @@
       margin-bottom: 12px;
       display: none;
     }
-    .login-defaults-box {
-      background-color: #f8fafc;
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      padding: 10px;
-      margin-top: 16px;
-      font-size: 10.5px;
-      color: var(--text-muted);
-      line-height: 1.5;
-    }
-    .login-defaults-box strong { color: var(--navy-mid); }
 
     /* MAIN APP SHELL */
     #app-shell { display: none; padding-bottom: 75px; }
@@ -318,7 +307,7 @@
 </head>
 <body>
 
-  <!-- 1. FRONT-FACING LOGIN VIEW -->
+  <!-- 1. FRONT-FACING SECURE LOGIN VIEW (NO PASSWORDS EXPOSED) -->
   <div id="login-screen">
     <div class="login-container">
       <div class="login-header-logo">
@@ -340,16 +329,6 @@
         </div>
         <button type="submit" class="btn-action" style="padding:12px; font-size:13px;">Sign In</button>
       </form>
-
-      <div class="login-defaults-box">
-        <div><strong>Default Accounts:</strong></div>
-        <div>• <strong>admin</strong> / <strong>admin123</strong> (Administrator)</div>
-        <div>• <strong>child</strong> / <strong>pass123</strong> (Read/Write)</div>
-        <div>• <strong>guest</strong> / <strong>view123</strong> (Read-Only)</div>
-        <div>• <strong>dad</strong> / <strong>dad123</strong> (Admin)</div>
-        <div>• <strong>mom</strong> / <strong>mom123</strong> (Admin)</div>
-        <div>• <strong>cj</strong> / <strong>cj123</strong> (Read-Only)</div>
-      </div>
     </div>
   </div>
 
@@ -364,1028 +343,7 @@
         </div>
         <div class="header-actions">
           <div class="user-pill">
-            <span id="current-user-name" style="font-weight:600;">Admin</span>
-            <span class="role-badge role-admin" id="current-role-badge">ADMIN</span>
-          </div>
-          <button class="btn-logout" onclick="handleLogout()" title="Log out">Sign Out</button>
-        </div>
-      </div>
-    </header>
-
-    <div class="date-bar">
-      <span>Week Commencing (Mon):</span>
-      <input type="date" id="week-start-date" />
-    </div>
-
-    <div class="container">
-      <div class="readonly-banner" id="readonly-banner">
-        ⚠️ <strong>Read-Only Mode:</strong> You are signed in with view-only permissions. Modifying data requires a Read/Write or Admin account.
-      </div>
-
-      <!-- TAB 1: WEEKLY SETTLEMENT -->
-      <div id="tab-settlement" class="tab-content active">
-        <div class="summary-box">
-          <div class="payout-title">Total Net Settlement Payout</div>
-          <div class="payout-amount" id="disp-net-payout">$0.00</div>
-          <div class="summary-stats">
-            <div>
-              <div>Ministry Outings</div>
-              <div class="summary-stat-val" id="disp-stat-outings">0 / 3</div>
-            </div>
-            <div>
-              <div>Study Days</div>
-              <div class="summary-stat-val" id="disp-stat-study">0 / 7</div>
-            </div>
-            <div>
-              <div>Total Deductions</div>
-              <div class="summary-stat-val" style="color:#f87171;" id="disp-stat-deductions">-$0.00</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-title">1. Base Allowance & Incentive Earnings</div>
-          <div class="calc-row">
-            <div class="calc-label">Base Chores & Ministry (3x Goal)</div>
-            <div class="calc-val green" id="earn-base">$50.00</div>
-          </div>
-          <div class="calc-row">
-            <div class="calc-label">Daily Personal Study ($1/day verified)</div>
-            <div class="calc-val green" id="earn-study">$0.00</div>
-          </div>
-          <div class="calc-row">
-            <div class="calc-label">Conduct Study Bonus Increase</div>
-            <div class="calc-val green" id="earn-study-bonus">$0.00</div>
-          </div>
-          <div class="calc-row">
-            <div class="calc-label">Tablet Incentive (Year 1 Active)</div>
-            <div class="calc-val green" id="earn-tablet">$15.00</div>
-          </div>
-          <div class="calc-row">
-            <div class="calc-label">Media & Attitude Reward (No Hip Hop)</div>
-            <div class="calc-val green" id="earn-media">$5.00</div>
-          </div>
-          <div class="calc-row" style="font-weight:700; border-top:1px solid #cbd5e1; padding-top:8px;">
-            <div class="calc-label">Total Gross Earnings</div>
-            <div class="calc-val green" id="earn-total">$70.00</div>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-title">Performance / Proof Status (Weekly Select)</div>
-          <div class="form-group">
-            <label>Select or Add Status for this Week</label>
-            <div class="select-with-add">
-              <select id="sel-perf-status" onchange="state.perfStatus = this.value; saveToStorage();"></select>
-              <button class="btn-small-add write-control" title="Add new option" onclick="promptAddNewOption('perfStatus')">+</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-title">2. Conduct Standards & Penalty Deductions</div>
-          <div class="calc-row">
-            <div class="calc-label">Foul Language / Single Vulgarity</div>
-            <div class="calc-val red" id="ded-lang">-$0.00</div>
-          </div>
-          <div class="calc-row">
-            <div class="calc-label">Excessive Vulgarity (>4x)</div>
-            <div class="calc-val red" id="ded-excess-lang">-$0.00</div>
-          </div>
-          <div class="calc-row">
-            <div class="calc-label">Maternal Disrespect Offenses (-$5/off.)</div>
-            <div class="calc-val red" id="ded-respect">-$0.00</div>
-          </div>
-          <div class="calc-row">
-            <div class="calc-label">Intentional Hip-Hop Violations (Tiered)</div>
-            <div class="calc-val red" id="ded-hiphop">-$0.00</div>
-          </div>
-          <div class="calc-row" style="font-weight:700; border-top:1px solid #cbd5e1; padding-top:8px;">
-            <div class="calc-label">Total Conduct Deductions</div>
-            <div class="calc-val red" id="ded-total">-$0.00</div>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-title">Incident Count / Proof (Weekly Select)</div>
-          <div class="form-group">
-            <label>Select or Add Incident Proof Summary</label>
-            <div class="select-with-add">
-              <select id="sel-incident-status" onchange="state.incidentStatus = this.value; saveToStorage();"></select>
-              <button class="btn-small-add write-control" title="Add new option" onclick="promptAddNewOption('incidentStatus')">+</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="card write-control">
-          <button class="btn-action" onclick="saveWeekData()">Save & Finalize Week</button>
-        </div>
-      </div>
-
-      <!-- TAB 2: SPIRITUAL PROOFS LOG -->
-      <div id="tab-spiritual" class="tab-content">
-        <div class="card">
-          <div class="card-title">
-            <span>Daily Spiritual Proofs & Ministry</span>
-            <span style="font-size:11px; color:var(--text-muted);" id="study-count-badge">0/7 Days</span>
-          </div>
-          <div id="days-container"></div>
-        </div>
-
-        <div class="card">
-          <div class="card-title">Conduct Effort Bonus</div>
-          <div class="form-group">
-            <label>Additional Study Conduct Increase ($)</label>
-            <input type="number" id="study-conduct-bonus" class="write-control" min="0" max="10" step="1" value="0" />
-          </div>
-        </div>
-      </div>
-
-      <!-- TAB 3: CONDUCT & ATTITUDE LOG -->
-      <div id="tab-conduct" class="tab-content">
-        <div class="card">
-          <div class="card-title">Language & Vulgarity Tracker</div>
-          <div class="form-group">
-            <label>Logged Occurrences ("F-word" / Vulgarity)</label>
-            <div class="stepper">
-              <button class="write-control" onclick="updateStepper('count-vulg', -1)">-</button>
-              <span id="count-vulg">0</span>
-              <button class="write-control" onclick="updateStepper('count-vulg', 1)">+</button>
-            </div>
-          </div>
-          <div style="font-size:11px; color:var(--text-muted); margin-top:6px;">
-            * -$5.00 for $\ge$1 occurrence; Additional -$10.00 if >4 occurrences.
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-title">Family Respect Standard (Maternal Disrespect)</div>
-          <div class="form-group">
-            <label>Informal Warnings Issued (Mother's Discretion)</label>
-            <div class="stepper">
-              <button class="write-control" onclick="updateStepper('count-warnings', -1)">-</button>
-              <span id="count-warnings">0</span>
-              <button class="write-control" onclick="updateStepper('count-warnings', 1)">+</button>
-            </div>
-          </div>
-          <div class="form-group">
-            <label>Formal Charged Offenses (-$5.00 each)</label>
-            <div class="stepper">
-              <button class="write-control" onclick="updateStepper('count-respect-offenses', -1)">-</button>
-              <span id="count-respect-offenses">0</span      color: #ffffff;
-      padding: 4px 8px;
-      border-radius: 6px;
-      font-size: 11px;
-      font-weight: 600;
-      cursor: pointer;
-    }
-
-    .date-bar {
-      background-color: var(--navy-mid);
-      color: #ffffff;
-      padding: 8px 16px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      font-size: 12px;
-    }
-    .date-bar input[type="date"] {
-      background-color: #334155;
-      border: 1px solid #475569;
-      color: #ffffff;
-      padding: 4px 8px;
-      border-radius: 4px;
-      font-size: 12px;
-      outline: none;
-    }
-    .container { padding: 12px; max-width: 700px; margin: 0 auto; }
-    .tab-content { display: none; }
-    .tab-content.active { display: block; }
-    .card {
-      background-color: var(--card-bg);
-      border-radius: 10px;
-      padding: 14px;
-      margin-bottom: 12px;
-      border: 1px solid var(--border-color);
-      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-    }
-    .card-title {
-      font-size: 13px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: var(--navy-dark);
-      margin-bottom: 10px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid #f1f5f9;
-      padding-bottom: 6px;
-    }
-    .day-row {
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      padding: 10px;
-      margin-bottom: 10px;
-      background-color: #fafbfc;
-    }
-    .day-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-    .day-name { font-weight: 700; font-size: 13px; color: var(--navy-mid); }
-    .day-date { font-size: 11px; color: var(--text-muted); }
-    .form-group { margin-bottom: 8px; }
-    .form-group:last-child { margin-bottom: 0; }
-    label { display: block; font-size: 11px; font-weight: 600; color: var(--text-muted); margin-bottom: 3px; }
-    select, input[type="text"], input[type="number"], input[type="password"] {
-      width: 100%;
-      padding: 8px 10px;
-      border-radius: 6px;
-      border: 1px solid var(--border-color);
-      font-size: 12px;
-      background-color: #ffffff;
-      color: var(--text-main);
-      outline: none;
-    }
-    select:focus, input:focus { border-color: var(--accent-blue); }
-    .select-with-add { display: flex; gap: 6px; }
-    .btn-small-add {
-      background-color: var(--slate-hdr);
-      color: #ffffff;
-      border: none;
-      padding: 0 12px;
-      border-radius: 6px;
-      font-size: 14px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-    .check-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      margin-top: 8px;
-      background-color: #ffffff;
-      padding: 8px;
-      border-radius: 6px;
-      border: 1px solid var(--border-color);
-    }
-    .check-item { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; }
-    .check-item input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--accent-blue); }
-    .calc-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 8px 0;
-      font-size: 12px;
-      border-bottom: 1px solid #f1f5f9;
-    }
-    .calc-row:last-child { border-bottom: none; }
-    .calc-label { font-weight: 600; color: var(--navy-mid); }
-    .calc-val { font-weight: 700; }
-    .calc-val.green { color: var(--green-text); }
-    .calc-val.red { color: var(--red-text); }
-    .stepper { display: flex; align-items: center; gap: 10px; }
-    .stepper button {
-      width: 32px;
-      height: 32px;
-      border-radius: 6px;
-      background-color: #e2e8f0;
-      border: 1px solid #cbd5e1;
-      font-weight: bold;
-      font-size: 14px;
-      cursor: pointer;
-    }
-    .stepper span { font-weight: 700; font-size: 13px; min-width: 24px; text-align: center; }
-    .summary-box {
-      background: linear-gradient(135deg, #0f172a, #1e293b);
-      color: #ffffff;
-      border-radius: 10px;
-      padding: 16px;
-      margin-bottom: 14px;
-    }
-    .summary-box .payout-title { font-size: 11px; text-transform: uppercase; color: #94a3b8; margin-bottom: 4px; }
-    .summary-box .payout-amount { font-size: 28px; font-weight: 800; color: #34d399; margin-bottom: 10px; }
-    .summary-stats {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 8px;
-      border-top: 1px solid #334155;
-      padding-top: 10px;
-      font-size: 11px;
-    }
-    .summary-stat-val { font-size: 13px; font-weight: 700; color: #ffffff; }
-    .tag-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
-    .tag-item {
-      background-color: #f1f5f9;
-      border: 1px solid var(--border-color);
-      border-radius: 4px;
-      padding: 4px 8px;
-      font-size: 11px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .tag-item button { background: none; border: none; color: var(--red-text); font-weight: bold; cursor: pointer; }
-    .user-table { width: 100%; border-collapse: collapse; font-size: 11px; margin-top: 8px; }
-    .user-table th, .user-table td { border: 1px solid var(--border-color); padding: 6px 8px; text-align: left; }
-    .user-table th { background-color: var(--slate-hdr); color: #ffffff; }
-    .user-table tr:nth-child(even) { background-color: #f8fafc; }
-    .readonly-banner {
-      background-color: var(--amber-bg);
-      color: var(--amber-text);
-      padding: 8px 12px;
-      border-radius: 6px;
-      border: 1px solid #fde68a;
-      font-size: 11px;
-      font-weight: 600;
-      margin-bottom: 10px;
-      display: none;
-    }
-    nav.bottom-nav {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 60px;
-      background-color: #ffffff;
-      border-top: 1px solid var(--border-color);
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-      z-index: 100;
-    }
-    .nav-btn {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      background: none;
-      border: none;
-      color: var(--text-muted);
-      font-size: 10px;
-      font-weight: 600;
-      gap: 3px;
-      cursor: pointer;
-    }
-    .nav-btn.active { color: var(--accent-blue); }
-    .nav-icon { font-size: 18px; }
-    .btn-action {
-      background-color: var(--navy-dark);
-      color: #ffffff;
-      border: none;
-      padding: 10px 14px;
-      border-radius: 6px;
-      font-size: 12px;
-      font-weight: 600;
-      width: 100%;
-      cursor: pointer;
-      margin-top: 8px;
-    }
-  </style>
-</head>
-<body>
-
-  <!-- 1. FRONT-FACING LOGIN VIEW -->
-  <div id="login-screen">
-    <div class="login-container">
-      <div class="login-header-logo">
-        <div class="login-logo-icon">📖</div>
-        <div class="login-title">Spiritual Proofs & Accountability</div>
-        <div class="login-subtitle">Sign in to access your weekly portal</div>
-      </div>
-
-      <div id="login-error-msg" class="login-error"></div>
-
-      <form id="front-login-form" onsubmit="event.preventDefault(); handleFrontLogin();">
-        <div class="form-group">
-          <label>Username</label>
-          <input type="text" id="front-login-username" placeholder="Enter username..." autocomplete="username" required />
-        </div>
-        <div class="form-group">
-          <label>Password</label>
-          <input type="password" id="front-login-password" placeholder="Enter password..." autocomplete="current-password" required />
-        </div>
-        <button type="submit" class="btn-action" style="padding:12px; font-size:13px;">Sign In</button>
-      </form>
-
-      <div class="login-defaults-box">
-        <div><strong>Default Accounts:</strong></div>
-        <div>• <strong>admin</strong> / <strong>admin123</strong> (Administrator)</div>
-        <div>• <strong>child</strong> / <strong>pass123</strong> (Read/Write)</div>
-        <div>• <strong>guest</strong> / <strong>view123</strong> (Read-Only)</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- 2. AUTHENTICATED APP SHELL -->
-  <div id="app-shell">
-
-    <header>
-      <div class="header-content">
-        <div>
-          <div class="header-title">Spiritual Proofs & Accountability</div>
-          <div class="header-subtitle" id="header-user-role-label">Authenticated Portal</div>
-        </div>
-        <div class="header-actions">
-          <div class="user-pill">
-            <span id="current-user-name" style="font-weight:600;">Admin</span>
-            <span class="role-badge role-admin" id="current-role-badge">ADMIN</span>
-          </div>
-          <button class="btn-logout" onclick="handleLogout()" title="Log out">Sign Out</button>
-        </div>
-      </div>
-    </header>
-
-    <div class="date-bar">
-      <span>Week Commencing (Mon):</span>
-      <input type="date" id="week-start-date" />
-    </div>
-
-    <div class="container">
-      <div class="readonly-banner" id="readonly-banner">
-        ⚠️ <strong>Read-Only Mode:</strong> You are signed in with view-only permissions. Modifying data requires a Read/Write or Admin account.
-      </div>
-
-      <!-- TAB 1: WEEKLY SETTLEMENT -->
-      <div id="tab-settlement" class="tab-content active">
-        <div class="summary-box">
-          <div class="payout-title">Total Net Settlement Payout</div>
-          <div class="payout-amount" id="disp-net-payout">$0.00</div>
-          <div class="summary-stats">
-            <div>
-              <div>Ministry Outings</div>
-              <div class="summary-stat-val" id="disp-stat-outings">0 / 3</div>
-            </div>
-            <div>
-              <div>Study Days</div>
-              <div class="summary-stat-val" id="disp-stat-study">0 / 7</div>
-            </div>
-            <div>
-              <div>Total Deductions</div>
-              <div class="summary-stat-val" style="color:#f87171;" id="disp-stat-deductions">-$0.00</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-title">1. Base Allowance & Incentive Earnings</div>
-          <div class="calc-row">
-            <div class="calc-label">Base Chores & Ministry (3x Goal)</div>
-            <div class="calc-val green" id="earn-base">$50.00</div>
-          </div>
-          <div class="calc-row">
-            <div class="calc-label">Daily Personal Study ($1/day verified)</div>
-            <div class="calc-val green" id="earn-study">$0.00</div>
-          </div>
-          <div class="calc-row">
-            <div class="calc-label">Conduct Study Bonus Increase</div>
-            <div class="calc-val green" id="earn-study-bonus">$0.00</div>
-          </div>
-          <div class="calc-row">
-            <div class="calc-label">Tablet Incentive (Year 1 Active)</div>
-            <div class="calc-val green" id="earn-tablet">$15.00</div>
-          </div>
-          <div class="calc-row">
-            <div class="calc-label">Media & Attitude Reward (No Hip Hop)</div>
-            <div class="calc-val green" id="earn-media">$5.00</div>
-          </div>
-          <div class="calc-row" style="font-weight:700; border-top:1px solid #cbd5e1; padding-top:8px;">
-            <div class="calc-label">Total Gross Earnings</div>
-            <div class="calc-val green" id="earn-total">$70.00</div>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-title">Performance / Proof Status (Weekly Select)</div>
-          <div class="form-group">
-            <label>Select or Add Status for this Week</label>
-            <div class="select-with-add">
-              <select id="sel-perf-status" onchange="state.perfStatus = this.value; saveToStorage();"></select>
-              <button class="btn-small-add write-control" title="Add new option" onclick="promptAddNewOption('perfStatus')">+</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-title">2. Conduct Standards & Penalty Deductions</div>
-          <div class="calc-row">
-            <div class="calc-label">Foul Language / Single Vulgarity</div>
-            <div class="calc-val red" id="ded-lang">-$0.00</div>
-          </div>
-          <div class="calc-row">
-            <div class="calc-label">Excessive Vulgarity (>4x)</div>
-            <div class="calc-val red" id="ded-excess-lang">-$0.00</div>
-          </div>
-          <div class="calc-row">
-            <div class="calc-label">Maternal Disrespect Offenses (-$5/off.)</div>
-            <div class="calc-val red" id="ded-respect">-$0.00</div>
-          </div>
-          <div class="calc-row">
-            <div class="calc-label">Intentional Hip-Hop Violations (Tiered)</div>
-            <div class="calc-val red" id="ded-hiphop">-$0.00</div>
-          </div>
-          <div class="calc-row" style="font-weight:700; border-top:1px solid #cbd5e1; padding-top:8px;">
-            <div class="calc-label">Total Conduct Deductions</div>
-            <div class="calc-val red" id="ded-total">-$0.00</div>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-title">Incident Count / Proof (Weekly Select)</div>
-          <div class="form-group">
-            <label>Select or Add Incident Proof Summary</label>
-            <div class="select-with-add">
-              <select id="sel-incident-status" onchange="state.incidentStatus = this.value; saveToStorage();"></select>
-              <button class="btn-small-add write-control" title="Add new option" onclick="promptAddNewOption('incidentStatus')">+</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="card write-control">
-          <button class="btn-action" onclick="saveWeekData()">Save & Finalize Week</button>
-        </div>
-      </div>
-
-      <!-- TAB 2: SPIRITUAL PROOFS LOG -->
-      <div id="tab-spiritual" class="tab-content">
-        <div class="card">
-          <div class="card-title">
-            <span>Daily Spiritual Proofs & Ministry</span>
-            <span style="font-size:11px; color:var(--text-muted);" id="study-count-badge">0/7 Days</span>
-          </div>
-          <div id="days-container"></div>
-        </div>
-
-        <div class="card">
-          <div class="card-title">Conduct Effort Bonus</div>
-          <div class="form-group">
-            <label>Additional Study Conduct Increase ($)</label>
-            <input type="number" id="study-conduct-bonus" class="write-control" min="0" max="10" step="1" value="0" />
-          </div>
-        </div>
-      </div>
-
-      <!-- TAB 3: CONDUCT & ATTITUDE LOG -->
-      <div id="tab-conduct" class="tab-content">
-        <div class="card">
-          <div class="card-title">Language & Vulgarity Tracker</div>
-          <div class="form-group">
-            <label>Logged Occurrences ("F-word" / Vulgarity)</label>
-            <div class="stepper">
-              <button class="write-control" onclick="updateStepper('count-vulg', -1)">-</button>
-              <span id="count-vulg">0</span>
-              <button class="write-control" onclick="updateStepper('count-vulg', 1)">+</button>
-            </div>
-          </div>
-          <div style="font-size:11px; color:var(--text-muted); margin-top:6px;">
-            * -$5.00 for $\ge$1 occurrence; Additional -$10.00 if >4 occurrences.
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-title">Family Respect Standard (Maternal Disrespect)</div>
-          <div class="form-group">
-            <label>Informal Warnings Issued (Mother's Discretion)</label>
-            <div class="stepper">
-              <button class="write-control" onclick="updateStepper('count-warnings', -1)">-</button>
-              <span id="count-warnings">0</span>
-              <button class="write-control" onclick="updateStepper('count-warnings', 1)">+</button>
-            </div>
-          </div>
-          <div class="form-group">
-            <label>Formal Charged Offenses (-$5.00 each)</label>
-            <div class="stepper">
-              <button class="write-control" onclick="updateStepper('count-respect-offenses', -1)">-</button>
-              <span id="count-respect-offenses">0</span>
-              <button class="write-control" onclick="updateStepper('count-respect-offenses', 1)">+</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-title">Intenti    }
-    header {
-      background-color: var(--navy-dark);
-      color: #ffffff;
-      padding: 12px 16px;
-      position: sticky;
-      top: 0;
-      z-index: 50;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-    }
-    .header-content {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .header-title {
-      font-size: 14px;
-      font-weight: 700;
-      letter-spacing: 0.3px;
-    }
-    .header-actions {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .user-pill {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      background-color: #1e293b;
-      padding: 4px 8px;
-      border-radius: 20px;
-      border: 1px solid #334155;
-      font-size: 11px;
-    }
-    .role-badge {
-      font-size: 9px;
-      font-weight: 800;
-      padding: 2px 6px;
-      border-radius: 10px;
-      text-transform: uppercase;
-    }
-    .role-admin { background-color: var(--purple-bg); color: var(--purple-text); }
-    .role-readwrite { background-color: var(--green-bg); color: var(--green-text); }
-    .role-readonly { background-color: var(--amber-bg); color: var(--amber-text); }
-    .btn-logout {
-      background-color: #334155;
-      border: none;
-      color: #ffffff;
-      padding: 4px 8px;
-      border-radius: 6px;
-      font-size: 11px;
-      font-weight: 600;
-      cursor: pointer;
-    }
-
-    .date-bar {
-      background-color: var(--navy-mid);
-      color: #ffffff;
-      padding: 8px 16px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      font-size: 12px;
-    }
-    .date-bar input[type="date"] {
-      background-color: #334155;
-      border: 1px solid #475569;
-      color: #ffffff;
-      padding: 4px 8px;
-      border-radius: 4px;
-      font-size: 12px;
-      outline: none;
-    }
-    .container {
-      padding: 12px;
-      max-width: 700px;
-      margin: 0 auto;
-    }
-    .tab-content {
-      display: none;
-    }
-    .tab-content.active {
-      display: block;
-    }
-    .card {
-      background-color: var(--card-bg);
-      border-radius: 10px;
-      padding: 14px;
-      margin-bottom: 12px;
-      border: 1px solid var(--border-color);
-      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-    }
-    .card-title {
-      font-size: 13px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: var(--navy-dark);
-      margin-bottom: 10px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid #f1f5f9;
-      padding-bottom: 6px;
-    }
-    .day-row {
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      padding: 10px;
-      margin-bottom: 10px;
-      background-color: #fafbfc;
-    }
-    .day-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 8px;
-    }
-    .day-name {
-      font-weight: 700;
-      font-size: 13px;
-      color: var(--navy-mid);
-    }
-    .day-date {
-      font-size: 11px;
-      color: var(--text-muted);
-    }
-    .form-group {
-      margin-bottom: 8px;
-    }
-    .form-group:last-child {
-      margin-bottom: 0;
-    }
-    label {
-      display: block;
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--text-muted);
-      margin-bottom: 3px;
-    }
-    select, input[type="text"], input[type="number"], input[type="password"] {
-      width: 100%;
-      padding: 8px 10px;
-      border-radius: 6px;
-      border: 1px solid var(--border-color);
-      font-size: 12px;
-      background-color: #ffffff;
-      color: var(--text-main);
-      outline: none;
-    }
-    select:focus, input:focus {
-      border-color: var(--accent-blue);
-    }
-    .select-with-add {
-      display: flex;
-      gap: 6px;
-    }
-    .btn-small-add {
-      background-color: var(--slate-hdr);
-      color: #ffffff;
-      border: none;
-      padding: 0 12px;
-      border-radius: 6px;
-      font-size: 14px;
-      font-weight: bold;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .check-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      margin-top: 8px;
-      background-color: #ffffff;
-      padding: 8px;
-      border-radius: 6px;
-      border: 1px solid var(--border-color);
-    }
-    .check-item {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 12px;
-      font-weight: 600;
-    }
-    .check-item input[type="checkbox"] {
-      width: 18px;
-      height: 18px;
-      accent-color: var(--accent-blue);
-    }
-    .calc-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 8px 0;
-      font-size: 12px;
-      border-bottom: 1px solid #f1f5f9;
-    }
-    .calc-row:last-child {
-      border-bottom: none;
-    }
-    .calc-label {
-      font-weight: 600;
-      color: var(--navy-mid);
-    }
-    .calc-val {
-      font-weight: 700;
-    }
-    .calc-val.green {
-      color: var(--green-text);
-    }
-    .calc-val.red {
-      color: var(--red-text);
-    }
-    .stepper {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .stepper button {
-      width: 32px;
-      height: 32px;
-      border-radius: 6px;
-      background-color: #e2e8f0;
-      border: 1px solid #cbd5e1;
-      font-weight: bold;
-      font-size: 14px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-    }
-    .stepper span {
-      font-weight: 700;
-      font-size: 13px;
-      min-width: 24px;
-      text-align: center;
-    }
-    .summary-box {
-      background: linear-gradient(135deg, #0f172a, #1e293b);
-      color: #ffffff;
-      border-radius: 10px;
-      padding: 16px;
-      margin-bottom: 14px;
-    }
-    .summary-box .payout-title {
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: #94a3b8;
-      margin-bottom: 4px;
-    }
-    .summary-box .payout-amount {
-      font-size: 28px;
-      font-weight: 800;
-      color: #34d399;
-      margin-bottom: 10px;
-    }
-    .summary-stats {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 8px;
-      border-top: 1px solid #334155;
-      padding-top: 10px;
-      font-size: 11px;
-    }
-    .summary-stat-val {
-      font-size: 13px;
-      font-weight: 700;
-      color: #ffffff;
-    }
-    .tag-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-top: 8px;
-    }
-    .tag-item {
-      background-color: #f1f5f9;
-      border: 1px solid var(--border-color);
-      border-radius: 4px;
-      padding: 4px 8px;
-      font-size: 11px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .tag-item button {
-      background: none;
-      border: none;
-      color: var(--red-text);
-      font-weight: bold;
-      cursor: pointer;
-    }
-    .user-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 11px;
-      margin-top: 8px;
-    }
-    .user-table th, .user-table td {
-      border: 1px solid var(--border-color);
-      padding: 6px 8px;
-      text-align: left;
-    }
-    .user-table th {
-      background-color: var(--slate-hdr);
-      color: #ffffff;
-    }
-    .user-table tr:nth-child(even) {
-      background-color: #f8fafc;
-    }
-    .readonly-banner {
-      background-color: var(--amber-bg);
-      color: var(--amber-text);
-      padding: 8px 12px;
-      border-radius: 6px;
-      border: 1px solid #fde68a;
-      font-size: 11px;
-      font-weight: 600;
-      margin-bottom: 10px;
-      display: none;
-    }
-    nav.bottom-nav {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 60px;
-      background-color: #ffffff;
-      border-top: 1px solid var(--border-color);
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-      z-index: 100;
-      box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
-    }
-    .nav-btn {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      background: none;
-      border: none;
-      color: var(--text-muted);
-      font-size: 10px;
-      font-weight: 600;
-      gap: 3px;
-      cursor: pointer;
-      padding: 6px 0;
-    }
-    .nav-btn.active {
-      color: var(--accent-blue);
-    }
-    .nav-icon {
-      font-size: 18px;
-    }
-    .btn-action {
-      background-color: var(--navy-dark);
-      color: #ffffff;
-      border: none;
-      padding: 10px 14px;
-      border-radius: 6px;
-      font-size: 12px;
-      font-weight: 600;
-      width: 100%;
-      cursor: pointer;
-      margin-top: 8px;
-    }
-    .btn-action.secondary {
-      background-color: #64748b;
-    }
-  </style>
-</head>
-<body>
-
-  <!-- 1. FRONT-FACING LOGIN VIEW -->
-  <div id="login-screen">
-    <div class="login-container">
-      <div class="login-header-logo">
-        <div class="login-logo-icon">📖</div>
-        <div class="login-title">Spiritual Proofs & Accountability</div>
-        <div class="login-subtitle">Sign in to access your weekly portal</div>
-      </div>
-
-      <div id="login-error-msg" class="login-error"></div>
-
-      <form id="front-login-form" onsubmit="event.preventDefault(); handleFrontLogin();">
-        <div class="form-group">
-          <label>Username</label>
-          <input type="text" id="front-login-username" placeholder="Enter username..." autocomplete="username" required />
-        </div>
-        <div class="form-group">
-          <label>Password</label>
-          <input type="password" id="front-login-password" placeholder="Enter password..." autocomplete="current-password" required />
-        </div>
-        <button type="submit" class="btn-action" style="padding:12px; font-size:13px;">Sign In</button>
-      </form>
-
-      <div class="login-defaults-box">
-        <div><strong>Default Accounts:</strong></div>
-        <div>• <strong>admin</strong> / <strong>admin123</strong> (Administrator)</div>
-        <div>• <strong>child</strong> / <strong>pass123</strong> (Read/Write)</div>
-        <div>• <strong>guest</strong> / <strong>view123</strong> (Read-Only)</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- 2. AUTHENTICATED APP SHELL -->
-  <div id="app-shell">
-
-    <header>
-      <div class="header-content">
-        <div>
-          <div class="header-title">Spiritual Proofs & Accountability</div>
-          <div class="header-subtitle" id="header-user-role-label">Authenticated Portal</div>
-        </div>
-        <div class="header-actions">
-          <div class="user-pill">
-            <span id="current-user-name" style="font-weight:600;">Admin</span>
+            <span id="current-user-name" style="font-weight:600;">User</span>
             <span class="role-badge role-admin" id="current-role-badge">ADMIN</span>
           </div>
           <button class="btn-logout" onclick="handleLogout()" title="Log out">Sign Out</button>
@@ -1624,7 +582,7 @@
         </div>
       </div>
 
-      <!-- TAB 5: ADMIN & RBAC USER CREATOR (Admin Only) -->
+      <!-- TAB 5: ADMIN CONSOLE & RBAC MANAGEMENT (Visible to Admins) -->
       <div id="tab-admin" class="tab-content">
         <div class="card" id="admin-user-management-card">
           <div class="card-title">Add User (RBAC Authorization)</div>
@@ -1650,8 +608,8 @@
           </div>
           <button class="btn-action" onclick="addNewAccountWithAuth()">Create Authorized Account</button>
 
-          <div style="margin-top:14px;">
-            <label>Registered System Accounts</label>
+          <div style="margin-top:16px;">
+            <div class="card-title">Registered System Accounts</div>
             <div style="overflow-x: auto;">
               <table class="user-table">
                 <thead>
@@ -1703,7 +661,10 @@
     const DEFAULT_ACCOUNTS = [
       { id: 'usr-1', name: 'Household Lead', username: 'admin', password: 'admin123', role: 'admin' },
       { id: 'usr-2', name: 'Adult Child', username: 'child', password: 'pass123', role: 'readwrite' },
-      { id: 'usr-3', name: 'Family Auditor', username: 'guest', password: 'view123', role: 'readonly' }
+      { id: 'usr-3', name: 'Family Auditor', username: 'guest', password: 'view123', role: 'readonly' },
+      { id: 'usr-4', name: 'Dad', username: 'dad', password: 'dad123', role: 'admin' },
+      { id: 'usr-5', name: 'Mom', username: 'mom', password: 'mom123', role: 'admin' },
+      { id: 'usr-6', name: 'Charles J', username: 'cj', password: 'cj123', role: 'readonly' }
     ];
 
     const DEFAULT_OPTIONS = {
@@ -1768,13 +729,23 @@
       customOptions: JSON.parse(JSON.stringify(DEFAULT_OPTIONS))
     };
 
-    // Unified storage key to prevent data loss across updates
     const STORAGE_KEY = 'spiritual_accountability_unified_state';
 
     function handleFrontLogin() {
       const u = document.getElementById('front-login-username').value.trim();
       const p = document.getElementById('front-login-password').value.trim();
       const errBox = document.getElementById('login-error-msg');
+
+      // Guarantee default accounts are merged into local storage state
+      DEFAULT_ACCOUNTS.forEach(def => {
+        const existing = state.accounts.find(a => a.username.toLowerCase() === def.username.toLowerCase());
+        if (!existing) {
+          state.accounts.push(def);
+        } else if (!existing.password) {
+          existing.password = def.password;
+          existing.role = def.role;
+        }
+      });
 
       const found = state.accounts.find(a => a.username.toLowerCase() === u.toLowerCase() && a.password === p);
       if (found) {
@@ -1831,22 +802,21 @@
       const user = getCurrentUser();
       if (!user) return;
 
-      const isAdmin = user.role === 'admin';
-      const canWrite = user.role === 'admin' || user.role === 'readwrite';
+      const isAdmin = (user.role === 'admin');
+      const canWrite = (user.role === 'admin' || user.role === 'readwrite');
 
-      // Header info
       document.getElementById('current-user-name').textContent = user.name;
       const roleBadge = document.getElementById('current-role-badge');
       roleBadge.textContent = user.role.toUpperCase();
       roleBadge.className = `role-badge role-${user.role}`;
 
-      // Admin nav tab visibility
-      document.getElementById('nav-btn-admin').style.display = isAdmin ? 'flex' : 'none';
+      const adminTabBtn = document.getElementById('nav-btn-admin');
+      if (adminTabBtn) {
+        adminTabBtn.style.display = isAdmin ? 'flex' : 'none';
+      }
 
-      // Read-only notification
       document.getElementById('readonly-banner').style.display = canWrite ? 'none' : 'block';
 
-      // Enable/Disable write controls
       document.querySelectorAll('.write-control').forEach(el => {
         if (el.tagName === 'BUTTON' || el.tagName === 'INPUT' || el.tagName === 'SELECT') {
           el.disabled = !canWrite;
@@ -2059,7 +1029,6 @@
 
       const grossEarnings = baseEarned + totalStudyEarned + tabletEarned + mediaEarned;
 
-      // Deductions
       let langDed = 0.00;
       let excessLangDed = 0.00;
       if (state.vulgCount > 0) langDed = 5.00;
@@ -2076,7 +1045,6 @@
       const totalDeductions = langDed + excessLangDed + respectDed + hiphopDed;
       const netPayout = Math.max(0, grossEarnings - totalDeductions);
 
-      // Update DOM
       document.getElementById('disp-net-payout').textContent = `$${netPayout.toFixed(2)}`;
       document.getElementById('disp-stat-outings').textContent = `${outingsCount} / 3`;
       document.getElementById('disp-stat-study').textContent = `${studyDaysCount} / 7`;
@@ -2102,6 +1070,9 @@
       document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
       document.getElementById(`tab-${tabId}`).classList.add('active');
       el.classList.add('active');
+      if (tabId === 'admin') {
+        renderUserAdminSection();
+      }
     }
 
     function updateStepper(id, delta) {
@@ -2152,7 +1123,6 @@
     }
 
     function loadFromStorage() {
-      // 1. Check for legacy version keys to seamlessly migrate existing accounts
       const legacyKeys = [
         'spiritual_tracker_state_v4',
         'spiritual_tracker_state_v3',
@@ -2164,15 +1134,12 @@
       let loadedState = null;
       const currentSaved = localStorage.getItem(STORAGE_KEY);
       if (currentSaved) {
-        loadedState = JSON.parse(currentSaved);
+        try { loadedState = JSON.parse(currentSaved); } catch(e) {}
       } else {
         for (const k of legacyKeys) {
           const oldData = localStorage.getItem(k);
           if (oldData) {
-            try {
-              loadedState = JSON.parse(oldData);
-              break;
-            } catch (e) {}
+            try { loadedState = JSON.parse(oldData); break; } catch (e) {}
           }
         }
       }
@@ -2180,15 +1147,16 @@
       if (loadedState) {
         state = Object.assign(state, loadedState);
 
-        // Merge existing accounts with default accounts to guarantee no account loss
+        const accountMap = new Map();
         if (loadedState.accounts && Array.isArray(loadedState.accounts)) {
-          const existingMap = new Map();
-          DEFAULT_ACCOUNTS.forEach(a => existingMap.set(a.username.toLowerCase(), a));
-          loadedState.accounts.forEach(a => {
-            if (a.username) existingMap.set(a.username.toLowerCase(), a);
-          });
-          state.accounts = Array.from(existingMap.values());
+          loadedState.accounts.forEach(a => { if (a.username) accountMap.set(a.username.toLowerCase(), a); });
         }
+        DEFAULT_ACCOUNTS.forEach(def => {
+          if (!accountMap.has(def.username.toLowerCase())) {
+            accountMap.set(def.username.toLowerCase(), def);
+          }
+        });
+        state.accounts = Array.from(accountMap.values());
 
         if (!state.customOptions) state.customOptions = JSON.parse(JSON.stringify(DEFAULT_OPTIONS));
       } else {
@@ -2212,7 +1180,6 @@
 
       saveToStorage();
 
-      // Check for active session
       const activeSessionUser = sessionStorage.getItem('spiritual_logged_in_user');
       if (activeSessionUser && state.accounts.some(a => a.id === activeSessionUser)) {
         state.currentUser = activeSessionUser;
