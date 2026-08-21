@@ -24,6 +24,7 @@
       --amber-text: #b45309;
       --purple-bg: #f5f3ff;
       --purple-text: #6d28d9;
+      --sidebar-w: 68px;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     body { background-color: var(--bg-main); color: var(--text-main); -webkit-tap-highlight-color: transparent; }
@@ -65,7 +66,7 @@
     }
 
     /* MAIN APP SHELL */
-    #app-shell { display: none; padding-bottom: 75px; }
+    #app-shell { display: none; }
     header {
       background-color: var(--navy-dark);
       color: #ffffff;
@@ -121,7 +122,77 @@
       font-size: 12px;
       outline: none;
     }
-    .container { padding: 12px; max-width: 700px; margin: 0 auto; }
+
+    /* LEFT SIDEBAR NAVIGATION LAYOUT */
+    .app-body-layout {
+      display: flex;
+      min-height: calc(100vh - 100px);
+    }
+    nav.left-nav {
+      width: var(--sidebar-w);
+      background-color: var(--navy-dark);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 10px 4px;
+      position: sticky;
+      top: 52px;
+      height: calc(100vh - 52px);
+      box-shadow: 2px 0 8px rgba(0,0,0,0.15);
+      z-index: 40;
+    }
+    .nav-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      border: none;
+      border-radius: 10px;
+      color: #94a3b8;
+      font-size: 9.5px;
+      font-weight: 700;
+      gap: 4px;
+      cursor: pointer;
+      padding: 10px 2px;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+    .nav-btn .nav-icon { font-size: 20px; }
+
+    /* DISTINCT VIBRANT COLORS FOR EACH LEFT TAB */
+    .nav-btn.tab-settlement.active {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+    }
+    .nav-btn.tab-spiritual.active {
+      background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+    }
+    .nav-btn.tab-conduct.active {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+    }
+    .nav-btn.tab-options.active {
+      background: linear-gradient(135deg, #06b6d4, #0891b2);
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(6, 182, 212, 0.4);
+    }
+    .nav-btn.tab-admin.active {
+      background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+    }
+
+    .container {
+      flex: 1;
+      padding: 12px 10px 40px 10px;
+      max-width: calc(100vw - var(--sidebar-w));
+      overflow-x: hidden;
+    }
     .tab-content { display: none; }
     .tab-content.active { display: block; }
     .card {
@@ -182,14 +253,6 @@
       cursor: pointer;
     }
 
-    /* Proof Section Styles */
-    .proof-input-box {
-      background-color: #ffffff;
-      border: 1px solid var(--border-color);
-      border-radius: 6px;
-      padding: 8px;
-      margin-top: 6px;
-    }
     .verification-box {
       margin-top: 8px;
       padding: 8px;
@@ -284,35 +347,6 @@
       margin-bottom: 10px;
       display: none;
     }
-    nav.bottom-nav {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 60px;
-      background-color: #ffffff;
-      border-top: 1px solid var(--border-color);
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-      z-index: 100;
-    }
-    .nav-btn {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      background: none;
-      border: none;
-      color: var(--text-muted);
-      font-size: 10px;
-      font-weight: 600;
-      gap: 3px;
-      cursor: pointer;
-    }
-    .nav-btn.active { color: var(--accent-blue); }
-    .nav-icon { font-size: 18px; }
     .btn-action {
       background-color: var(--navy-dark);
       color: #ffffff;
@@ -378,302 +412,307 @@
       <input type="date" id="week-start-date" />
     </div>
 
-    <div class="container">
-      <div class="readonly-banner" id="readonly-banner">
-        ⚠️ <strong>Read-Only Mode:</strong> You are signed in with view-only permissions. Modifying data requires a Read/Write or Admin account.
+    <!-- MAIN BODY WITH LEFT-ALIGNED NAVIGATION -->
+    <div class="app-body-layout">
+
+      <!-- LEFT-ALIGNED COLORED TABS -->
+      <nav class="left-nav">
+        <button class="nav-btn tab-settlement active" onclick="switchTab('settlement', this)">
+          <span class="nav-icon">📊</span>
+          <span>Settlement</span>
+        </button>
+        <button class="nav-btn tab-spiritual" onclick="switchTab('spiritual', this)">
+          <span class="nav-icon">📖</span>
+          <span>Spiritual</span>
+        </button>
+        <button class="nav-btn tab-conduct" onclick="switchTab('conduct', this)">
+          <span class="nav-icon">⚖️</span>
+          <span>Conduct</span>
+        </button>
+        <button class="nav-btn tab-options" onclick="switchTab('options', this)">
+          <span class="nav-icon">⚙️</span>
+          <span>Options</span>
+        </button>
+        <button class="nav-btn tab-admin" id="nav-btn-admin" onclick="switchTab('admin', this)">
+          <span class="nav-icon">👤</span>
+          <span>Admin</span>
+        </button>
+      </nav>
+
+      <!-- CONTENT AREA -->
+      <div class="container">
+        <div class="readonly-banner" id="readonly-banner">
+          ⚠️ <strong>Read-Only Mode:</strong> You are signed in with view-only permissions. Modifying data requires a Read/Write or Admin account.
+        </div>
+
+        <!-- TAB 1: WEEKLY SETTLEMENT -->
+        <div id="tab-settlement" class="tab-content active">
+          <div class="summary-box">
+            <div class="payout-title">Total Net Settlement Payout</div>
+            <div class="payout-amount" id="disp-net-payout">$0.00</div>
+            <div class="summary-stats">
+              <div>
+                <div>Verified Ministry</div>
+                <div class="summary-stat-val" id="disp-stat-outings">0 / 3</div>
+              </div>
+              <div>
+                <div>Verified Studies</div>
+                <div class="summary-stat-val" id="disp-stat-study">0 / 7</div>
+              </div>
+              <div>
+                <div>Total Deductions</div>
+                <div class="summary-stat-val" style="color:#f87171;" id="disp-stat-deductions">-$0.00</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">1. Base Allowance & Incentive Earnings</div>
+            <div class="calc-row">
+              <div class="calc-label">Base Chores & Ministry (3x Goal)</div>
+              <div class="calc-val green" id="earn-base">$50.00</div>
+            </div>
+            <div class="calc-row">
+              <div class="calc-label">Daily Personal Study ($1/day verified)</div>
+              <div class="calc-val green" id="earn-study">$0.00</div>
+            </div>
+            <div class="calc-row">
+              <div class="calc-label">Conduct Study Bonus Increase</div>
+              <div class="calc-val green" id="earn-study-bonus">$0.00</div>
+            </div>
+            <div class="calc-row">
+              <div class="calc-label">Tablet Incentive (Year 1 Active)</div>
+              <div class="calc-val green" id="earn-tablet">$15.00</div>
+            </div>
+            <div class="calc-row">
+              <div class="calc-label">Media & Attitude Reward (No Hip Hop)</div>
+              <div class="calc-val green" id="earn-media">$5.00</div>
+            </div>
+            <div class="calc-row" style="font-weight:700; border-top:1px solid #cbd5e1; padding-top:8px;">
+              <div class="calc-label">Total Gross Earnings</div>
+              <div class="calc-val green" id="earn-total">$70.00</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Performance / Proof Status (Weekly Select)</div>
+            <div class="form-group">
+              <label>Select or Add Status for this Week</label>
+              <div class="select-with-add">
+                <select id="sel-perf-status" onchange="state.perfStatus = this.value; saveToStorage();"></select>
+                <button class="btn-small-add write-control" title="Add new option" onclick="promptAddNewOption('perfStatus')">+</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">2. Conduct Standards & Penalty Deductions</div>
+            <div class="calc-row">
+              <div class="calc-label">Foul Language / Single Vulgarity</div>
+              <div class="calc-val red" id="ded-lang">-$0.00</div>
+            </div>
+            <div class="calc-row">
+              <div class="calc-label">Excessive Vulgarity (>4x)</div>
+              <div class="calc-val red" id="ded-excess-lang">-$0.00</div>
+            </div>
+            <div class="calc-row">
+              <div class="calc-label">Maternal Disrespect Offenses (-$5/off.)</div>
+              <div class="calc-val red" id="ded-respect">-$0.00</div>
+            </div>
+            <div class="calc-row">
+              <div class="calc-label">Intentional Hip-Hop Violations (Tiered)</div>
+              <div class="calc-val red" id="ded-hiphop">-$0.00</div>
+            </div>
+            <div class="calc-row" style="font-weight:700; border-top:1px solid #cbd5e1; padding-top:8px;">
+              <div class="calc-label">Total Conduct Deductions</div>
+              <div class="calc-val red" id="ded-total">-$0.00</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Incident Count / Proof (Weekly Select)</div>
+            <div class="form-group">
+              <label>Select or Add Incident Proof Summary</label>
+              <div class="select-with-add">
+                <select id="sel-incident-status" onchange="state.incidentStatus = this.value; saveToStorage();"></select>
+                <button class="btn-small-add write-control" title="Add new option" onclick="promptAddNewOption('incidentStatus')">+</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="card write-control">
+            <button class="btn-action" onclick="saveWeekData()">Save & Finalize Week</button>
+          </div>
+        </div>
+
+        <!-- TAB 2: SPIRITUAL PROOFS LOG -->
+        <div id="tab-spiritual" class="tab-content">
+          <div class="card">
+            <div class="card-title">
+              <span>Daily Spiritual Proofs & Ministry</span>
+              <span style="font-size:11px; color:var(--text-muted);" id="study-count-badge">0/7 Days Verified</span>
+            </div>
+            <div id="days-container"></div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Conduct Effort Bonus</div>
+            <div class="form-group">
+              <label>Additional Study Conduct Increase ($)</label>
+              <input type="number" id="study-conduct-bonus" class="write-control" min="0" max="10" step="1" value="0" />
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 3: CONDUCT & ATTITUDE LOG -->
+        <div id="tab-conduct" class="tab-content">
+          <div class="card">
+            <div class="card-title">Language & Vulgarity Tracker</div>
+            <div class="form-group">
+              <label>Logged Occurrences ("F-word" / Vulgarity)</label>
+              <div class="stepper">
+                <button class="write-control" onclick="updateStepper('count-vulg', -1)">-</button>
+                <span id="count-vulg">0</span>
+                <button class="write-control" onclick="updateStepper('count-vulg', 1)">+</button>
+              </div>
+            </div>
+            <div style="font-size:11px; color:var(--text-muted); margin-top:6px;">
+              * -$5.00 for $\ge$1 occurrence; Additional -$10.00 if >4 occurrences.
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Family Respect Standard (Maternal Disrespect)</div>
+            <div class="form-group">
+              <label>Informal Warnings Issued (Mother's Discretion)</label>
+              <div class="stepper">
+                <button class="write-control" onclick="updateStepper('count-warnings', -1)">-</button>
+                <span id="count-warnings">0</span>
+                <button class="write-control" onclick="updateStepper('count-warnings', 1)">+</button>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Formal Charged Offenses (-$5.00 each)</label>
+              <div class="stepper">
+                <button class="write-control" onclick="updateStepper('count-respect-offenses', -1)">-</button>
+                <span id="count-respect-offenses">0</span>
+                <button class="write-control" onclick="updateStepper('count-respect-offenses', 1)">+</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Intentional Hip-Hop & Attitude Reward</div>
+            <div class="form-group">
+              <label>Intentional Hip-Hop Violations Count</label>
+              <div class="stepper">
+                <button class="write-control" onclick="updateStepper('count-hiphop', -1)">-</button>
+                <span id="count-hiphop">0</span>
+                <button class="write-control" onclick="updateStepper('count-hiphop', 1)">+</button>
+              </div>
+            </div>
+            <div style="font-size:11px; color:var(--text-muted); margin-bottom:10px;">
+              * 1st: -$2 | 2nd: -$3 | 3rd: -$4 | $\ge$4th: -$5 each (Forfeits Media Reward).
+            </div>
+            <div class="form-group">
+              <label>Attitude & Demeanor Rating (Scales $5.00 to $7.00)</label>
+              <select id="sel-attitude-rating" class="write-control">
+                <option value="5">5 - Exemplary ($7.00 Max Reward)</option>
+                <option value="4">4 - Very Good ($7.00 Reward)</option>
+                <option value="3">3 - Good / Cooperative ($6.00 Reward)</option>
+                <option value="2">2 - Fair ($5.00 Base Floor)</option>
+                <option value="1">1 - Poor / Resistant ($5.00 Base Floor)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 4: OPTIONS MANAGER -->
+        <div id="tab-options" class="tab-content">
+          <div class="card">
+            <div class="card-title">Manage Bible Reading / Study Topics</div>
+            <div class="form-group select-with-add write-control">
+              <input type="text" id="input-new-topic" placeholder="Enter new custom study topic..." />
+              <button class="btn-small-add" onclick="addCustomOption('studyTopics', 'input-new-topic')">Add</button>
+            </div>
+            <div class="tag-list" id="list-studyTopics"></div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Manage Service Outing Details</div>
+            <div class="form-group select-with-add write-control">
+              <input type="text" id="input-new-outing" placeholder="Enter new service outing detail..." />
+              <button class="btn-small-add" onclick="addCustomOption('outingDetails', 'input-new-outing')">Add</button>
+            </div>
+            <div class="tag-list" id="list-outingDetails"></div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Manage Performance / Proof Statuses</div>
+            <div class="form-group select-with-add write-control">
+              <input type="text" id="input-new-perf" placeholder="Enter new performance status..." />
+              <button class="btn-small-add" onclick="addCustomOption('perfStatus', 'input-new-perf')">Add</button>
+            </div>
+            <div class="tag-list" id="list-perfStatus"></div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Manage Incident Count / Proof Options</div>
+            <div class="form-group select-with-add write-control">
+              <input type="text" id="input-new-inc" placeholder="Enter new incident proof text..." />
+              <button class="btn-small-add" onclick="addCustomOption('incidentStatus', 'input-new-inc')">Add</button>
+            </div>
+            <div class="tag-list" id="list-incidentStatus"></div>
+          </div>
+        </div>
+
+        <!-- TAB 5: ADMIN CONSOLE & RBAC MANAGEMENT -->
+        <div id="tab-admin" class="tab-content">
+          <div class="card" id="admin-user-management-card">
+            <div class="card-title">Add User (RBAC Authorization)</div>
+            <div class="form-group">
+              <label>Display / Full Name</label>
+              <input type="text" id="new-user-fullname" placeholder="e.g. Lead Developer, Child, Mother" />
+            </div>
+            <div class="form-group">
+              <label>Username</label>
+              <input type="text" id="new-user-username" placeholder="e.g. jdoe, mother, elder1" />
+            </div>
+            <div class="form-group">
+              <label>Password</label>
+              <input type="password" id="new-user-password" placeholder="Enter secure password..." />
+            </div>
+            <div class="form-group">
+              <label>RBAC Role</label>
+              <select id="new-user-role">
+                <option value="admin">Admin (Full Control, User Management & Edits)</option>
+                <option value="readwrite">Read/Write (Can Edit Proofs, Chores & Conduct)</option>
+                <option value="readonly">Read-Only (Can View Payouts & Proofs Only)</option>
+              </select>
+            </div>
+            <button class="btn-action" onclick="addNewAccountWithAuth()">Create Authorized Account</button>
+
+            <div style="margin-top:16px;">
+              <div class="card-title">Registered System Accounts</div>
+              <div style="overflow-x: auto;">
+                <table class="user-table">
+                  <thead>
+                    <tr>
+                      <th>Display Name</th>
+                      <th>Username</th>
+                      <th>Role</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="user-table-body"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
-
-      <!-- TAB 1: WEEKLY SETTLEMENT -->
-      <div id="tab-settlement" class="tab-content active">
-        <div class="summary-box">
-          <div class="payout-title">Total Net Settlement Payout</div>
-          <div class="payout-amount" id="disp-net-payout">$0.00</div>
-          <div class="summary-stats">
-            <div>
-              <div>Verified Ministry</div>
-              <div class="summary-stat-val" id="disp-stat-outings">0 / 3</div>
-            </div>
-            <div>
-              <div>Verified Studies</div>
-              <div class="summary-stat-val" id="disp-stat-study">0 / 7</div>
-            </div>
-            <div>
-              <div>Total Deductions</div>
-              <div class="summary-stat-val" style="color:#f87171;" id="disp-stat-deductions">-$0.00</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-title">1. Base Allowance & Incentive Earnings</div>
-          <div class="calc-row">
-            <div class="calc-label">Base Chores & Ministry (3x Goal)</div>
-            <div class="calc-val green" id="earn-base">$50.00</div>
-          </div>
-          <div class="calc-row">
-            <div class="calc-label">Daily Personal Study ($1/day verified)</div>
-            <div class="calc-val green" id="earn-study">$0.00</div>
-          </div>
-          <div class="calc-row">
-            <div class="calc-label">Conduct Study Bonus Increase</div>
-            <div class="calc-val green" id="earn-study-bonus">$0.00</div>
-          </div>
-          <div class="calc-row">
-            <div class="calc-label">Tablet Incentive (Year 1 Active)</div>
-            <div class="calc-val green" id="earn-tablet">$15.00</div>
-          </div>
-          <div class="calc-row">
-            <div class="calc-label">Media & Attitude Reward (No Hip Hop)</div>
-            <div class="calc-val green" id="earn-media">$5.00</div>
-          </div>
-          <div class="calc-row" style="font-weight:700; border-top:1px solid #cbd5e1; padding-top:8px;">
-            <div class="calc-label">Total Gross Earnings</div>
-            <div class="calc-val green" id="earn-total">$70.00</div>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-title">Performance / Proof Status (Weekly Select)</div>
-          <div class="form-group">
-            <label>Select or Add Status for this Week</label>
-            <div class="select-with-add">
-              <select id="sel-perf-status" onchange="state.perfStatus = this.value; saveToStorage();"></select>
-              <button class="btn-small-add write-control" title="Add new option" onclick="promptAddNewOption('perfStatus')">+</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-title">2. Conduct Standards & Penalty Deductions</div>
-          <div class="calc-row">
-            <div class="calc-label">Foul Language / Single Vulgarity</div>
-            <div class="calc-val red" id="ded-lang">-$0.00</div>
-          </div>
-          <div class="calc-row">
-            <div class="calc-label">Excessive Vulgarity (>4x)</div>
-            <div class="calc-val red" id="ded-excess-lang">-$0.00</div>
-          </div>
-          <div class="calc-row">
-            <div class="calc-label">Maternal Disrespect Offenses (-$5/off.)</div>
-            <div class="calc-val red" id="ded-respect">-$0.00</div>
-          </div>
-          <div class="calc-row">
-            <div class="calc-label">Intentional Hip-Hop Violations (Tiered)</div>
-            <div class="calc-val red" id="ded-hiphop">-$0.00</div>
-          </div>
-          <div class="calc-row" style="font-weight:700; border-top:1px solid #cbd5e1; padding-top:8px;">
-            <div class="calc-label">Total Conduct Deductions</div>
-            <div class="calc-val red" id="ded-total">-$0.00</div>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-title">Incident Count / Proof (Weekly Select)</div>
-          <div class="form-group">
-            <label>Select or Add Incident Proof Summary</label>
-            <div class="select-with-add">
-              <select id="sel-incident-status" onchange="state.incidentStatus = this.value; saveToStorage();"></select>
-              <button class="btn-small-add write-control" title="Add new option" onclick="promptAddNewOption('incidentStatus')">+</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="card write-control">
-          <button class="btn-action" onclick="saveWeekData()">Save & Finalize Week</button>
-        </div>
-      </div>
-
-      <!-- TAB 2: SPIRITUAL PROOFS LOG (User Entry + Admin Verification) -->
-      <div id="tab-spiritual" class="tab-content">
-        <div class="card">
-          <div class="card-title">
-            <span>Daily Spiritual Proofs & Ministry</span>
-            <span style="font-size:11px; color:var(--text-muted);" id="study-count-badge">0/7 Days Verified</span>
-          </div>
-          <div id="days-container"></div>
-        </div>
-
-        <div class="card">
-          <div class="card-title">Conduct Effort Bonus</div>
-          <div class="form-group">
-            <label>Additional Study Conduct Increase ($)</label>
-            <input type="number" id="study-conduct-bonus" class="write-control" min="0" max="10" step="1" value="0" />
-          </div>
-        </div>
-      </div>
-
-      <!-- TAB 3: CONDUCT & ATTITUDE LOG -->
-      <div id="tab-conduct" class="tab-content">
-        <div class="card">
-          <div class="card-title">Language & Vulgarity Tracker</div>
-          <div class="form-group">
-            <label>Logged Occurrences ("F-word" / Vulgarity)</label>
-            <div class="stepper">
-              <button class="write-control" onclick="updateStepper('count-vulg', -1)">-</button>
-              <span id="count-vulg">0</span>
-              <button class="write-control" onclick="updateStepper('count-vulg', 1)">+</button>
-            </div>
-          </div>
-          <div style="font-size:11px; color:var(--text-muted); margin-top:6px;">
-            * -$5.00 for $\ge$1 occurrence; Additional -$10.00 if >4 occurrences.
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-title">Family Respect Standard (Maternal Disrespect)</div>
-          <div class="form-group">
-            <label>Informal Warnings Issued (Mother's Discretion)</label>
-            <div class="stepper">
-              <button class="write-control" onclick="updateStepper('count-warnings', -1)">-</button>
-              <span id="count-warnings">0</span>
-              <button class="write-control" onclick="updateStepper('count-warnings', 1)">+</button>
-            </div>
-          </div>
-          <div class="form-group">
-            <label>Formal Charged Offenses (-$5.00 each)</label>
-            <div class="stepper">
-              <button class="write-control" onclick="updateStepper('count-respect-offenses', -1)">-</button>
-              <span id="count-respect-offenses">0</span>
-              <button class="write-control" onclick="updateStepper('count-respect-offenses', 1)">+</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-title">Intentional Hip-Hop & Attitude Reward</div>
-          <div class="form-group">
-            <label>Intentional Hip-Hop Violations Count</label>
-            <div class="stepper">
-              <button class="write-control" onclick="updateStepper('count-hiphop', -1)">-</button>
-              <span id="count-hiphop">0</span>
-              <button class="write-control" onclick="updateStepper('count-hiphop', 1)">+</button>
-            </div>
-          </div>
-          <div style="font-size:11px; color:var(--text-muted); margin-bottom:10px;">
-            * 1st: -$2 | 2nd: -$3 | 3rd: -$4 | $\ge$4th: -$5 each (Forfeits Media Reward).
-          </div>
-          <div class="form-group">
-            <label>Attitude & Demeanor Rating (Scales $5.00 to $7.00)</label>
-            <select id="sel-attitude-rating" class="write-control">
-              <option value="5">5 - Exemplary ($7.00 Max Reward)</option>
-              <option value="4">4 - Very Good ($7.00 Reward)</option>
-              <option value="3">3 - Good / Cooperative ($6.00 Reward)</option>
-              <option value="2">2 - Fair ($5.00 Base Floor)</option>
-              <option value="1">1 - Poor / Resistant ($5.00 Base Floor)</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      <!-- TAB 4: OPTIONS MANAGER -->
-      <div id="tab-options" class="tab-content">
-        <div class="card">
-          <div class="card-title">Manage Bible Reading / Study Topics</div>
-          <div class="form-group select-with-add write-control">
-            <input type="text" id="input-new-topic" placeholder="Enter new custom study topic..." />
-            <button class="btn-small-add" onclick="addCustomOption('studyTopics', 'input-new-topic')">Add</button>
-          </div>
-          <div class="tag-list" id="list-studyTopics"></div>
-        </div>
-
-        <div class="card">
-          <div class="card-title">Manage Service Outing Details</div>
-          <div class="form-group select-with-add write-control">
-            <input type="text" id="input-new-outing" placeholder="Enter new service outing detail..." />
-            <button class="btn-small-add" onclick="addCustomOption('outingDetails', 'input-new-outing')">Add</button>
-          </div>
-          <div class="tag-list" id="list-outingDetails"></div>
-        </div>
-
-        <div class="card">
-          <div class="card-title">Manage Performance / Proof Statuses</div>
-          <div class="form-group select-with-add write-control">
-            <input type="text" id="input-new-perf" placeholder="Enter new performance status..." />
-            <button class="btn-small-add" onclick="addCustomOption('perfStatus', 'input-new-perf')">Add</button>
-          </div>
-          <div class="tag-list" id="list-perfStatus"></div>
-        </div>
-
-        <div class="card">
-          <div class="card-title">Manage Incident Count / Proof Options</div>
-          <div class="form-group select-with-add write-control">
-            <input type="text" id="input-new-inc" placeholder="Enter new incident proof text..." />
-            <button class="btn-small-add" onclick="addCustomOption('incidentStatus', 'input-new-inc')">Add</button>
-          </div>
-          <div class="tag-list" id="list-incidentStatus"></div>
-        </div>
-      </div>
-
-      <!-- TAB 5: ADMIN CONSOLE & RBAC MANAGEMENT -->
-      <div id="tab-admin" class="tab-content">
-        <div class="card" id="admin-user-management-card">
-          <div class="card-title">Add User (RBAC Authorization)</div>
-          <div class="form-group">
-            <label>Display / Full Name</label>
-            <input type="text" id="new-user-fullname" placeholder="e.g. Lead Developer, Child, Mother" />
-          </div>
-          <div class="form-group">
-            <label>Username</label>
-            <input type="text" id="new-user-username" placeholder="e.g. jdoe, mother, elder1" />
-          </div>
-          <div class="form-group">
-            <label>Password</label>
-            <input type="password" id="new-user-password" placeholder="Enter secure password..." />
-          </div>
-          <div class="form-group">
-            <label>RBAC Role</label>
-            <select id="new-user-role">
-              <option value="admin">Admin (Full Control, User Management & Edits)</option>
-              <option value="readwrite">Read/Write (Can Edit Proofs, Chores & Conduct)</option>
-              <option value="readonly">Read-Only (Can View Payouts & Proofs Only)</option>
-            </select>
-          </div>
-          <button class="btn-action" onclick="addNewAccountWithAuth()">Create Authorized Account</button>
-
-          <div style="margin-top:16px;">
-            <div class="card-title">Registered System Accounts</div>
-            <div style="overflow-x: auto;">
-              <table class="user-table">
-                <thead>
-                  <tr>
-                    <th>Display Name</th>
-                    <th>Username</th>
-                    <th>Role</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody id="user-table-body"></tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-
     </div>
-
-    <!-- BOTTOM NAVIGATION -->
-    <nav class="bottom-nav">
-      <button class="nav-btn active" onclick="switchTab('settlement', this)">
-        <span class="nav-icon">📊</span>
-        <span>Settlement</span>
-      </button>
-      <button class="nav-btn" onclick="switchTab('spiritual', this)">
-        <span class="nav-icon">📖</span>
-        <span>Spiritual</span>
-      </button>
-      <button class="nav-btn" onclick="switchTab('conduct', this)">
-        <span class="nav-icon">⚖️</span>
-        <span>Conduct</span>
-      </button>
-      <button class="nav-btn" onclick="switchTab('options', this)">
-        <span class="nav-icon">⚙️</span>
-        <span>Options</span>
-      </button>
-      <button class="nav-btn" id="nav-btn-admin" onclick="switchTab('admin', this)">
-        <span class="nav-icon">👤</span>
-        <span>Admin</span>
-      </button>
-    </nav>
 
   </div>
 
@@ -1080,11 +1119,9 @@
     }
 
     function calculateSettlement() {
-      // Ministry outings count only when verified by Admin
       const outingsCount = state.days.filter(d => d.serviceVerified).length;
       const baseEarned = 50.00;
 
-      // Study days count towards $1/day only when verified by Admin AND minutes >= 15
       const studyDaysCount = state.days.filter(d => d.studyVerified && (d.minutes >= 15)).length;
       const studyEarned = studyDaysCount * 1.00;
       const studyBonus = parseFloat(state.studyConductBonus) || 0.00;
