@@ -39,7 +39,7 @@
     "name": "Charles J",
     "username": "cj",
     "password": "cj123",
-    "role": "readonly"
+    "role": "readwrite"
   }
 ]
 
