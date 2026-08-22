@@ -145,6 +145,35 @@
       cursor: pointer;
     }
 
+    /* PARTICIPANT SELECTOR FOR ADMINS */
+    .admin-target-bar {
+      background: linear-gradient(135deg, #1e293b, #334155);
+      color: #ffffff;
+      padding: 8px 16px;
+      border-bottom: 1px solid #475569;
+    }
+    .admin-target-inner {
+      max-width: 620px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 11.5px;
+      font-weight: 700;
+    }
+    .admin-target-inner select {
+      flex: 1;
+      max-width: 240px;
+      background-color: #0f172a;
+      border: 1px solid #64748b;
+      color: #38bdf8;
+      font-weight: 700;
+      padding: 5px 8px;
+      border-radius: 6px;
+      font-size: 11.5px;
+    }
+
     .date-bar-container {
       background-color: var(--navy-mid);
       box-shadow: inset 0 -1px 0 rgba(255,255,255,0.05);
@@ -476,6 +505,14 @@
       </div>
     </header>
 
+    <!-- ADMIN MULTI-USER SWITCHER BAR (ONLY VISIBLE TO ADMINS) -->
+    <div id="admin-user-selector-bar" class="admin-target-bar" style="display:none;">
+      <div class="admin-target-inner">
+        <span>👤 Managing Participant Record:</span>
+        <select id="sel-admin-active-participant" onchange="handleAdminParticipantSwitch(this.value)"></select>
+      </div>
+    </div>
+
     <div class="date-bar-container">
       <div class="date-bar">
         <span>Week Commencing (Mon):</span>
@@ -492,7 +529,7 @@
       <!-- TAB 1: WEEKLY SETTLEMENT -->
       <div id="tab-settlement" class="tab-content active">
         <div class="summary-box">
-          <div class="payout-title">Total Net Settlement Payout</div>
+          <div class="payout-title">Total Net Settlement Payout (<span id="disp-payout-target-name">Participant</span>)</div>
           <div class="payout-amount" id="disp-net-payout">$0.00</div>
           <div class="summary-stats">
             <div>
@@ -543,7 +580,7 @@
           <div class="form-group">
             <label>Select or Add Status for this Week</label>
             <div class="select-with-add">
-              <select id="sel-perf-status" onchange="state.perfStatus = this.value; saveToStorage();"></select>
+              <select id="sel-perf-status" onchange="getActiveUserData().perfStatus = this.value; saveToStorage();"></select>
               <button class="btn-small-add write-control" title="Add new option" onclick="promptAddNewOption('perfStatus')">+</button>
             </div>
           </div>
@@ -578,18 +615,18 @@
           <div class="form-group">
             <label>Select or Add Incident Proof Summary</label>
             <div class="select-with-add">
-              <select id="sel-incident-status" onchange="state.incidentStatus = this.value; saveToStorage();"></select>
+              <select id="sel-incident-status" onchange="getActiveUserData().incidentStatus = this.value; saveToStorage();"></select>
               <button class="btn-small-add write-control" title="Add new option" onclick="promptAddNewOption('incidentStatus')">+</button>
             </div>
           </div>
         </div>
 
         <div class="card write-control">
-          <button class="btn-action" onclick="saveWeekData()">Save & Finalize Week</button>
+          <button class="btn-action" onclick="saveWeekData()">Save & Finalize Record</button>
         </div>
       </div>
 
-      <!-- TAB 2: SPIRITUAL PROOFS LOG (Full user reflection entry + Admin verification) -->
+      <!-- TAB 2: SPIRITUAL PROOFS LOG -->
       <div id="tab-spiritual" class="tab-content">
         <div class="card">
           <div class="card-title">
@@ -615,9 +652,9 @@
           <div class="form-group">
             <label>Logged Occurrences ("F-word" / Vulgarity)</label>
             <div class="stepper">
-              <button class="write-control" onclick="updateStepper('count-vulg', -1)">-</button>
+              <button class="write-control" onclick="updateStepper('vulgCount', -1)">-</button>
               <span id="count-vulg">0</span>
-              <button class="write-control" onclick="updateStepper('count-vulg', 1)">+</button>
+              <button class="write-control" onclick="updateStepper('vulgCount', 1)">+</button>
             </div>
           </div>
           <div style="font-size:11px; color:var(--text-muted); margin-top:6px;">
@@ -630,17 +667,17 @@
           <div class="form-group">
             <label>Informal Warnings Issued (Mother's Discretion)</label>
             <div class="stepper">
-              <button class="write-control" onclick="updateStepper('count-warnings', -1)">-</button>
+              <button class="write-control" onclick="updateStepper('warningsCount', -1)">-</button>
               <span id="count-warnings">0</span>
-              <button class="write-control" onclick="updateStepper('count-warnings', 1)">+</button>
+              <button class="write-control" onclick="updateStepper('warningsCount', 1)">+</button>
             </div>
           </div>
           <div class="form-group">
             <label>Formal Charged Offenses (-$5.00 each)</label>
             <div class="stepper">
-              <button class="write-control" onclick="updateStepper('count-respect-offenses', -1)">-</button>
+              <button class="write-control" onclick="updateStepper('respectOffenses', -1)">-</button>
               <span id="count-respect-offenses">0</span>
-              <button class="write-control" onclick="updateStepper('count-respect-offenses', 1)">+</button>
+              <button class="write-control" onclick="updateStepper('respectOffenses', 1)">+</button>
             </div>
           </div>
         </div>
@@ -650,9 +687,9 @@
           <div class="form-group">
             <label>Intentional Hip-Hop Violations Count</label>
             <div class="stepper">
-              <button class="write-control" onclick="updateStepper('count-hiphop', -1)">-</button>
+              <button class="write-control" onclick="updateStepper('hiphopCount', -1)">-</button>
               <span id="count-hiphop">0</span>
-              <button class="write-control" onclick="updateStepper('count-hiphop', 1)">+</button>
+              <button class="write-control" onclick="updateStepper('hiphopCount', 1)">+</button>
             </div>
           </div>
           <div style="font-size:11px; color:var(--text-muted); margin-bottom:10px;">
@@ -710,7 +747,7 @@
         </div>
       </div>
 
-      <!-- TAB 5: ADMIN CONSOLE (With Live Role & Password Management) -->
+      <!-- TAB 5: ADMIN CONSOLE -->
       <div id="tab-admin" class="tab-content">
         <div class="card">
           <div class="card-title">Change My Admin Password</div>
@@ -866,21 +903,56 @@
 
     let state = {
       currentUser: null,
+      adminTargetUser: null, // Controls which participant's record is actively viewed/edited
       accounts: JSON.parse(JSON.stringify(DEFAULT_ACCOUNTS)),
+      userRecords: {}, // Isolated data records keyed by userId (e.g. state.userRecords['usr-2'])
       weekStart: '',
-      days: [],
-      studyConductBonus: 0,
-      vulgCount: 0,
-      warningsCount: 0,
-      respectOffenses: 0,
-      hiphopCount: 0,
-      attitudeRating: 5,
-      perfStatus: '',
-      incidentStatus: '',
       customOptions: JSON.parse(JSON.stringify(DEFAULT_OPTIONS))
     };
 
-    const STORAGE_KEY = 'spiritual_accountability_unified_state';
+    const STORAGE_KEY = 'spiritual_accountability_multitenant_state';
+
+    function createEmptyUserRecord() {
+      return {
+        days: DAYS.map((name, i) => ({
+          name,
+          offset: i,
+          topic: state.customOptions.studyTopics[i % state.customOptions.studyTopics.length],
+          minutes: 20,
+          userProofText: '',
+          studyVerified: false,
+          serviceOuting: i === 1 || i === 3 || i === 5,
+          serviceVerified: false,
+          outingDetail: i === 1 || i === 3 || i === 5 ? state.customOptions.outingDetails[i % 3] : state.customOptions.outingDetails[7]
+        })),
+        studyConductBonus: 0,
+        vulgCount: 0,
+        warningsCount: 0,
+        respectOffenses: 0,
+        hiphopCount: 0,
+        attitudeRating: 5,
+        perfStatus: state.customOptions.perfStatus[0] || '',
+        incidentStatus: state.customOptions.incidentStatus[0] || ''
+      };
+    }
+
+    function getActiveTargetUserId() {
+      const loggedIn = getCurrentUser();
+      if (!loggedIn) return null;
+      if (loggedIn.role === 'admin' && state.adminTargetUser) {
+        return state.adminTargetUser;
+      }
+      return loggedIn.id;
+    }
+
+    function getActiveUserData() {
+      const targetId = getActiveTargetUserId();
+      if (!targetId) return createEmptyUserRecord();
+      if (!state.userRecords[targetId]) {
+        state.userRecords[targetId] = createEmptyUserRecord();
+      }
+      return state.userRecords[targetId];
+    }
 
     function toggleResetForm(show) {
       document.getElementById('front-login-form').style.display = show ? 'none' : 'block';
@@ -908,6 +980,13 @@
       if (found) {
         errBox.style.display = 'none';
         state.currentUser = found.id;
+        if (found.role === 'admin') {
+          // Default admin view to first non-admin participant if available
+          const firstNonAdmin = state.accounts.find(a => a.role !== 'admin');
+          state.adminTargetUser = firstNonAdmin ? firstNonAdmin.id : found.id;
+        } else {
+          state.adminTargetUser = found.id;
+        }
         sessionStorage.setItem('spiritual_logged_in_user', found.id);
         saveToStorage();
         showAppShell();
@@ -995,7 +1074,6 @@
       }
     }
 
-    // DIRECT ROLE UPDATE IN ADMIN CONSOLE
     function adminUpdateUserRole(userId, newRole) {
       const target = state.accounts.find(a => a.id === userId);
       if (!target) return;
@@ -1003,8 +1081,33 @@
       target.role = newRole;
       saveToStorage();
       renderUserAdminSection();
+      renderAdminParticipantSelector();
       applyRolePermissions();
-      alert(`Role for ${target.name} (@${target.username}) successfully updated to: ${newRole.toUpperCase()}`);
+      alert(`Role for ${target.name} (@${target.username}) updated to: ${newRole.toUpperCase()}`);
+    }
+
+    function handleAdminParticipantSwitch(targetUserId) {
+      state.adminTargetUser = targetUserId;
+      saveToStorage();
+      syncUIWithActiveRecord();
+      renderDays();
+      calculateSettlement();
+    }
+
+    function renderAdminParticipantSelector() {
+      const selBar = document.getElementById('admin-user-selector-bar');
+      const selDropdown = document.getElementById('sel-admin-active-participant');
+      const user = getCurrentUser();
+
+      if (!user || user.role !== 'admin') {
+        selBar.style.display = 'none';
+        return;
+      }
+
+      selBar.style.display = 'block';
+      selDropdown.innerHTML = state.accounts.map(a => `
+        <option value="${a.id}" ${a.id === state.adminTargetUser ? 'selected' : ''}>${a.name} (@${a.username}) [${a.role.toUpperCase()}]</option>
+      `).join('');
     }
 
     function exportAccountsJson() {
@@ -1029,6 +1132,7 @@
             state.accounts = imported;
             saveToStorage();
             renderUserAdminSection();
+            renderAdminParticipantSelector();
             applyRolePermissions();
             alert(`Successfully imported ${imported.length} accounts from accounts.json!`);
           } else {
@@ -1055,6 +1159,8 @@
       document.getElementById('login-screen').style.display = 'none';
       document.getElementById('app-shell').style.display = 'block';
       applyRolePermissions();
+      renderAdminParticipantSelector();
+      syncUIWithActiveRecord();
       renderDays();
       renderUserAdminSection();
       renderOptionManagerLists();
@@ -1062,18 +1168,22 @@
       calculateSettlement();
     }
 
-    function initDays() {
-      state.days = DAYS.map((name, i) => ({
-        name,
-        offset: i,
-        topic: state.customOptions.studyTopics[i % state.customOptions.studyTopics.length],
-        minutes: 20,
-        userProofText: '',
-        studyVerified: false,
-        serviceOuting: i === 1 || i === 3 || i === 5,
-        serviceVerified: false,
-        outingDetail: i === 1 || i === 3 || i === 5 ? state.customOptions.outingDetails[i % 3] : state.customOptions.outingDetails[7]
-      }));
+    function syncUIWithActiveRecord() {
+      const rec = getActiveUserData();
+      const targetUser = state.accounts.find(a => a.id === getActiveTargetUserId()) || getCurrentUser();
+      
+      document.getElementById('disp-payout-target-name').textContent = targetUser ? targetUser.name : 'Participant';
+      document.getElementById('count-vulg').textContent = rec.vulgCount || 0;
+      document.getElementById('count-warnings').textContent = rec.warningsCount || 0;
+      document.getElementById('count-respect-offenses').textContent = rec.respectOffenses || 0;
+      document.getElementById('count-hiphop').textContent = rec.hiphopCount || 0;
+      document.getElementById('study-conduct-bonus').value = rec.studyConductBonus || 0;
+      document.getElementById('sel-attitude-rating').value = rec.attitudeRating || 5;
+
+      const selPerf = document.getElementById('sel-perf-status');
+      if (selPerf) selPerf.value = rec.perfStatus || state.customOptions.perfStatus[0];
+      const selInc = document.getElementById('sel-incident-status');
+      if (selInc) selInc.value = rec.incidentStatus || state.customOptions.incidentStatus[0];
     }
 
     function getCurrentUser() {
@@ -1156,6 +1266,8 @@
 
       const newId = 'usr-' + Date.now();
       state.accounts.push({ id: newId, name, username, email, password, role });
+      state.userRecords[newId] = createEmptyUserRecord();
+
       nameInput.value = '';
       usernameInput.value = '';
       emailInput.value = '';
@@ -1163,6 +1275,7 @@
 
       saveToStorage();
       renderUserAdminSection();
+      renderAdminParticipantSelector();
       alert(`Account "${name}" (@${username}) created successfully with role [${role.toUpperCase()}].`);
     }
 
@@ -1172,8 +1285,16 @@
         return;
       }
       state.accounts = state.accounts.filter(a => a.id !== userId);
+      delete state.userRecords[userId];
+      if (state.adminTargetUser === userId) {
+        state.adminTargetUser = state.accounts[0].id;
+      }
       saveToStorage();
       renderUserAdminSection();
+      renderAdminParticipantSelector();
+      syncUIWithActiveRecord();
+      renderDays();
+      calculateSettlement();
     }
 
     function renderDays() {
@@ -1183,8 +1304,9 @@
       const user = getCurrentUser();
       const isAdmin = user && (user.role === 'admin');
       const canWrite = user && (user.role === 'admin' || user.role === 'readwrite');
+      const rec = getActiveUserData();
 
-      state.days.forEach((d, idx) => {
+      rec.days.forEach((d, idx) => {
         const dDate = new Date(baseDate);
         dDate.setDate(baseDate.getDate() + d.offset);
         const dateStr = isNaN(dDate.getTime()) ? '' : dDate.toISOString().split('T')[0];
@@ -1257,18 +1379,22 @@
       });
     }
 
-    function updateDayProofText(idx, val) { state.days[idx].userProofText = val; saveToStorage(); }
-    function toggleAdminStudyVerification(idx, val) { state.days[idx].studyVerified = val; saveToStorage(); calculateSettlement(); renderDays(); }
-    function toggleAdminServiceVerification(idx, val) { state.days[idx].serviceVerified = val; saveToStorage(); calculateSettlement(); renderDays(); }
+    function updateDayProofText(idx, val) { getActiveUserData().days[idx].userProofText = val; saveToStorage(); }
+    function updateDayTopic(idx, val) { getActiveUserData().days[idx].topic = val; saveToStorage(); }
+    function updateDayOutingDetail(idx, val) { getActiveUserData().days[idx].outingDetail = val; saveToStorage(); }
+    function updateDayMinutes(idx, val) { getActiveUserData().days[idx].minutes = parseInt(val) || 0; calculateSettlement(); saveToStorage(); }
+    function toggleAdminStudyVerification(idx, val) { getActiveUserData().days[idx].studyVerified = val; saveToStorage(); calculateSettlement(); renderDays(); }
+    function toggleAdminServiceVerification(idx, val) { getActiveUserData().days[idx].serviceVerified = val; saveToStorage(); calculateSettlement(); renderDays(); }
 
     function renderSelectDropdowns() {
       const selPerf = document.getElementById('sel-perf-status');
-      selPerf.innerHTML = state.customOptions.perfStatus.map(s => `<option value="${s}" ${s === state.perfStatus ? 'selected' : ''}>${s}</option>`).join('');
-      if (!state.perfStatus && state.customOptions.perfStatus.length > 0) state.perfStatus = state.customOptions.perfStatus[0];
-
+      selPerf.innerHTML = state.customOptions.perfStatus.map(s => `<option value="${s}">${s}</option>`).join('');
       const selInc = document.getElementById('sel-incident-status');
-      selInc.innerHTML = state.customOptions.incidentStatus.map(s => `<option value="${s}" ${s === state.incidentStatus ? 'selected' : ''}>${s}</option>`).join('');
-      if (!state.incidentStatus && state.customOptions.incidentStatus.length > 0) state.incidentStatus = state.customOptions.incidentStatus[0];
+      selInc.innerHTML = state.customOptions.incidentStatus.map(s => `<option value="${s}">${s}</option>`).join('');
+      
+      const rec = getActiveUserData();
+      if (selPerf) selPerf.value = rec.perfStatus || state.customOptions.perfStatus[0];
+      if (selInc) selInc.value = rec.incidentStatus || state.customOptions.incidentStatus[0];
     }
 
     function renderOptionManagerLists() {
@@ -1299,16 +1425,16 @@
     }
 
     function promptAddNewOption(key, dayIdx = null) {
-      const val = prompt(`Enter new option to add to this week's dropdown list:`);
+      const val = prompt(`Enter new option to add to shared dropdown list:`);
       if (val && val.trim()) {
         const cleanVal = val.trim();
         if (!state.customOptions[key].includes(cleanVal)) state.customOptions[key].push(cleanVal);
         if (dayIdx !== null) {
-          if (key === 'studyTopics') state.days[dayIdx].topic = cleanVal;
-          if (key === 'outingDetails') state.days[dayIdx].outingDetail = cleanVal;
+          if (key === 'studyTopics') getActiveUserData().days[dayIdx].topic = cleanVal;
+          if (key === 'outingDetails') getActiveUserData().days[dayIdx].outingDetail = cleanVal;
         } else {
-          if (key === 'perfStatus') state.perfStatus = cleanVal;
-          if (key === 'incidentStatus') state.incidentStatus = cleanVal;
+          if (key === 'perfStatus') getActiveUserData().perfStatus = cleanVal;
+          if (key === 'incidentStatus') getActiveUserData().incidentStatus = cleanVal;
         }
         saveToStorage();
         renderOptionManagerLists();
@@ -1326,18 +1452,19 @@
     }
 
     function calculateSettlement() {
-      const outingsCount = state.days.filter(d => d.serviceVerified).length;
+      const rec = getActiveUserData();
+      const outingsCount = rec.days.filter(d => d.serviceVerified).length;
       const baseEarned = 50.00;
-      const studyDaysCount = state.days.filter(d => d.studyVerified && (d.minutes >= 15)).length;
+      const studyDaysCount = rec.days.filter(d => d.studyVerified && (d.minutes >= 15)).length;
       const studyEarned = studyDaysCount * 1.00;
-      const studyBonus = parseFloat(state.studyConductBonus) || 0.00;
+      const studyBonus = parseFloat(rec.studyConductBonus) || 0.00;
       const totalStudyEarned = studyEarned + studyBonus;
       const tabletEarned = 15.00;
 
       let mediaEarned = 0.00;
-      if (state.hiphopCount === 0) {
-        if (state.attitudeRating >= 4) mediaEarned = 7.00;
-        else if (state.attitudeRating === 3) mediaEarned = 6.00;
+      if (rec.hiphopCount === 0) {
+        if (rec.attitudeRating >= 4) mediaEarned = 7.00;
+        else if (rec.attitudeRating === 3) mediaEarned = 6.00;
         else mediaEarned = 5.00;
       }
 
@@ -1345,16 +1472,16 @@
 
       let langDed = 0.00;
       let excessLangDed = 0.00;
-      if (state.vulgCount > 0) langDed = 5.00;
-      if (state.vulgCount > 4) excessLangDed = 10.00;
+      if (rec.vulgCount > 0) langDed = 5.00;
+      if (rec.vulgCount > 4) excessLangDed = 10.00;
 
-      const respectDed = state.respectOffenses * 5.00;
+      const respectDed = rec.respectOffenses * 5.00;
 
       let hiphopDed = 0.00;
-      if (state.hiphopCount === 1) hiphopDed = 2.00;
-      else if (state.hiphopCount === 2) hiphopDed = 5.00;
-      else if (state.hiphopCount === 3) hiphopDed = 9.00;
-      else if (state.hiphopCount > 3) hiphopDed = 9.00 + ((state.hiphopCount - 3) * 5.00);
+      if (rec.hiphopCount === 1) hiphopDed = 2.00;
+      else if (rec.hiphopCount === 2) hiphopDed = 5.00;
+      else if (rec.hiphopCount === 3) hiphopDed = 9.00;
+      else if (rec.hiphopCount > 3) hiphopDed = 9.00 + ((rec.hiphopCount - 3) * 5.00);
 
       const totalDeductions = langDed + excessLangDed + respectDed + hiphopDed;
       const netPayout = Math.max(0, grossEarnings - totalDeductions);
@@ -1387,28 +1514,14 @@
       if (tabId === 'admin') renderUserAdminSection();
     }
 
-    function updateStepper(id, delta) {
+    function updateStepper(field, delta) {
       if (getCurrentUser() && getCurrentUser().role === 'readonly') return;
-      if (id === 'count-vulg') {
-        state.vulgCount = Math.max(0, state.vulgCount + delta);
-        document.getElementById(id).textContent = state.vulgCount;
-      } else if (id === 'count-warnings') {
-        state.warningsCount = Math.max(0, state.warningsCount + delta);
-        document.getElementById(id).textContent = state.warningsCount;
-      } else if (id === 'count-respect-offenses') {
-        state.respectOffenses = Math.max(0, state.respectOffenses + delta);
-        document.getElementById(id).textContent = state.respectOffenses;
-      } else if (id === 'count-hiphop') {
-        state.hiphopCount = Math.max(0, state.hiphopCount + delta);
-        document.getElementById(id).textContent = state.hiphopCount;
-      }
+      const rec = getActiveUserData();
+      rec[field] = Math.max(0, (rec[field] || 0) + delta);
+      syncUIWithActiveRecord();
       calculateSettlement();
       saveToStorage();
     }
-
-    function updateDayTopic(idx, val) { state.days[idx].topic = val; saveToStorage(); }
-    function updateDayOutingDetail(idx, val) { state.days[idx].outingDetail = val; saveToStorage(); }
-    function updateDayMinutes(idx, val) { state.days[idx].minutes = parseInt(val) || 0; calculateSettlement(); saveToStorage(); }
 
     document.getElementById('week-start-date').addEventListener('change', (e) => {
       state.weekStart = e.target.value;
@@ -1417,13 +1530,13 @@
     });
 
     document.getElementById('study-conduct-bonus').addEventListener('input', (e) => {
-      state.studyConductBonus = e.target.value;
+      getActiveUserData().studyConductBonus = e.target.value;
       calculateSettlement();
       saveToStorage();
     });
 
     document.getElementById('sel-attitude-rating').addEventListener('change', (e) => {
-      state.attitudeRating = parseInt(e.target.value);
+      getActiveUserData().attitudeRating = parseInt(e.target.value);
       calculateSettlement();
       saveToStorage();
     });
@@ -1434,10 +1547,8 @@
 
     function loadFromStorage() {
       const legacyKeys = [
+        'spiritual_accountability_unified_state',
         'spiritual_tracker_state_v4',
-        'spiritual_tracker_state_v3',
-        'spiritual_tracker_state_v2',
-        'spiritual_tracker_state',
         'spiritual_tracker_state_frontlogin'
       ];
 
@@ -1468,6 +1579,7 @@
         });
         state.accounts = Array.from(accountMap.values());
 
+        if (!state.userRecords) state.userRecords = {};
         if (!state.customOptions) state.customOptions = JSON.parse(JSON.stringify(DEFAULT_OPTIONS));
       } else {
         const today = new Date();
@@ -1475,24 +1587,21 @@
         const diff = today.getDate() - day + (day === 0 ? -6 : 1);
         const monday = new Date(today.setDate(diff));
         state.weekStart = monday.toISOString().split('T')[0];
-        initDays();
+        state.userRecords = {};
       }
 
-      if (!state.days || state.days.length === 0) initDays();
-
       document.getElementById('week-start-date').value = state.weekStart || '';
-      document.getElementById('count-vulg').textContent = state.vulgCount || 0;
-      document.getElementById('count-warnings').textContent = state.warningsCount || 0;
-      document.getElementById('count-respect-offenses').textContent = state.respectOffenses || 0;
-      document.getElementById('count-hiphop').textContent = state.hiphopCount || 0;
-      document.getElementById('study-conduct-bonus').value = state.studyConductBonus || 0;
-      document.getElementById('sel-attitude-rating').value = state.attitudeRating || 5;
-
-      saveToStorage();
 
       const activeSessionUser = sessionStorage.getItem('spiritual_logged_in_user');
       if (activeSessionUser && state.accounts.some(a => a.id === activeSessionUser)) {
         state.currentUser = activeSessionUser;
+        const logged = getCurrentUser();
+        if (logged && logged.role === 'admin') {
+          const firstNonAdmin = state.accounts.find(a => a.role !== 'admin');
+          state.adminTargetUser = firstNonAdmin ? firstNonAdmin.id : logged.id;
+        } else {
+          state.adminTargetUser = activeSessionUser;
+        }
         showAppShell();
       } else {
         document.getElementById('login-screen').style.display = 'flex';
@@ -1502,7 +1611,8 @@
 
     function saveWeekData() {
       saveToStorage();
-      alert('Weekly settlement and proof entries successfully saved to device!');
+      const targetUser = state.accounts.find(a => a.id === getActiveTargetUserId());
+      alert(`Weekly settlement and proof entries for ${targetUser ? targetUser.name : 'participant'} saved to device!`);
     }
 
     window.onload = loadFromStorage;
