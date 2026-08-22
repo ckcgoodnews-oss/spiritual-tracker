@@ -35,7 +35,7 @@
       flex-direction: column;
     }
 
-    /* CENTERED FRONT-FACING SECURE LOGIN */
+    /* FRONT-FACING SECURE LOGIN & EMAIL RESET */
     #login-screen {
       min-height: 100vh;
       display: flex;
@@ -96,7 +96,7 @@
       text-align: center;
     }
 
-    /* CENTERED MAIN APP SHELL */
+    /* MAIN APP SHELL */
     #app-shell {
       display: none;
       width: 100%;
@@ -170,7 +170,6 @@
       outline: none;
     }
 
-    /* CENTERED MAIN CONTAINER */
     .container {
       max-width: 620px;
       margin: 16px auto 0 auto;
@@ -316,11 +315,23 @@
     }
     .tag-item button { background: none; border: none; color: var(--red-text); font-weight: bold; cursor: pointer; font-size: 13px; }
     
-    .user-table { width: 100%; border-collapse: collapse; font-size: 11.5px; margin-top: 8px; }
-    .user-table th, .user-table td { border: 1px solid var(--border-color); padding: 8px 10px; text-align: left; }
+    .user-table { width: 100%; border-collapse: collapse; font-size: 11px; margin-top: 8px; }
+    .user-table th, .user-table td { border: 1px solid var(--border-color); padding: 8px 6px; text-align: left; }
     .user-table th { background-color: var(--slate-hdr); color: #ffffff; font-weight: 700; }
     .user-table tr:nth-child(even) { background-color: #f8fafc; }
     
+    .role-select-inline {
+      padding: 4px 6px;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+      font-size: 11px;
+      font-weight: 700;
+      background-color: #ffffff;
+      color: var(--navy-dark);
+      outline: none;
+      cursor: pointer;
+    }
+
     .readonly-banner {
       background-color: var(--amber-bg);
       color: var(--amber-text);
@@ -347,7 +358,7 @@
     }
     .btn-action.secondary { background-color: #475569; }
 
-    /* CENTERED, MODERN BOTTOM FLOATING NAVIGATION BAR */
+    /* CENTERED BOTTOM FLOATING NAVIGATION BAR */
     .bottom-nav-wrapper {
       position: fixed;
       bottom: 0;
@@ -389,7 +400,6 @@
     }
     .nav-btn .nav-icon { font-size: 20px; transition: transform 0.2s; }
     
-    /* VIBRANT ACTIVE STATE COLORS */
     .nav-btn.tab-settlement.active { color: #059669; background-color: #ecfdf5; }
     .nav-btn.tab-spiritual.active { color: #2563eb; background-color: #eff6ff; }
     .nav-btn.tab-conduct.active { color: #d97706; background-color: #fffbeb; }
@@ -400,7 +410,7 @@
 </head>
 <body>
 
-  <!-- 1. CENTERED FRONT-FACING SECURE LOGIN & EMAIL-LINK RESET -->
+  <!-- 1. FRONT-FACING SECURE LOGIN & EMAIL RESET -->
   <div id="login-screen">
     <div class="login-container">
       <div class="login-header-logo">
@@ -447,7 +457,7 @@
     </div>
   </div>
 
-  <!-- 2. AUTHENTICATED APP SHELL (CENTERED LAYOUT) -->
+  <!-- 2. AUTHENTICATED APP SHELL -->
   <div id="app-shell">
 
     <header>
@@ -473,7 +483,7 @@
       </div>
     </div>
 
-    <!-- CENTERED CONTAINER CONTENT -->
+    <!-- MAIN CONTAINER -->
     <div class="container">
       <div class="readonly-banner" id="readonly-banner">
         ⚠️ <strong>Read-Only Mode:</strong> You are signed in with view-only permissions. Modifying data requires a Read/Write or Admin account.
@@ -579,7 +589,7 @@
         </div>
       </div>
 
-      <!-- TAB 2: SPIRITUAL PROOFS LOG -->
+      <!-- TAB 2: SPIRITUAL PROOFS LOG (Full user reflection entry + Admin verification) -->
       <div id="tab-spiritual" class="tab-content">
         <div class="card">
           <div class="card-title">
@@ -700,7 +710,7 @@
         </div>
       </div>
 
-      <!-- TAB 5: ADMIN CONSOLE & USER PASSWORDS -->
+      <!-- TAB 5: ADMIN CONSOLE (With Live Role & Password Management) -->
       <div id="tab-admin" class="tab-content">
         <div class="card">
           <div class="card-title">Change My Admin Password</div>
@@ -740,10 +750,15 @@
           <button class="btn-action" onclick="addNewAccountWithAuth()">Create Authorized Account</button>
         </div>
 
+        <!-- ACCOUNTS TABLE WITH ROLE SWITCHER & PASSWORD EDITING -->
         <div class="card">
           <div class="card-title">
-            <span>System Accounts & Passwords</span>
-            <button class="btn-small-add" style="font-size:10px; padding:4px 8px;" onclick="exportAccountsJson()" title="Download JSON to commit to Git">📥 Export JSON</button>
+            <span>System Accounts & Role Management</span>
+            <div style="display:flex; gap:6px;">
+              <button class="btn-small-add" style="font-size:10px; padding:4px 8px;" onclick="document.getElementById('import-json-file').click()" title="Import updated accounts.json">📤 Import JSON</button>
+              <input type="file" id="import-json-file" accept=".json" style="display:none;" onchange="importAccountsJson(event)" />
+              <button class="btn-small-add" style="font-size:10px; padding:4px 8px;" onclick="exportAccountsJson()" title="Download updated accounts.json">📥 Export JSON</button>
+            </div>
           </div>
           <div style="overflow-x: auto;">
             <table class="user-table">
@@ -751,8 +766,7 @@
                 <tr>
                   <th>Display Name</th>
                   <th>Username</th>
-                  <th>Email</th>
-                  <th>Role</th>
+                  <th>Role (Change & Save)</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -887,7 +901,6 @@
           state.accounts.push(def);
         } else if (!existing.password) {
           existing.password = def.password;
-          existing.role = def.role;
         }
       });
 
@@ -982,6 +995,18 @@
       }
     }
 
+    // DIRECT ROLE UPDATE IN ADMIN CONSOLE
+    function adminUpdateUserRole(userId, newRole) {
+      const target = state.accounts.find(a => a.id === userId);
+      if (!target) return;
+
+      target.role = newRole;
+      saveToStorage();
+      renderUserAdminSection();
+      applyRolePermissions();
+      alert(`Role for ${target.name} (@${target.username}) successfully updated to: ${newRole.toUpperCase()}`);
+    }
+
     function exportAccountsJson() {
       const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state.accounts, null, 2));
       const downloadAnchor = document.createElement('a');
@@ -990,6 +1015,30 @@
       document.body.appendChild(downloadAnchor);
       downloadAnchor.click();
       downloadAnchor.remove();
+    }
+
+    function importAccountsJson(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const imported = JSON.parse(e.target.result);
+          if (Array.isArray(imported) && imported.length > 0) {
+            state.accounts = imported;
+            saveToStorage();
+            renderUserAdminSection();
+            applyRolePermissions();
+            alert(`Successfully imported ${imported.length} accounts from accounts.json!`);
+          } else {
+            alert('Invalid JSON format. Expected an array of account objects.');
+          }
+        } catch (err) {
+          alert('Failed to parse accounts.json. Please ensure it is valid JSON.');
+        }
+      };
+      reader.readAsText(file);
     }
 
     function handleLogout() {
@@ -1067,9 +1116,14 @@
         <tr>
           <td style="font-weight:700;">${a.name}</td>
           <td style="color:var(--text-muted);">@${a.username}</td>
-          <td style="font-size:10.5px; color:#64748b;">${a.email || 'N/A'}</td>
-          <td><span class="role-badge role-${a.role}">${a.role}</span></td>
-          <td style="display:flex; gap:6px; flex-wrap:wrap;">
+          <td>
+            <select class="role-select-inline" onchange="adminUpdateUserRole('${a.id}', this.value)">
+              <option value="admin" ${a.role === 'admin' ? 'selected' : ''}>ADMIN</option>
+              <option value="readwrite" ${a.role === 'readwrite' ? 'selected' : ''}>READ/WRITE</option>
+              <option value="readonly" ${a.role === 'readonly' ? 'selected' : ''}>READ-ONLY</option>
+            </select>
+          </td>
+          <td style="display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
             <button style="color:var(--accent-blue); border:none; background:none; cursor:pointer; font-weight:800; font-size:11px;" onclick="adminChangeUserPassword('${a.id}')">Edit Pass</button>
             ${state.accounts.length > 1 && a.id !== state.currentUser ? `<button style="color:var(--red-text); border:none; background:none; cursor:pointer; font-weight:800; font-size:11px;" onclick="removeAccount('${a.id}')">Delete</button>` : ''}
           </td>
@@ -1109,7 +1163,7 @@
 
       saveToStorage();
       renderUserAdminSection();
-      alert(`Account "${name}" (@${username}) created successfully.`);
+      alert(`Account "${name}" (@${username}) created successfully with role [${role.toUpperCase()}].`);
     }
 
     function removeAccount(userId) {
