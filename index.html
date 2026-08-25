@@ -1,114 +1,1755 @@
-async function commitStateToGitHub() {
-  const owner = document.getElementById('git-repo-owner').value.trim();
-  const repo = document.getElementById('git-repo-name').value.trim();
-  const branch = document.getElementById('git-repo-branch').value.trim() || 'main';
-  const token = document.getElementById('git-repo-token').value.trim();
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Spiritual Proofs & Accountability System</title>
+  <meta name="theme-color" content="#0f172a" />
+  <style>
+    :root {
+      --bg-main: #f1f5f9;
+      --card-bg: #ffffff;
+      --navy-dark: #0f172a;
+      --navy-mid: #1e293b;
+      --slate-hdr: #334155;
+      --accent-blue: #2563eb;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --border-color: #cbd5e1;
+      --green-bg: #ecfdf5;
+      --green-text: #047857;
+      --red-bg: #fef2f2;
+      --red-text: #b91c1c;
+      --amber-bg: #fffbeb;
+      --amber-text: #b45309;
+      --purple-bg: #f5f3ff;
+      --purple-text: #6d28d9;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    }
+    body {
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      padding-bottom: 75px;
+      -webkit-tap-highlight-color: transparent;
+    }
+    header {
+      background-color: var(--navy-dark);
+      color: #ffffff;
+      padding: 12px 16px;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .header-title {
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+    }
+    .header-subtitle {
+      font-size: 11px;
+      color: #94a3b8;
+    }
+    .user-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background-color: #1e293b;
+      padding: 4px 8px;
+      border-radius: 20px;
+      border: 1px solid #334155;
+      font-size: 11px;
+    }
+    .role-badge {
+      font-size: 9px;
+      font-weight: 800;
+      padding: 2px 6px;
+      border-radius: 10px;
+      text-transform: uppercase;
+    }
+    .role-admin { background-color: var(--purple-bg); color: var(--purple-text); }
+    .role-readwrite { background-color: var(--green-bg); color: var(--green-text); }
+    .role-readonly { background-color: var(--amber-bg); color: var(--amber-text); }
 
-  if (!owner || !repo || !token) {
-    alert('Please enter your GitHub Repo Owner, Repo Name, and Personal Access Token.');
-    return;
-  }
+    .date-bar {
+      background-color: var(--navy-mid);
+      color: #ffffff;
+      padding: 8px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+    }
+    .date-bar input[type="date"] {
+      background-color: #334155;
+      border: 1px solid #475569;
+      color: #ffffff;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      outline: none;
+    }
+    .container {
+      padding: 12px;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    .card {
+      background-color: var(--card-bg);
+      border-radius: 10px;
+      padding: 14px;
+      margin-bottom: 12px;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .card-title {
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--navy-dark);
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #f1f5f9;
+      padding-bottom: 6px;
+    }
+    .day-row {
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 10px;
+      margin-bottom: 10px;
+      background-color: #fafbfc;
+    }
+    .day-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .day-name {
+      font-weight: 700;
+      font-size: 13px;
+      color: var(--navy-mid);
+    }
+    .day-date {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+    .form-group {
+      margin-bottom: 8px;
+    }
+    .form-group:last-child {
+      margin-bottom: 0;
+    }
+    label {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 3px;
+    }
+    select, input[type="text"], input[type="number"], input[type="password"] {
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+      font-size: 12px;
+      background-color: #ffffff;
+      color: var(--text-main);
+      outline: none;
+    }
+    select:focus, input:focus {
+      border-color: var(--accent-blue);
+    }
+    .select-with-add {
+      display: flex;
+      gap: 6px;
+    }
+    .btn-small-add {
+      background-color: var(--slate-hdr);
+      color: #ffffff;
+      border: none;
+      padding: 0 12px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .check-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 8px;
+      background-color: #ffffff;
+      padding: 8px;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+    }
+    .check-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .check-item input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--accent-blue);
+    }
+    .calc-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      font-size: 12px;
+      border-bottom: 1px solid #f1f5f9;
+    }
+    .calc-row:last-child {
+      border-bottom: none;
+    }
+    .calc-label {
+      font-weight: 600;
+      color: var(--navy-mid);
+    }
+    .calc-val {
+      font-weight: 700;
+    }
+    .calc-val.green {
+      color: var(--green-text);
+    }
+    .calc-val.red {
+      color: var(--red-text);
+    }
+    .stepper {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .stepper button {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      background-color: #e2e8f0;
+      border: 1px solid #cbd5e1;
+      font-weight: bold;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+    .stepper span {
+      font-weight: 700;
+      font-size: 13px;
+      min-width: 24px;
+      text-align: center;
+    }
+    .summary-box {
+      background: linear-gradient(135deg, #0f172a, #1e293b);
+      color: #ffffff;
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+    .summary-box .payout-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #94a3b8;
+      margin-bottom: 4px;
+    }
+    .summary-box .payout-amount {
+      font-size: 28px;
+      font-weight: 800;
+      color: #34d399;
+      margin-bottom: 10px;
+    }
+    .summary-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+      border-top: 1px solid #334155;
+      padding-top: 10px;
+      font-size: 11px;
+    }
+    .summary-stat-val {
+      font-size: 13px;
+      font-weight: 700;
+      color: #ffffff;
+    }
+    .tag-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+    .tag-item {
+      background-color: #f1f5f9;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      padding: 4px 8px;
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .tag-item button {
+      background: none;
+      border: none;
+      color: var(--red-text);
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .user-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11px;
+      margin-top: 8px;
+    }
+    .user-table th, .user-table td {
+      border: 1px solid var(--border-color);
+      padding: 6px 8px;
+      text-align: left;
+    }
+    .user-table th {
+      background-color: var(--slate-hdr);
+      color: #ffffff;
+    }
+    .user-table tr:nth-child(even) {
+      background-color: #f8fafc;
+    }
+    .readonly-banner {
+      background-color: var(--amber-bg);
+      color: var(--amber-text);
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1px solid #fde68a;
+      font-size: 11px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      display: none;
+    }
+    .auth-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(15, 23, 42, 0.85);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .auth-modal.active {
+      display: flex;
+    }
+    .auth-card {
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 20px;
+      width: 100%;
+      max-width: 360px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    }
+    nav.bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 60px;
+      background-color: #ffffff;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      z-index: 100;
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+    }
+    .nav-btn {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 10px;
+      font-weight: 600;
+      gap: 3px;
+      cursor: pointer;
+      padding: 6px 0;
+    }
+    .nav-btn.active {
+      color: var(--accent-blue);
+    }
+    .nav-icon {
+      font-size: 18px;
+    }
+    .btn-action {
+      background-color: var(--navy-dark);
+      color: #ffffff;
+      border: none;
+      padding: 10px 14px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      width: 100%;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+    .btn-action.secondary {
+      background-color: #64748b;
+    }
+    .btn-action.danger {
+      background-color: var(--red-text);
+    }
+  </style>
+</head>
+<body>
 
-  const filePath = 'accounts.json';
-  const url = `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}`;
-  
-  // Save credentials locally for convenience
-  localStorage.setItem('git_sync_config', JSON.stringify({ owner, repo, branch, token }));
+  <!-- MODAL: LOGIN / RE-AUTH -->
+  <div id="login-modal" class="auth-modal active" role="dialog" aria-modal="true" aria-labelledby="login-title">
+    <div class="auth-card">
+      <div id="login-title" style="font-size:16px; font-weight:700; color:var(--navy-dark); margin-bottom:4px;">Account Login</div>
+      <div style="font-size:11px; color:var(--text-muted); margin-bottom:14px;">Sign in with your username and password</div>
+      <div class="form-group">
+        <label>Username</label>
+        <input type="text" id="login-username" placeholder="Enter username..." />
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="login-password" placeholder="Enter password..." />
+      </div>
+      <button class="btn-action" onclick="handleLogin()">Sign In</button>
+      <div id="login-error" style="font-size:11px; color:var(--red-text); margin-top:10px; min-height:16px;" aria-live="polite"></div>
+    </div>
+  </div>
 
-  try {
-    // 1. Get current file SHA if it exists
-    let sha = '';
-    const getRes = await fetch(`${url}?ref=${branch}`, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Accept': 'application/vnd.github+json'
-      }
-    });
+  <header>
+    <div class="header-content">
+      <div>
+        <div class="header-title">Spiritual Proofs & Accountability</div>
+        <div class="header-subtitle">RBAC Secure Account & Admin System</div>
+      </div>
+      <div class="user-pill">
+        <span id="current-user-name" style="font-weight:600;">Admin</span>
+        <span class="role-badge role-admin" id="current-role-badge">ADMIN</span>
+      </div>
+    </div>
+  </header>
 
-    if (getRes.ok) {
-      const fileData = await getRes.json();
-      sha = fileData.sha;
+  <div class="date-bar">
+    <span>Week Commencing (Mon):</span>
+    <input type="date" id="week-start-date" />
+  </div>
+
+  <div class="container">
+    <div class="readonly-banner" id="readonly-banner">
+      ⚠️ <strong>Read-Only Mode:</strong> You are logged in with view-only permissions. To modify records, sign in with a Read/Write or Admin account.
+    </div>
+
+    <!-- TAB 1: WEEKLY SETTLEMENT -->
+    <div id="tab-settlement" class="tab-content active">
+      <div class="summary-box">
+        <div class="payout-title">Total Net Settlement Payout</div>
+        <div class="payout-amount" id="disp-net-payout">$0.00</div>
+        <div class="summary-stats">
+          <div>
+            <div>Ministry Outings</div>
+            <div class="summary-stat-val" id="disp-stat-outings">0 / 3</div>
+          </div>
+          <div>
+            <div>Study Days</div>
+            <div class="summary-stat-val" id="disp-stat-study">0 / 7</div>
+          </div>
+          <div>
+            <div>Total Deductions</div>
+            <div class="summary-stat-val" style="color:#f87171;" id="disp-stat-deductions">-$0.00</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">1. Base Allowance & Incentive Earnings</div>
+        <div class="calc-row">
+          <div class="calc-label">Base Chores & Ministry (3x Goal)</div>
+          <div class="calc-val green" id="earn-base">$50.00</div>
+        </div>
+        <div class="calc-row">
+          <div class="calc-label">Daily Personal Study ($1/day verified)</div>
+          <div class="calc-val green" id="earn-study">$0.00</div>
+        </div>
+        <div class="calc-row">
+          <div class="calc-label">Conduct Study Bonus Increase</div>
+          <div class="calc-val green" id="earn-study-bonus">$0.00</div>
+        </div>
+        <div class="calc-row">
+          <div class="calc-label">Tablet Incentive (Year 1 Active)</div>
+          <div class="calc-val green" id="earn-tablet">$15.00</div>
+        </div>
+        <div class="calc-row">
+          <div class="calc-label">Media & Attitude Reward (No Hip Hop)</div>
+          <div class="calc-val green" id="earn-media">$5.00</div>
+        </div>
+        <div id="custom-incentive-earnings"></div>
+        <div class="calc-row" style="font-weight:700; border-top:1px solid #cbd5e1; padding-top:8px;">
+          <div class="calc-label">Total Gross Earnings</div>
+          <div class="calc-val green" id="earn-total">$70.00</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Performance / Proof Status (Weekly Select)</div>
+        <div class="form-group">
+          <label>Select or Add Status for this Week</label>
+          <div class="select-with-add">
+            <select id="sel-perf-status" onchange="state.perfStatus = this.value; saveToStorage();"></select>
+            <button class="btn-small-add write-control" title="Add new option" onclick="promptAddNewOption('perfStatus')">+</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">2. Conduct Standards & Penalty Deductions</div>
+        <div class="calc-row">
+          <div class="calc-label">Foul Language / Single Vulgarity</div>
+          <div class="calc-val red" id="ded-lang">-$0.00</div>
+        </div>
+        <div class="calc-row">
+          <div class="calc-label">Excessive Vulgarity (>4x)</div>
+          <div class="calc-val red" id="ded-excess-lang">-$0.00</div>
+        </div>
+        <div class="calc-row">
+          <div class="calc-label">Maternal Disrespect Offenses (-$5/off.)</div>
+          <div class="calc-val red" id="ded-respect">-$0.00</div>
+        </div>
+        <div class="calc-row">
+          <div class="calc-label">Intentional Hip-Hop Violations (Tiered)</div>
+          <div class="calc-val red" id="ded-hiphop">-$0.00</div>
+        </div>
+        <div class="calc-row" style="font-weight:700; border-top:1px solid #cbd5e1; padding-top:8px;">
+          <div class="calc-label">Total Conduct Deductions</div>
+          <div class="calc-val red" id="ded-total">-$0.00</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Incident Count / Proof (Weekly Select)</div>
+        <div class="form-group">
+          <label>Select or Add Incident Proof Summary</label>
+          <div class="select-with-add">
+            <select id="sel-incident-status" onchange="state.incidentStatus = this.value; saveToStorage();"></select>
+            <button class="btn-small-add write-control" title="Add new option" onclick="promptAddNewOption('incidentStatus')">+</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card write-control">
+        <button class="btn-action" onclick="saveWeekData()">Save & Finalize Week</button>
+      </div>
+    </div>
+
+    <!-- TAB 2: SPIRITUAL PROOFS LOG -->
+    <div id="tab-spiritual" class="tab-content">
+      <div class="card">
+        <div class="card-title">
+          <span>Daily Spiritual Proofs & Ministry</span>
+          <span style="font-size:11px; color:var(--text-muted);" id="study-count-badge">0/7 Days</span>
+        </div>
+        <div id="days-container"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Conduct Effort Bonus</div>
+        <div class="form-group">
+          <label>Additional Study Conduct Increase ($)</label>
+          <input type="number" id="study-conduct-bonus" class="write-control" min="0" max="10" step="1" value="0" />
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: CONDUCT & ATTITUDE LOG -->
+    <div id="tab-conduct" class="tab-content">
+      <div class="card">
+        <div class="card-title">Language & Vulgarity Tracker</div>
+        <div class="form-group">
+          <label>Logged Occurrences ("F-word" / Vulgarity)</label>
+          <div class="stepper">
+            <button class="write-control" onclick="updateStepper('count-vulg', -1)">-</button>
+            <span id="count-vulg">0</span>
+            <button class="write-control" onclick="updateStepper('count-vulg', 1)">+</button>
+          </div>
+        </div>
+        <div style="font-size:11px; color:var(--text-muted); margin-top:6px;">
+          * -$5.00 for $\ge$1 occurrence; Additional -$10.00 if >4 occurrences.
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Family Respect Standard (Maternal Disrespect)</div>
+        <div class="form-group">
+          <label>Informal Warnings Issued (Mother's Discretion)</label>
+          <div class="stepper">
+            <button class="write-control" onclick="updateStepper('count-warnings', -1)">-</button>
+            <span id="count-warnings">0</span>
+            <button class="write-control" onclick="updateStepper('count-warnings', 1)">+</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Formal Charged Offenses (-$5.00 each)</label>
+          <div class="stepper">
+            <button class="write-control" onclick="updateStepper('count-respect-offenses', -1)">-</button>
+            <span id="count-respect-offenses">0</span>
+            <button class="write-control" onclick="updateStepper('count-respect-offenses', 1)">+</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Intentional Hip-Hop & Attitude Reward</div>
+        <div class="form-group">
+          <label>Intentional Hip-Hop Violations Count</label>
+          <div class="stepper">
+            <button class="write-control" onclick="updateStepper('count-hiphop', -1)">-</button>
+            <span id="count-hiphop">0</span>
+            <button class="write-control" onclick="updateStepper('count-hiphop', 1)">+</button>
+          </div>
+        </div>
+        <div style="font-size:11px; color:var(--text-muted); margin-bottom:10px;">
+          * 1st: -$2 | 2nd: -$3 | 3rd: -$4 | $\ge$4th: -$5 each (Forfeits Media Reward).
+        </div>
+        <div class="form-group">
+          <label>Attitude & Demeanor Rating (Scales $5.00 to $7.00)</label>
+          <select id="sel-attitude-rating" class="write-control">
+            <option value="5">5 - Exemplary ($7.00 Max Reward)</option>
+            <option value="4">4 - Very Good ($7.00 Reward)</option>
+            <option value="3">3 - Good / Cooperative ($6.00 Reward)</option>
+            <option value="2">2 - Fair ($5.00 Base Floor)</option>
+            <option value="1">1 - Poor / Resistant ($5.00 Base Floor)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 4: OPTIONS MANAGER -->
+    <div id="tab-options" class="tab-content">
+      <div class="card">
+        <div class="card-title">Manage Bible Reading / Study Topics</div>
+        <div class="form-group select-with-add write-control">
+          <input type="text" id="input-new-topic" placeholder="Enter new custom study topic..." />
+          <button class="btn-small-add" onclick="addCustomOption('studyTopics', 'input-new-topic')">Add</button>
+        </div>
+        <div class="tag-list" id="list-studyTopics"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Manage Service Outing Details</div>
+        <div class="form-group select-with-add write-control">
+          <input type="text" id="input-new-outing" placeholder="Enter new service outing detail..." />
+          <button class="btn-small-add" onclick="addCustomOption('outingDetails', 'input-new-outing')">Add</button>
+        </div>
+        <div class="tag-list" id="list-outingDetails"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Manage Performance / Proof Statuses</div>
+        <div class="form-group select-with-add write-control">
+          <input type="text" id="input-new-perf" placeholder="Enter new performance status..." />
+          <button class="btn-small-add" onclick="addCustomOption('perfStatus', 'input-new-perf')">Add</button>
+        </div>
+        <div class="tag-list" id="list-perfStatus"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Manage Incident Count / Proof Options</div>
+        <div class="form-group select-with-add write-control">
+          <input type="text" id="input-new-inc" placeholder="Enter new incident proof text..." />
+          <button class="btn-small-add" onclick="addCustomOption('incidentStatus', 'input-new-inc')">Add</button>
+        </div>
+        <div class="tag-list" id="list-incidentStatus"></div>
+      </div>
+    </div>
+
+    <!-- TAB 5: ADMIN & ACCOUNT MANAGEMENT -->
+    <div id="tab-admin" class="tab-content">
+      <!-- Current Session & Switch Account -->
+      <div class="card">
+        <div class="card-title">Active User Session</div>
+        <div class="calc-row">
+          <div class="calc-label">Logged In User</div>
+          <div class="calc-val" id="session-user-display">Admin</div>
+        </div>
+        <div class="calc-row">
+          <div class="calc-label">Assigned Role</div>
+          <div class="calc-val" id="session-role-display">ADMIN</div>
+        </div>
+        <button class="btn-action secondary" onclick="showLoginModal()">Switch / Log In With Another Account</button>
+      </div>
+
+      <!-- Add User with Username & Password (Admin Only) -->
+      <div class="card" id="admin-user-management-card">
+        <div class="card-title">Add User (RBAC Authorization)</div>
+        <div class="form-group">
+          <label>Display / Full Name</label>
+          <input type="text" id="new-user-fullname" placeholder="e.g. Lead Developer, Child, Mother" />
+        </div>
+        <div class="form-group">
+          <label>Username</label>
+          <input type="text" id="new-user-username" placeholder="e.g. jdoe, mother, elder1" />
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="new-user-password" placeholder="Enter secure password..." />
+        </div>
+        <div class="form-group">
+          <label>RBAC Role</label>
+          <select id="new-user-role">
+            <option value="admin">Admin (Full Control, User Management & Edits)</option>
+            <option value="readwrite">Read/Write (Can Edit Proofs, Chores & Conduct)</option>
+            <option value="readonly">Read-Only (Can View Payouts & Proofs Only)</option>
+          </select>
+        </div>
+        <button class="btn-action" onclick="addNewAccountWithAuth()">Create Authorized Account</button>
+
+        <div style="margin-top:14px;">
+          <label>Registered System Accounts</label>
+          <div style="overflow-x: auto;">
+            <table class="user-table">
+              <thead>
+                <tr>
+                  <th>Display Name</th>
+                  <th>Username</th>
+                  <th>Role</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="user-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" id="admin-incentive-card">
+        <div class="card-title">Custom Incentives</div>
+        <p style="font-size:11px; color:var(--text-muted); line-height:1.5; margin-bottom:10px;">Create reusable rewards, then apply them to individual weeks from the Settlement tab.</p>
+        <div class="form-group"><label>Incentive Name</label><input type="text" id="new-incentive-name" maxlength="80" placeholder="e.g. Perfect attendance" /></div>
+        <div class="form-group"><label>Reward Amount ($)</label><input type="number" id="new-incentive-amount" min="0.01" max="100000" step="0.01" placeholder="10.00" /></div>
+        <button class="btn-action" onclick="addIncentive()">Add Incentive</button>
+        <div id="incentive-admin-list" class="tag-list" style="margin-top:12px;"></div>
+      </div>
+
+      <div class="card" id="admin-firebase-card">
+        <div class="card-title">Firebase Cloud Sync <span id="firebase-sync-badge" class="role-badge role-readonly">LOCAL ONLY</span></div>
+        <p style="font-size:11px; color:var(--text-muted); line-height:1.5; margin-bottom:10px;">
+          Connect a Firebase Realtime Database without changing offline storage. Settings and credentials remain on this device.
+        </p>
+        <div class="form-group">
+          <label>Realtime Database URL</label>
+          <input type="text" id="firebase-database-url" placeholder="https://your-project-default-rtdb.firebaseio.com" />
+        </div>
+        <div class="form-group">
+          <label>Household Sync ID</label>
+          <input type="text" id="firebase-household-id" placeholder="e.g. smith-household" />
+        </div>
+        <div class="form-group">
+          <label>Firebase Auth ID Token (recommended)</label>
+          <input type="password" id="firebase-auth-token" placeholder="Bearer token; stored only on this device" autocomplete="off" />
+        </div>
+        <label style="display:flex; align-items:center; gap:8px; margin:10px 0;">
+          <input type="checkbox" id="firebase-auto-sync" /> Upload changes automatically while online
+        </label>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+          <button class="btn-action" onclick="saveFirebaseSettings()">Save & Test</button>
+          <button class="btn-action secondary" onclick="pullFromFirebase()">Download Cloud State</button>
+        </div>
+        <button class="btn-action secondary" onclick="pushToFirebase()">Upload Current Device State</button>
+        <div id="firebase-sync-status" style="font-size:11px; color:var(--text-muted); margin-top:8px; line-height:1.4;" aria-live="polite">Firebase is not configured.</div>
+      </div>
+
+      <div class="card" id="admin-supabase-card">
+        <div class="card-title">Supabase Cloud Sync <span id="supabase-sync-badge" class="role-badge role-readonly">LOCAL ONLY</span></div>
+        <p style="font-size:11px; color:var(--text-muted); line-height:1.5; margin-bottom:10px;">
+          Sign in with a Supabase owner account. The project URL and public anon key stay on this device; your password is never saved.
+        </p>
+        <div class="form-group"><label>Supabase Project URL</label><input type="url" id="supabase-project-url" value="https://qjcucjjjpnezimzcefom.supabase.co" placeholder="https://your-project.supabase.co" autocomplete="url" /></div>
+        <div class="form-group"><label>Supabase Anon / Publishable Key</label><input type="password" id="supabase-anon-key" value="sb_publishable_wIVb-0WZ0cexpbWWzG2M0g_7_o_gNo7" placeholder="Public browser-safe project key" autocomplete="off" /></div>
+        <div class="form-group"><label>Owner Email</label><input type="email" id="supabase-owner-email" placeholder="owner@example.com" autocomplete="username" /></div>
+        <div class="form-group"><label>Owner Password</label><input type="password" id="supabase-owner-password" placeholder="Not stored on this device" autocomplete="current-password" /></div>
+        <div class="form-group"><label>Household Name</label><input type="text" id="supabase-household-name" placeholder="My Household" /></div>
+        <label style="display:flex; align-items:center; gap:8px; margin:10px 0;"><input type="checkbox" id="supabase-auto-sync" /> Upload changes automatically while signed in</label>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+          <button class="btn-action" onclick="connectSupabase()">Save & Sign In</button>
+          <button class="btn-action secondary" onclick="registerSupabaseOwner()">Create Owner Account</button>
+          <button class="btn-action secondary" onclick="resendSupabaseConfirmation()">Resend Confirmation</button>
+          <button class="btn-action secondary" onclick="pullFromSupabase()">Download Cloud State</button>
+          <button class="btn-action secondary" onclick="pushToSupabase()">Upload Device State</button>
+        </div>
+        <button class="btn-action secondary" onclick="disconnectSupabase()">Sign Out of Supabase</button>
+        <div id="supabase-sync-status" style="font-size:11px; color:var(--text-muted); margin-top:8px; line-height:1.4;" aria-live="polite">Supabase is not configured.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- BOTTOM NAVIGATION -->
+  <nav class="bottom-nav">
+    <button class="nav-btn active" onclick="switchTab('settlement', this)">
+      <span class="nav-icon">📊</span>
+      <span>Settlement</span>
+    </button>
+    <button class="nav-btn" onclick="switchTab('spiritual', this)">
+      <span class="nav-icon">📖</span>
+      <span>Spiritual</span>
+    </button>
+    <button class="nav-btn" onclick="switchTab('conduct', this)">
+      <span class="nav-icon">⚖️</span>
+      <span>Conduct</span>
+    </button>
+    <button class="nav-btn" onclick="switchTab('options', this)">
+      <span class="nav-icon">⚙️</span>
+      <span>Options</span>
+    </button>
+    <button class="nav-btn" onclick="switchTab('admin', this)">
+      <span class="nav-icon">👤</span>
+      <span>Admin</span>
+    </button>
+  </nav>
+
+  <script>
+    const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    const STATE_STORAGE_KEY = 'spiritual_tracker_state_v4';
+    const LOGIN_SESSION_KEY = 'spiritual_tracker_login_session_v1';
+    const FIREBASE_SETTINGS_KEY = 'spiritual_tracker_firebase_v1';
+    const SUPABASE_SETTINGS_KEY = 'spiritual_tracker_supabase_v1';
+    const SUPABASE_SESSION_KEY = 'spiritual_tracker_supabase_session_v1';
+    let firebaseUploadTimer = null;
+    let firebaseSyncInProgress = false;
+    let supabaseUploadTimer = null;
+    let supabaseSyncInProgress = false;
+
+    const DEFAULT_ACCOUNTS = [
+      { id: 'usr-1', name: 'Household Lead', username: 'admin', password: 'admin123', role: 'admin' },
+      { id: 'usr-2', name: 'Adult Child', username: 'child', password: 'pass123', role: 'readwrite' },
+      { id: 'usr-3', name: 'Family Auditor', username: 'guest', password: 'view123', role: 'readonly' }
+    ];
+
+    const DEFAULT_OPTIONS = {
+      studyTopics: [
+        "Matthew Ch. 5-7 (Sermon on the Mount Meditation)",
+        "Weekly Bible Reading: 1 Corinthians 13",
+        "Watchtower Study Article & Paragraph Prep",
+        "Proverbs 3-4 Personal Reflection & Application",
+        "JW Broadcasting Monthly Program & Study Notes",
+        "Midweek Meeting Workbook Preparation",
+        "Return Visits & Scripture Practice",
+        "Sunday Public Discourse Scripture Review",
+        "Psalms Meditation & Personal Prayer",
+        "Family Worship Scripture Discussion"
+      ],
+      outingDetails: [
+        "Morning Group Field Service (2.0 hrs)",
+        "Weekend Door-to-Door Ministry (2.5 hrs)",
+        "Evening Cart / Public Witnessing (1.5 hrs)",
+        "Return Visits & Bible Studies (2.0 hrs)",
+        "Informal & Letter/Phone Witnessing (1.0 hr)",
+        "Midweek Ministry Outing (1.5 hrs)",
+        "Congregation Meeting Prep / Rest Day",
+        "No Service Scheduled"
+      ],
+      perfStatus: [
+        "Verified: 3 Outings + Chores Complete",
+        "Verified from 'Spiritual Proofs' (7/7 days)",
+        "Verified: Study Proof Provided (Partial)",
+        "Active (Year 1 Agreement)",
+        "Attitude Score: Good (Linked from Conduct Tab)",
+        "Attitude Score: Exemplary (Linked from Conduct Tab)",
+        "Partial: Chores Incomplete",
+        "Pending Weekly Review"
+      ],
+      incidentStatus: [
+        "0 occurrences logged (Clean week)",
+        "1 occurrence logged (-$5.00)",
+        "2 occurrences logged (-$5.00)",
+        "3 occurrences logged (-$5.00)",
+        "4 occurrences logged (-$5.00)",
+        "5+ occurrences logged (Excessive: -$15.00 total)",
+        "0 formal penalties assessed (In full standing)",
+        "1 formal warning issued (No penalty applied)",
+        "1 penalty assessed by Mother (-$5.00)"
+      ]
+    };
+
+    let state = {
+      currentUser: 'usr-1',
+      accounts: JSON.parse(JSON.stringify(DEFAULT_ACCOUNTS)),
+      weekStart: '',
+      days: [],
+      studyConductBonus: 0,
+      vulgCount: 0,
+      warningsCount: 0,
+      respectOffenses: 0,
+      hiphopCount: 0,
+      attitudeRating: 5,
+      perfStatus: '',
+      incidentStatus: '',
+      incentives: [],
+      appliedIncentiveIds: [],
+      customOptions: JSON.parse(JSON.stringify(DEFAULT_OPTIONS))
+    };
+
+    function initDays() {
+      state.days = DAYS.map((name, i) => ({
+        name,
+        offset: i,
+        topic: state.customOptions.studyTopics[i % state.customOptions.studyTopics.length],
+        minutes: 20,
+        studyProof: true,
+        serviceOuting: i === 1 || i === 3 || i === 5,
+        outingDetail: i === 1 || i === 3 || i === 5 ? state.customOptions.outingDetails[i % 3] : state.customOptions.outingDetails[7]
+      }));
     }
 
-    // 2. Encode JSON content to Base64
-    const contentPayload = JSON.stringify(state, null, 2);
-    const base64Content = btoa(unescape(encodeURIComponent(contentPayload)));
-
-    // 3. Commit file via PUT request
-    const putRes = await fetch(url, {
-      method: 'PUT',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Accept': 'application/vnd.github+json',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        message: `Admin Sync: Updated records for ${state.accounts.length} users`,
-        content: base64Content,
-        sha: sha || undefined,
-        branch: branch
-      })
-    });
-
-    if (putRes.ok) {
-      alert('✅ Successfully committed state directly to GitHub repository!');
-    } else {
-      const err = await putRes.json();
-      alert(`GitHub API Error: ${err.message}`);
+    function getCurrentUser() {
+      return state.accounts.find(a => a.id === state.currentUser) || state.accounts[0];
     }
-  } catch (e) {
-    alert(`Failed to connect to GitHub: ${e.message}`);
-  }
-}
 
-async function pullStateFromGitHub() {
-  const owner = document.getElementById('git-repo-owner').value.trim();
-  const repo = document.getElementById('git-repo-name').value.trim();
-  const branch = document.getElementById('git-repo-branch').value.trim() || 'main';
-  const token = document.getElementById('git-repo-token').value.trim();
+    function applyRolePermissions() {
+      const user = getCurrentUser();
+      const isAdmin = user.role === 'admin';
+      const canWrite = user.role === 'admin' || user.role === 'readwrite';
 
-  if (!owner || !repo || !token) {
-    alert('Please enter Owner, Repo, and Token to pull data.');
-    return;
-  }
+      // Update header banner
+      document.getElementById('current-user-name').textContent = user.name;
+      const roleBadge = document.getElementById('current-role-badge');
+      roleBadge.textContent = user.role.toUpperCase();
+      roleBadge.className = `role-badge role-${user.role}`;
 
-  try {
-    const res = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/accounts.json?ref=${branch}`, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Accept': 'application/vnd.github+json'
+      // Update session card
+      document.getElementById('session-user-display').textContent = `${user.name} (@${user.username})`;
+      document.getElementById('session-role-display').textContent = user.role.toUpperCase();
+
+      // Show / hide read-only banner
+      document.getElementById('readonly-banner').style.display = canWrite ? 'none' : 'block';
+
+      // Enable / disable inputs
+      document.querySelectorAll('.write-control').forEach(el => {
+        if (el.tagName === 'BUTTON' || el.tagName === 'INPUT' || el.tagName === 'SELECT') {
+          el.disabled = !canWrite;
+          if (!canWrite) el.style.opacity = '0.5';
+          else el.style.opacity = '1';
+        } else {
+          el.style.display = canWrite ? '' : 'none';
+        }
+      });
+
+      // Admin only card
+      document.getElementById('admin-user-management-card').style.display = isAdmin ? 'block' : 'none';
+      document.getElementById('admin-incentive-card').style.display = isAdmin ? 'block' : 'none';
+      document.getElementById('admin-firebase-card').style.display = isAdmin ? 'block' : 'none';
+      document.getElementById('admin-supabase-card').style.display = isAdmin ? 'block' : 'none';
+    }
+
+    function renderUserAdminSection() {
+      const tbody = document.getElementById('user-table-body');
+      tbody.innerHTML = state.accounts.map(a => `
+        <tr>
+          <td style="font-weight:600;">${a.name}</td>
+          <td style="color:var(--text-muted);">@${a.username}</td>
+          <td><span class="role-badge role-${a.role}">${a.role}</span></td>
+          <td>
+            ${state.accounts.length > 1 ? `<button style="color:var(--red-text); border:none; background:none; cursor:pointer; font-weight:bold;" onclick="removeAccount('${a.id}')">Delete</button>` : 'Protected'}
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function showLoginModal() {
+      sessionStorage.removeItem(LOGIN_SESSION_KEY);
+      document.getElementById('login-username').value = '';
+      document.getElementById('login-password').value = '';
+      document.getElementById('login-error').textContent = '';
+      document.getElementById('login-modal').classList.add('active');
+      setTimeout(() => document.getElementById('login-username').focus(), 0);
+    }
+
+    function handleLogin() {
+      const u = document.getElementById('login-username').value.trim();
+      const p = document.getElementById('login-password').value.trim();
+
+      const found = state.accounts.find(a => a.username.toLowerCase() === u.toLowerCase() && a.password === p);
+      if (found) {
+        state.currentUser = found.id;
+        sessionStorage.setItem(LOGIN_SESSION_KEY, found.id);
+        document.getElementById('login-modal').classList.remove('active');
+        saveToStorage();
+        applyRolePermissions();
+        renderDays();
+        renderIncentives();
+        alert(`Welcome back, ${found.name}! Logged in as [${found.role.toUpperCase()}].`);
+      } else {
+        document.getElementById('login-error').textContent = 'Invalid username or password. Please try again.';
       }
-    });
+    }
 
-    if (res.ok) {
-      const data = await res.json();
-      const decoded = decodeURIComponent(escape(atob(data.content)));
-      const remoteState = JSON.parse(decoded);
-      
-      state = Object.assign(state, remoteState);
+    function addNewAccountWithAuth() {
+      const nameInput = document.getElementById('new-user-fullname');
+      const usernameInput = document.getElementById('new-user-username');
+      const passInput = document.getElementById('new-user-password');
+      const roleInput = document.getElementById('new-user-role');
+
+      const name = nameInput.value.trim();
+      const username = usernameInput.value.trim().toLowerCase();
+      const password = passInput.value.trim();
+      const role = roleInput.value;
+
+      if (!name || !username || !password) {
+        alert('Please provide a full display name, username, and password.');
+        return;
+      }
+
+      if (state.accounts.some(a => a.username.toLowerCase() === username)) {
+        alert('This username already exists. Please choose a different username.');
+        return;
+      }
+
+      const newId = 'usr-' + Date.now();
+      state.accounts.push({ id: newId, name, username, password, role });
+      nameInput.value = '';
+      usernameInput.value = '';
+      passInput.value = '';
+
       saveToStorage();
       renderUserAdminSection();
-      renderAdminParticipantSelector();
-      syncUIWithActiveRecord();
-      renderDays();
-      calculateSettlement();
-      alert('✅ Successfully pulled and synced latest data from GitHub repository!');
-    } else {
-      alert('Could not find accounts.json on remote branch.');
+      alert(`User account for "${name}" (@${username}) created successfully with [${role.toUpperCase()}] role.`);
     }
-  } catch (e) {
-    alert(`Pull failed: ${e.message}`);
-  }
-}
 
-// Auto-populate saved Git credentials on load
-function loadGitConfig() {
-  const saved = localStorage.getItem('git_sync_config');
-  if (saved) {
-    const cfg = JSON.parse(saved);
-    if (document.getElementById('git-repo-owner')) document.getElementById('git-repo-owner').value = cfg.owner || '';
-    if (document.getElementById('git-repo-name')) document.getElementById('git-repo-name').value = cfg.repo || '';
-    if (document.getElementById('git-repo-branch')) document.getElementById('git-repo-branch').value = cfg.branch || 'main';
-    if (document.getElementById('git-repo-token')) document.getElementById('git-repo-token').value = cfg.token || '';
-  }
-}
+    function removeAccount(userId) {
+      if (state.accounts.length <= 1) {
+        alert('Cannot remove the last remaining account.');
+        return;
+      }
+      state.accounts = state.accounts.filter(a => a.id !== userId);
+      if (state.currentUser === userId) {
+        state.currentUser = state.accounts[0].id;
+      }
+      saveToStorage();
+      renderUserAdminSection();
+      applyRolePermissions();
+    }
+
+    function renderDays() {
+      const container = document.getElementById('days-container');
+      container.innerHTML = '';
+      const baseDate = new Date(state.weekStart + 'T00:00:00');
+      const canWrite = getCurrentUser().role !== 'readonly';
+
+      state.days.forEach((d, idx) => {
+        const dDate = new Date(baseDate);
+        dDate.setDate(baseDate.getDate() + d.offset);
+        const dateStr = isNaN(dDate.getTime()) ? '' : dDate.toISOString().split('T')[0];
+
+        const row = document.createElement('div');
+        row.className = 'day-row';
+        row.innerHTML = `
+          <div class="day-header">
+            <span class="day-name">${d.name}</span>
+            <span class="day-date">${dateStr}</span>
+          </div>
+          <div class="form-group">
+            <label>Bible Study Topic / Meditation Material</label>
+            <div class="select-with-add">
+              <select ${!canWrite ? 'disabled' : ''} onchange="updateDayTopic(${idx}, this.value)">
+                ${state.customOptions.studyTopics.map(t => `<option value="${t}" ${t === d.topic ? 'selected' : ''}>${t}</option>`).join('')}
+              </select>
+              ${canWrite ? `<button class="btn-small-add" title="Add topic" onclick="promptAddNewOption('studyTopics', ${idx})">+</button>` : ''}
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Service Outing / Activity Details</label>
+            <div class="select-with-add">
+              <select ${!canWrite ? 'disabled' : ''} onchange="updateDayOutingDetail(${idx}, this.value)">
+                ${state.customOptions.outingDetails.map(o => `<option value="${o}" ${o === d.outingDetail ? 'selected' : ''}>${o}</option>`).join('')}
+              </select>
+              ${canWrite ? `<button class="btn-small-add" title="Add outing" onclick="promptAddNewOption('outingDetails', ${idx})">+</button>` : ''}
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Study Minutes</label>
+            <input type="number" min="0" max="180" value="${d.minutes}" ${!canWrite ? 'disabled' : ''} onchange="updateDayMinutes(${idx}, this.value)" />
+          </div>
+          <div class="check-grid">
+            <label class="check-item">
+              <input type="checkbox" ${d.studyProof ? 'checked' : ''} ${!canWrite ? 'disabled' : ''} onchange="toggleDayStudyProof(${idx}, this.checked)" />
+              <span>Study Proof (&ge;15m)</span>
+            </label>
+            <label class="check-item">
+              <input type="checkbox" ${d.serviceOuting ? 'checked' : ''} ${!canWrite ? 'disabled' : ''} onchange="toggleDayService(${idx}, this.checked)" />
+              <span>Field Service</span>
+            </label>
+          </div>
+        `;
+        container.appendChild(row);
+      });
+    }
+
+    function renderSelectDropdowns() {
+      const selPerf = document.getElementById('sel-perf-status');
+      selPerf.innerHTML = state.customOptions.perfStatus.map(s => `<option value="${s}" ${s === state.perfStatus ? 'selected' : ''}>${s}</option>`).join('');
+      if (!state.perfStatus && state.customOptions.perfStatus.length > 0) {
+        state.perfStatus = state.customOptions.perfStatus[0];
+      }
+
+      const selInc = document.getElementById('sel-incident-status');
+      selInc.innerHTML = state.customOptions.incidentStatus.map(s => `<option value="${s}" ${s === state.incidentStatus ? 'selected' : ''}>${s}</option>`).join('');
+      if (!state.incidentStatus && state.customOptions.incidentStatus.length > 0) {
+        state.incidentStatus = state.customOptions.incidentStatus[0];
+      }
+    }
+
+    function renderOptionManagerLists() {
+      const canWrite = getCurrentUser().role !== 'readonly';
+      ['studyTopics', 'outingDetails', 'perfStatus', 'incidentStatus'].forEach(key => {
+        const container = document.getElementById(`list-${key}`);
+        if (!container) return;
+        container.innerHTML = state.customOptions[key].map((item, idx) => `
+          <div class="tag-item">
+            <span>${item}</span>
+            ${canWrite ? `<button onclick="removeCustomOption('${key}', ${idx})" title="Remove option">&times;</button>` : ''}
+          </div>
+        `).join('');
+      });
+    }
+
+    function addCustomOption(key, inputId) {
+      const input = document.getElementById(inputId);
+      const val = input.value.trim();
+      if (val && !state.customOptions[key].includes(val)) {
+        state.customOptions[key].push(val);
+        input.value = '';
+        saveToStorage();
+        renderOptionManagerLists();
+        renderSelectDropdowns();
+        renderDays();
+      }
+    }
+
+    function promptAddNewOption(key, dayIdx = null) {
+      const val = prompt(`Enter new option to add to this week's dropdown list:`);
+      if (val && val.trim()) {
+        const cleanVal = val.trim();
+        if (!state.customOptions[key].includes(cleanVal)) {
+          state.customOptions[key].push(cleanVal);
+        }
+        if (dayIdx !== null) {
+          if (key === 'studyTopics') state.days[dayIdx].topic = cleanVal;
+          if (key === 'outingDetails') state.days[dayIdx].outingDetail = cleanVal;
+        } else {
+          if (key === 'perfStatus') state.perfStatus = cleanVal;
+          if (key === 'incidentStatus') state.incidentStatus = cleanVal;
+        }
+        saveToStorage();
+        renderOptionManagerLists();
+        renderSelectDropdowns();
+        renderDays();
+      }
+    }
+
+    function removeCustomOption(key, idx) {
+      state.customOptions[key].splice(idx, 1);
+      saveToStorage();
+      renderOptionManagerLists();
+      renderSelectDropdowns();
+      renderDays();
+    }
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>'"]/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[character]);
+    }
+
+    function addIncentive() {
+      const nameInput = document.getElementById('new-incentive-name');
+      const amountInput = document.getElementById('new-incentive-amount');
+      const name = nameInput.value.trim();
+      const amount = Number(amountInput.value);
+      if (!name || !Number.isFinite(amount) || amount <= 0) { alert('Enter an incentive name and an amount greater than zero.'); return; }
+      const id = `inc-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+      state.incentives.push({ id, name, amount: Math.round(amount * 100) / 100 });
+      nameInput.value = '';
+      amountInput.value = '';
+      saveToStorage();
+      renderIncentives();
+      calculateSettlement();
+    }
+
+    function removeIncentive(id) {
+      state.incentives = state.incentives.filter(incentive => incentive.id !== id);
+      state.appliedIncentiveIds = state.appliedIncentiveIds.filter(incentiveId => incentiveId !== id);
+      saveToStorage();
+      renderIncentives();
+      calculateSettlement();
+    }
+
+    function toggleIncentive(id, applied) {
+      const selected = new Set(state.appliedIncentiveIds);
+      if (applied) selected.add(id); else selected.delete(id);
+      state.appliedIncentiveIds = [...selected];
+      saveToStorage();
+      renderIncentives();
+      calculateSettlement();
+    }
+
+    function renderIncentives() {
+      const incentives = state.incentives || [];
+      const applied = new Set(state.appliedIncentiveIds || []);
+      const canWrite = getCurrentUser().role !== 'readonly';
+      document.getElementById('custom-incentive-earnings').innerHTML = incentives.length ? incentives.map(incentive => `
+        <div class="calc-row">
+          <label class="calc-label" style="display:flex; align-items:center; gap:8px;">
+            <input type="checkbox" class="write-control" ${applied.has(incentive.id) ? 'checked' : ''} ${canWrite ? '' : 'disabled'} onchange="toggleIncentive('${incentive.id}', this.checked)" />
+            ${escapeHtml(incentive.name)}
+          </label>
+          <div class="calc-val green">${applied.has(incentive.id) ? '+' : ''}$${Number(incentive.amount).toFixed(2)}</div>
+        </div>`).join('') : '<div style="font-size:11px; color:var(--text-muted); padding:6px 0;">No custom incentives configured.</div>';
+      document.getElementById('incentive-admin-list').innerHTML = incentives.length ? incentives.map(incentive => `
+        <span class="tag-item">${escapeHtml(incentive.name)} ($${Number(incentive.amount).toFixed(2)}) <button onclick="removeIncentive('${incentive.id}')">×</button></span>`).join('') : '<span style="font-size:11px; color:var(--text-muted);">No incentives added.</span>';
+    }
+
+    function calculateSettlement() {
+      const outingsCount = state.days.filter(d => d.serviceOuting).length;
+      const baseEarned = 50.00;
+
+      const studyDaysCount = state.days.filter(d => d.studyProof && d.minutes >= 15).length;
+      const studyEarned = studyDaysCount * 1.00;
+      const studyBonus = parseFloat(state.studyConductBonus) || 0.00;
+      const totalStudyEarned = studyEarned + studyBonus;
+
+      const tabletEarned = 15.00;
+
+      let mediaEarned = 0.00;
+      if (state.hiphopCount === 0) {
+        if (state.attitudeRating >= 4) mediaEarned = 7.00;
+        else if (state.attitudeRating === 3) mediaEarned = 6.00;
+        else mediaEarned = 5.00;
+      }
+
+      const appliedIds = new Set(state.appliedIncentiveIds || []);
+      const incentiveEarned = (state.incentives || []).filter(incentive => appliedIds.has(incentive.id)).reduce((total, incentive) => total + (Number(incentive.amount) || 0), 0);
+      const grossEarnings = baseEarned + totalStudyEarned + tabletEarned + mediaEarned + incentiveEarned;
+
+      // Deductions
+      let langDed = 0.00;
+      let excessLangDed = 0.00;
+      if (state.vulgCount > 0) langDed = 5.00;
+      if (state.vulgCount > 4) excessLangDed = 10.00;
+
+      const respectDed = state.respectOffenses * 5.00;
+
+      let hiphopDed = 0.00;
+      if (state.hiphopCount === 1) hiphopDed = 2.00;
+      else if (state.hiphopCount === 2) hiphopDed = 5.00;
+      else if (state.hiphopCount === 3) hiphopDed = 9.00;
+      else if (state.hiphopCount > 3) hiphopDed = 9.00 + ((state.hiphopCount - 3) * 5.00);
+
+      const totalDeductions = langDed + excessLangDed + respectDed + hiphopDed;
+      const netPayout = Math.max(0, grossEarnings - totalDeductions);
+
+      // Update DOM
+      document.getElementById('header-net-payout').textContent = `$${netPayout.toFixed(2)}`;
+      document.getElementById('disp-net-payout').textContent = `$${netPayout.toFixed(2)}`;
+      document.getElementById('disp-stat-outings').textContent = `${outingsCount} / 3`;
+      document.getElementById('disp-stat-study').textContent = `${studyDaysCount} / 7`;
+      document.getElementById('disp-stat-deductions').textContent = `-$${totalDeductions.toFixed(2)}`;
+      document.getElementById('study-count-badge').textContent = `${studyDaysCount} / 7 Days`;
+
+      document.getElementById('earn-base').textContent = `$${baseEarned.toFixed(2)}`;
+      document.getElementById('earn-study').textContent = `$${studyEarned.toFixed(2)}`;
+      document.getElementById('earn-study-bonus').textContent = `$${studyBonus.toFixed(2)}`;
+      document.getElementById('earn-tablet').textContent = `$${tabletEarned.toFixed(2)}`;
+      document.getElementById('earn-media').textContent = `$${mediaEarned.toFixed(2)}`;
+      document.getElementById('earn-total').textContent = `$${grossEarnings.toFixed(2)}`;
+
+      document.getElementById('ded-lang').textContent = `-$${langDed.toFixed(2)}`;
+      document.getElementById('ded-excess-lang').textContent = `-$${excessLangDed.toFixed(2)}`;
+      document.getElementById('ded-respect').textContent = `-$${respectDed.toFixed(2)}`;
+      document.getElementById('ded-hiphop').textContent = `-$${hiphopDed.toFixed(2)}`;
+      document.getElementById('ded-total').textContent = `-$${totalDeductions.toFixed(2)}`;
+    }
+
+    function switchTab(tabId, el) {
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById(`tab-${tabId}`).classList.add('active');
+      el.classList.add('active');
+    }
+
+    function updateStepper(id, delta) {
+      if (getCurrentUser().role === 'readonly') return;
+      if (id === 'count-vulg') {
+        state.vulgCount = Math.max(0, state.vulgCount + delta);
+        document.getElementById(id).textContent = state.vulgCount;
+      } else if (id === 'count-warnings') {
+        state.warningsCount = Math.max(0, state.warningsCount + delta);
+        document.getElementById(id).textContent = state.warningsCount;
+      } else if (id === 'count-respect-offenses') {
+        state.respectOffenses = Math.max(0, state.respectOffenses + delta);
+        document.getElementById(id).textContent = state.respectOffenses;
+      } else if (id === 'count-hiphop') {
+        state.hiphopCount = Math.max(0, state.hiphopCount + delta);
+        document.getElementById(id).textContent = state.hiphopCount;
+      }
+      calculateSettlement();
+      saveToStorage();
+    }
+
+    function updateDayTopic(idx, val) { state.days[idx].topic = val; saveToStorage(); }
+    function updateDayOutingDetail(idx, val) { state.days[idx].outingDetail = val; saveToStorage(); }
+    function updateDayMinutes(idx, val) { state.days[idx].minutes = parseInt(val) || 0; calculateSettlement(); saveToStorage(); }
+    function toggleDayStudyProof(idx, val) { state.days[idx].studyProof = val; calculateSettlement(); saveToStorage(); }
+    function toggleDayService(idx, val) { state.days[idx].serviceOuting = val; calculateSettlement(); saveToStorage(); }
+
+    document.getElementById('week-start-date').addEventListener('change', (e) => {
+      state.weekStart = e.target.value;
+      renderDays();
+      saveToStorage();
+    });
+
+    document.getElementById('study-conduct-bonus').addEventListener('input', (e) => {
+      state.studyConductBonus = e.target.value;
+      calculateSettlement();
+      saveToStorage();
+    });
+
+    document.getElementById('sel-attitude-rating').addEventListener('change', (e) => {
+      state.attitudeRating = parseInt(e.target.value);
+      calculateSettlement();
+      saveToStorage();
+    });
+
+    function saveToStorage() {
+      localStorage.setItem(STATE_STORAGE_KEY, JSON.stringify(state));
+      scheduleFirebaseUpload();
+      scheduleSupabaseUpload();
+    }
+
+    function loadFromStorage() {
+      const saved = localStorage.getItem(STATE_STORAGE_KEY);
+      if (saved) {
+        state = JSON.parse(saved);
+        if (!state.accounts) state.accounts = JSON.parse(JSON.stringify(DEFAULT_ACCOUNTS));
+        if (!state.currentUser) state.currentUser = state.accounts[0].id;
+        if (!state.customOptions) state.customOptions = JSON.parse(JSON.stringify(DEFAULT_OPTIONS));
+        if (!Array.isArray(state.incentives)) state.incentives = [];
+        if (!Array.isArray(state.appliedIncentiveIds)) state.appliedIncentiveIds = [];
+      } else {
+        const today = new Date();
+        const day = today.getDay();
+        const diff = today.getDate() - day + (day === 0 ? -6 : 1);
+        const monday = new Date(today.setDate(diff));
+        state.weekStart = monday.toISOString().split('T')[0];
+        initDays();
+      }
+      document.getElementById('week-start-date').value = state.weekStart;
+      document.getElementById('count-vulg').textContent = state.vulgCount;
+      document.getElementById('count-warnings').textContent = state.warningsCount;
+      document.getElementById('count-respect-offenses').textContent = state.respectOffenses;
+      document.getElementById('count-hiphop').textContent = state.hiphopCount;
+      document.getElementById('study-conduct-bonus').value = state.studyConductBonus;
+      document.getElementById('sel-attitude-rating').value = state.attitudeRating;
+
+      renderUserAdminSection();
+      applyRolePermissions();
+      renderOptionManagerLists();
+      renderSelectDropdowns();
+      renderDays();
+      renderIncentives();
+      calculateSettlement();
+      loadFirebaseSettingsIntoForm();
+      loadSupabaseSettingsIntoForm();
+      showSupabaseAuthCallbackStatus();
+      const sessionUserId = sessionStorage.getItem(LOGIN_SESSION_KEY);
+      if (sessionUserId && state.accounts.some(account => account.id === sessionUserId)) {
+        state.currentUser = sessionUserId;
+        document.getElementById('login-modal').classList.remove('active');
+        applyRolePermissions();
+      } else {
+        showLoginModal();
+      }
+    }
+
+    function getFirebaseSettings() {
+      try {
+        return JSON.parse(localStorage.getItem(FIREBASE_SETTINGS_KEY)) || {};
+      } catch (error) {
+        return {};
+      }
+    }
+
+    function normalizeFirebaseUrl(value) {
+      return value.trim().replace(/\/+$/, '');
+    }
+
+    function sanitizeFirebaseKey(value) {
+      return value.trim().replace(/[.#$\[\]\/]/g, '-');
+    }
+
+    function loadFirebaseSettingsIntoForm() {
+      const settings = getFirebaseSettings();
+      document.getElementById('firebase-database-url').value = settings.databaseUrl || '';
+      document.getElementById('firebase-household-id').value = settings.householdId || '';
+      document.getElementById('firebase-auth-token').value = settings.authToken || '';
+      document.getElementById('firebase-auto-sync').checked = settings.autoSync === true;
+      updateFirebaseStatus(settings.databaseUrl && settings.householdId ? 'Firebase configured. Ready to synchronize.' : 'Firebase is not configured.', false, Boolean(settings.databaseUrl && settings.householdId));
+    }
+
+    function readFirebaseForm() {
+      return {
+        databaseUrl: normalizeFirebaseUrl(document.getElementById('firebase-database-url').value),
+        householdId: sanitizeFirebaseKey(document.getElementById('firebase-household-id').value),
+        authToken: document.getElementById('firebase-auth-token').value.trim(),
+        autoSync: document.getElementById('firebase-auto-sync').checked
+      };
+    }
+
+    function firebaseEndpoint(settings) {
+      const path = `households/${encodeURIComponent(settings.householdId)}/applicationState.json`;
+      return `${settings.databaseUrl}/${path}`;
+    }
+
+    function firebaseHeaders(settings) {
+      const headers = { 'Content-Type': 'application/json' };
+      if (settings.authToken) headers.Authorization = `Bearer ${settings.authToken}`;
+      return headers;
+    }
+
+    function updateFirebaseStatus(message, isError = false, connected = false) {
+      const status = document.getElementById('firebase-sync-status');
+      const badge = document.getElementById('firebase-sync-badge');
+      status.textContent = message;
+      status.style.color = isError ? 'var(--red-text)' : 'var(--text-muted)';
+      badge.textContent = connected ? 'CONNECTED' : 'LOCAL ONLY';
+      badge.className = `role-badge ${connected ? 'role-readwrite' : 'role-readonly'}`;
+    }
+
+    async function saveFirebaseSettings() {
+      const settings = readFirebaseForm();
+      if (!settings.databaseUrl.startsWith('https://') || !settings.householdId) {
+        updateFirebaseStatus('Enter a valid HTTPS Realtime Database URL and household sync ID.', true);
+        return;
+      }
+      localStorage.setItem(FIREBASE_SETTINGS_KEY, JSON.stringify(settings));
+      updateFirebaseStatus('Testing Firebase connection…');
+      try {
+        const response = await fetch(firebaseEndpoint(settings), { method: 'GET', headers: firebaseHeaders(settings) });
+        if (!response.ok) throw new Error(await firebaseErrorMessage(response));
+        updateFirebaseStatus('Connection successful. Settings saved on this device.', false, true);
+      } catch (error) {
+        updateFirebaseStatus(`Settings saved, but the connection failed: ${error.message}`, true);
+      }
+    }
+
+    async function firebaseErrorMessage(response) {
+      let detail = '';
+      try {
+        const body = await response.json();
+        detail = body.error || body.message || '';
+      } catch (error) {}
+      return `${response.status} ${response.statusText}${detail ? ` — ${detail}` : ''}`;
+    }
+
+    async function pushToFirebase(options = {}) {
+      const settings = getFirebaseSettings();
+      if (!settings.databaseUrl || !settings.householdId || firebaseSyncInProgress) {
+        if (!options.silent) updateFirebaseStatus('Save valid Firebase settings before uploading.', true);
+        return false;
+      }
+      firebaseSyncInProgress = true;
+      if (!options.silent) updateFirebaseStatus('Uploading device state…');
+      try {
+        const payload = { schemaVersion: 1, updatedAt: new Date().toISOString(), state };
+        const response = await fetch(firebaseEndpoint(settings), {
+          method: 'PUT',
+          headers: firebaseHeaders(settings),
+          body: JSON.stringify(payload)
+        });
+        if (!response.ok) throw new Error(await firebaseErrorMessage(response));
+        updateFirebaseStatus(`Upload complete at ${new Date().toLocaleTimeString()}.`, false, true);
+        return true;
+      } catch (error) {
+        updateFirebaseStatus(`Upload failed: ${error.message}`, true);
+        return false;
+      } finally {
+        firebaseSyncInProgress = false;
+      }
+    }
+
+    async function pullFromFirebase() {
+      const settings = getFirebaseSettings();
+      if (!settings.databaseUrl || !settings.householdId || firebaseSyncInProgress) {
+        updateFirebaseStatus('Save valid Firebase settings before downloading.', true);
+        return;
+      }
+      if (!confirm('Replace this device\'s current application state with the Firebase copy?')) return;
+      firebaseSyncInProgress = true;
+      updateFirebaseStatus('Downloading cloud state…');
+      try {
+        const response = await fetch(firebaseEndpoint(settings), { method: 'GET', headers: firebaseHeaders(settings) });
+        if (!response.ok) throw new Error(await firebaseErrorMessage(response));
+        const payload = await response.json();
+        if (!payload || !payload.state || !Array.isArray(payload.state.accounts)) throw new Error('No valid application state exists at this household path.');
+        state = payload.state;
+        localStorage.setItem(STATE_STORAGE_KEY, JSON.stringify(state));
+        updateFirebaseStatus('Cloud state downloaded. Reloading…', false, true);
+        window.location.reload();
+      } catch (error) {
+        updateFirebaseStatus(`Download failed: ${error.message}`, true);
+      } finally {
+        firebaseSyncInProgress = false;
+      }
+    }
+
+    function scheduleFirebaseUpload() {
+      const settings = getFirebaseSettings();
+      if (!settings.autoSync || !settings.databaseUrl || !settings.householdId || !navigator.onLine) return;
+      clearTimeout(firebaseUploadTimer);
+      firebaseUploadTimer = setTimeout(() => pushToFirebase({ silent: true }), 1200);
+    }
+
+    function getSupabaseSettings() {
+      try { return JSON.parse(localStorage.getItem(SUPABASE_SETTINGS_KEY)) || {}; }
+      catch (error) { return {}; }
+    }
+
+    function getSupabaseSession() {
+      try { return JSON.parse(sessionStorage.getItem(SUPABASE_SESSION_KEY)) || {}; }
+      catch (error) { return {}; }
+    }
+
+    function normalizeSupabaseUrl(value) {
+      return String(value || '').trim().replace(/\/+$/, '');
+    }
+
+    function getSupabaseAuthRedirectUrl() {
+      if (window.location.protocol === 'http:' || window.location.protocol === 'https:') {
+        return `${window.location.origin}${window.location.pathname}`;
+      }
+      return 'com.spiritual.accountability://login-callback/';
+    }
+
+    function loadSupabaseSettingsIntoForm() {
+      const settings = getSupabaseSettings();
+      document.getElementById('supabase-project-url').value = settings.projectUrl || 'https://qjcucjjjpnezimzcefom.supabase.co';
+      document.getElementById('supabase-anon-key').value = settings.anonKey || 'sb_publishable_wIVb-0WZ0cexpbWWzG2M0g_7_o_gNo7';
+      document.getElementById('supabase-owner-email').value = settings.email || '';
+      document.getElementById('supabase-household-name').value = settings.householdName || 'My Household';
+      document.getElementById('supabase-auto-sync').checked = settings.autoSync === true;
+      const session = getSupabaseSession();
+      updateSupabaseStatus(session.accessToken ? 'Signed in. Ready to synchronize.' : 'Supabase is not signed in.', false, Boolean(session.accessToken));
+    }
+
+    function updateSupabaseStatus(message, isError = false, connected = false) {
+      const status = document.getElementById('supabase-sync-status');
+      const badge = document.getElementById('supabase-sync-badge');
+      status.textContent = message;
+      status.style.color = isError ? 'var(--red-text)' : 'var(--text-muted)';
+      badge.textContent = connected ? 'CONNECTED' : 'LOCAL ONLY';
+      badge.className = `role-badge ${connected ? 'role-readwrite' : 'role-readonly'}`;
+    }
+
+    function supabaseHeaders(settings, accessToken, prefer) {
+      const headers = { apikey: settings.anonKey, Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' };
+      if (prefer) headers.Prefer = prefer;
+      return headers;
+    }
+
+    async function supabaseErrorMessage(response) {
+      let detail = '';
+      try { const body = await response.json(); detail = body.msg || body.message || body.error_description || body.error || ''; } catch (error) {}
+      return detail || `${response.status} ${response.statusText}`;
+    }
+
+    async function connectSupabase() {
+      const settings = {
+        projectUrl: normalizeSupabaseUrl(document.getElementById('supabase-project-url').value),
+        anonKey: document.getElementById('supabase-anon-key').value.trim(),
+        email: document.getElementById('supabase-owner-email').value.trim(),
+        householdName: document.getElementById('supabase-household-name').value.trim() || 'My Household',
+        autoSync: document.getElementById('supabase-auto-sync').checked
+      };
+      const password = document.getElementById('supabase-owner-password').value;
+      if (!settings.projectUrl.startsWith('https://') || !settings.anonKey || !settings.email || !password) {
+        updateSupabaseStatus('Enter the HTTPS project URL, anon key, owner email, and password.', true); return;
+      }
+      updateSupabaseStatus('Signing in to Supabase…');
+      try {
+        const response = await fetch(`${settings.projectUrl}/auth/v1/token?grant_type=password`, {
+          method: 'POST', headers: { apikey: settings.anonKey, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: settings.email, password })
+        });
+        if (!response.ok) throw new Error(await supabaseErrorMessage(response));
+        const auth = await response.json();
+        sessionStorage.setItem(SUPABASE_SESSION_KEY, JSON.stringify({ accessToken: auth.access_token, userId: auth.user.id }));
+        localStorage.setItem(SUPABASE_SETTINGS_KEY, JSON.stringify(settings));
+        document.getElementById('supabase-owner-password').value = '';
+        await ensureSupabaseHousehold(settings, auth.access_token, auth.user.id);
+        updateSupabaseStatus('Signed in and household is ready.', false, true);
+      } catch (error) { updateSupabaseStatus(`Supabase sign-in failed: ${error.message}`, true); }
+    }
+
+    async function registerSupabaseOwner() {
+      const projectUrl = normalizeSupabaseUrl(document.getElementById('supabase-project-url').value);
+      const anonKey = document.getElementById('supabase-anon-key').value.trim();
+      const email = document.getElementById('supabase-owner-email').value.trim();
+      const password = document.getElementById('supabase-owner-password').value;
+      if (!projectUrl.startsWith('https://') || !anonKey || !email || password.length < 8) {
+        updateSupabaseStatus('Enter the project URL, public key, email, and a password of at least 8 characters.', true); return;
+      }
+      updateSupabaseStatus('Creating the Supabase owner account…');
+      try {
+        const redirectTo = encodeURIComponent(getSupabaseAuthRedirectUrl());
+        const response = await fetch(`${projectUrl}/auth/v1/signup?redirect_to=${redirectTo}`, {
+          method: 'POST', headers: { apikey: anonKey, 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password })
+        });
+        if (!response.ok) throw new Error(await supabaseErrorMessage(response));
+        const auth = await response.json();
+        if (!auth.access_token) {
+          updateSupabaseStatus('Account created. Confirm the email address, then choose Save & Sign In.', false, false); return;
+        }
+        await connectSupabase();
+      } catch (error) { updateSupabaseStatus(`Owner account creation failed: ${error.message}`, true); }
+    }
+
+    async function resendSupabaseConfirmation() {
+      const projectUrl = normalizeSupabaseUrl(document.getElementById('supabase-project-url').value);
+      const anonKey = document.getElementById('supabase-anon-key').value.trim();
+      const email = document.getElementById('supabase-owner-email').value.trim();
+      if (!projectUrl.startsWith('https://') || !anonKey || !email) {
+        updateSupabaseStatus('Enter the project URL, public key, and owner email first.', true); return;
+      }
+      updateSupabaseStatus('Sending a fresh confirmation email…');
+      try {
+        const redirectTo = encodeURIComponent(getSupabaseAuthRedirectUrl());
+        const response = await fetch(`${projectUrl}/auth/v1/resend?redirect_to=${redirectTo}`, {
+          method: 'POST', headers: { apikey: anonKey, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type: 'signup', email })
+        });
+        if (!response.ok) throw new Error(await supabaseErrorMessage(response));
+        updateSupabaseStatus('A fresh confirmation email was sent. Use only the newest link.', false, false);
+      } catch (error) { updateSupabaseStatus(`Confirmation resend failed: ${error.message}`, true); }
+    }
+
+    function showSupabaseAuthCallbackStatus() {
+      const params = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+      const error = params.get('error_description');
+      if (error) {
+        updateSupabaseStatus(`${error}. Enter the owner email and choose Resend Confirmation.`, true, false);
+      }
+    }
+
+    async function ensureSupabaseHousehold(settings, accessToken, userId) {
+      let response = await fetch(`${settings.projectUrl}/rest/v1/households?owner_id=eq.${encodeURIComponent(userId)}&select=id,name&limit=1`, { headers: supabaseHeaders(settings, accessToken) });
+      if (!response.ok) throw new Error(await supabaseErrorMessage(response));
+      const households = await response.json();
+      let household = households[0];
+      if (!household) {
+        response = await fetch(`${settings.projectUrl}/rest/v1/households`, {
+          method: 'POST', headers: supabaseHeaders(settings, accessToken, 'return=representation'),
+          body: JSON.stringify({ owner_id: userId, name: settings.householdName })
+        });
+        if (!response.ok) throw new Error(await supabaseErrorMessage(response));
+        household = (await response.json())[0];
+      }
+      settings.householdId = household.id;
+      settings.householdName = household.name;
+      localStorage.setItem(SUPABASE_SETTINGS_KEY, JSON.stringify(settings));
+      document.getElementById('supabase-household-name').value = household.name;
+      return household.id;
+    }
+
+    async function pushToSupabase(options = {}) {
+      const settings = getSupabaseSettings(); const session = getSupabaseSession();
+      if (!settings.projectUrl || !settings.anonKey || !settings.householdId || !session.accessToken || supabaseSyncInProgress) {
+        if (!options.silent) updateSupabaseStatus('Save settings and sign in before uploading.', true); return;
+      }
+      supabaseSyncInProgress = true;
+      if (!options.silent) updateSupabaseStatus('Uploading device state…');
+      try {
+        const cloudState = JSON.parse(JSON.stringify(state));
+        cloudState.accounts = cloudState.accounts.map(({ password, ...account }) => account);
+        const response = await fetch(`${settings.projectUrl}/rest/v1/app_snapshots?on_conflict=household_id`, {
+          method: 'POST', headers: supabaseHeaders(settings, session.accessToken, 'resolution=merge-duplicates,return=minimal'),
+          body: JSON.stringify({ household_id: settings.householdId, schema_version: 1, state: cloudState, updated_at: new Date().toISOString() })
+        });
+        if (!response.ok) throw new Error(await supabaseErrorMessage(response));
+        updateSupabaseStatus(`Upload complete at ${new Date().toLocaleTimeString()}.`, false, true);
+      } catch (error) { updateSupabaseStatus(`Upload failed: ${error.message}`, true); }
+      finally { supabaseSyncInProgress = false; }
+    }
+
+    async function pullFromSupabase() {
+      const settings = getSupabaseSettings(); const session = getSupabaseSession();
+      if (!settings.householdId || !session.accessToken || supabaseSyncInProgress) { updateSupabaseStatus('Save settings and sign in before downloading.', true); return; }
+      supabaseSyncInProgress = true; updateSupabaseStatus('Downloading cloud state…');
+      try {
+        const response = await fetch(`${settings.projectUrl}/rest/v1/app_snapshots?household_id=eq.${encodeURIComponent(settings.householdId)}&select=state&limit=1`, { headers: supabaseHeaders(settings, session.accessToken) });
+        if (!response.ok) throw new Error(await supabaseErrorMessage(response));
+        const rows = await response.json();
+        if (!rows[0] || !rows[0].state || !Array.isArray(rows[0].state.accounts)) throw new Error('No valid cloud state exists for this household.');
+        const localPasswords = new Map((state.accounts || []).map(account => [account.id, account.password || '']));
+        state = rows[0].state;
+        state.accounts = state.accounts.map(account => ({ ...account, password: localPasswords.get(account.id) || '' }));
+        localStorage.setItem(STATE_STORAGE_KEY, JSON.stringify(state));
+        updateSupabaseStatus('Cloud state downloaded. Reloading…', false, true); window.location.reload();
+      } catch (error) { updateSupabaseStatus(`Download failed: ${error.message}`, true); }
+      finally { supabaseSyncInProgress = false; }
+    }
+
+    function disconnectSupabase() {
+      sessionStorage.removeItem(SUPABASE_SESSION_KEY);
+      document.getElementById('supabase-owner-password').value = '';
+      updateSupabaseStatus('Signed out. Local data and project settings were retained.', false, false);
+    }
+
+    function scheduleSupabaseUpload() {
+      const settings = getSupabaseSettings(); const session = getSupabaseSession();
+      if (!settings.autoSync || !settings.householdId || !session.accessToken || !navigator.onLine) return;
+      clearTimeout(supabaseUploadTimer);
+      supabaseUploadTimer = setTimeout(() => pushToSupabase({ silent: true }), 1200);
+    }
+
+    function saveWeekData() {
+      saveToStorage();
+      alert('Weekly settlement data successfully saved to device!');
+    }
+
+    document.getElementById('login-password').addEventListener('keydown', event => {
+      if (event.key === 'Enter') handleLogin();
+    });
+    window.onload = loadFromStorage;
+  </script>
+</body>
+</html>
