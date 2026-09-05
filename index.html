@@ -752,6 +752,24 @@
             </table>
           </div>
         </div>
+
+        <div style="margin-top:18px; padding-top:14px; border-top:1px solid var(--border-color);">
+          <div class="card-title">Change Account Password</div>
+          <div class="form-group">
+            <label>Account</label>
+            <select id="password-account-select"></select>
+          </div>
+          <div class="form-group">
+            <label>New Password</label>
+            <input type="password" id="password-new" minlength="8" autocomplete="new-password" placeholder="At least 8 characters" />
+          </div>
+          <div class="form-group">
+            <label>Confirm New Password</label>
+            <input type="password" id="password-confirm" minlength="8" autocomplete="new-password" placeholder="Enter the password again" />
+          </div>
+          <button class="btn-action" onclick="changeAccountPassword()">Update Password</button>
+          <div id="password-change-status" style="font-size:11px; margin-top:8px; min-height:16px;" aria-live="polite"></div>
+        </div>
       </div>
 
       <div class="card" id="admin-incentive-card">
@@ -986,6 +1004,33 @@
           </td>
         </tr>
       `).join('');
+      const passwordSelect = document.getElementById('password-account-select');
+      const selectedId = passwordSelect.value;
+      passwordSelect.innerHTML = state.accounts.map(account => `<option value="${account.id}">${escapeHtml(account.name)} (@${escapeHtml(account.username)})</option>`).join('');
+      if (state.accounts.some(account => account.id === selectedId)) passwordSelect.value = selectedId;
+    }
+
+    function changeAccountPassword() {
+      if (getCurrentUser().role !== 'admin') {
+        alert('Only an administrator can change account passwords.');
+        return;
+      }
+      const accountId = document.getElementById('password-account-select').value;
+      const newPassword = document.getElementById('password-new').value;
+      const confirmation = document.getElementById('password-confirm').value;
+      const status = document.getElementById('password-change-status');
+      const account = state.accounts.find(item => item.id === accountId);
+      status.style.color = 'var(--red-text)';
+      if (!account) { status.textContent = 'Select a valid account.'; return; }
+      if (newPassword.length < 8) { status.textContent = 'The new password must contain at least 8 characters.'; return; }
+      if (newPassword !== confirmation) { status.textContent = 'The password entries do not match.'; return; }
+      if (newPassword.toLowerCase() === account.username.toLowerCase()) { status.textContent = 'The password cannot be the same as the username.'; return; }
+      account.password = newPassword;
+      document.getElementById('password-new').value = '';
+      document.getElementById('password-confirm').value = '';
+      saveToStorage();
+      status.style.color = 'var(--green-text)';
+      status.textContent = `Password updated for ${account.name}.`;
     }
 
     function showLoginModal() {
