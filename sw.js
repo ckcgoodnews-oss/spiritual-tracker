@@ -1,4 +1,4 @@
-const CACHE_NAME = 'spiritual-tracker-v5';
+const CACHE_NAME = 'spiritual-tracker-v6';
 const APP_SHELL = ['./', './index.html', './manifest.json'];
 
 self.addEventListener('install', event => {

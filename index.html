@@ -428,6 +428,31 @@
     .btn-action.danger {
       background-color: var(--red-text);
     }
+    .chore-status { display:inline-block; padding:4px 8px; border-radius:999px; font-size:10px; font-weight:800; }
+    .chore-status.met { background:var(--green-bg); color:var(--green-text); }
+    .chore-status.pending { background:var(--amber-bg); color:var(--amber-text); }
+    .chore-table { width:100%; border-collapse:collapse; font-size:11px; margin-top:10px; }
+    .chore-table th, .chore-table td { border:1px solid var(--border-color); padding:7px; vertical-align:top; text-align:left; }
+    .chore-table th { background:var(--slate-hdr); color:#fff; }
+    .frequency-tag { display:inline-block; margin-top:3px; padding:2px 5px; border-radius:3px; background:#e2e8f0; color:#334155; font-size:9px; font-weight:700; }
+    .signature-grid { display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-top:16px; }
+    .signature-line { border-bottom:1px solid #334155; min-height:30px; padding-top:12px; font-size:10px; color:var(--text-muted); }
+    .print-only { display:none; }
+    @media print {
+      @page { size: Letter; margin:0.25in; }
+      body { background:#fff; padding:0; color:#000; font-size:8px; zoom:0.78; }
+      header, .date-bar, .bottom-nav, .readonly-banner, .auth-modal, .write-control, #tab-spiritual, #tab-conduct, #tab-options, #tab-admin { display:none !important; }
+      .container { max-width:none; padding:0; }
+      #tab-settlement { display:block !important; }
+      .card, .summary-box { box-shadow:none; break-inside:avoid; margin-bottom:3px; padding:5px; border:1px solid #999; }
+      .summary-box { background:#fff; color:#000; }
+      .payout-amount, .summary-stat-val { color:#000 !important; }
+      .chore-table { font-size:7px; }
+      .chore-table th, .chore-table td { padding:2px; }
+      .print-only { display:block; }
+      .no-print { display:none !important; }
+      .signature-line { min-height:24px; }
+    }
   </style>
 </head>
 <body>
@@ -459,6 +484,7 @@
       <div class="user-pill">
         <span id="current-user-name" style="font-weight:600;">Admin</span>
         <span class="role-badge role-admin" id="current-role-badge">ADMIN</span>
+        <span id="header-net-payout" style="font-weight:800;">$0.00</span>
       </div>
     </div>
   </header>
@@ -494,6 +520,11 @@
         </div>
       </div>
 
+      <div class="card" id="participant-selector-card">
+        <div class="card-title">Managed Participant</div>
+        <select id="active-participant-select" onchange="changeActiveParticipant(this.value)"></select>
+      </div>
+
       <div class="card">
         <div class="card-title">1. Base Allowance & Incentive Earnings</div>
         <div class="calc-row">
@@ -520,6 +551,33 @@
         <div class="calc-row" style="font-weight:700; border-top:1px solid #cbd5e1; padding-top:8px;">
           <div class="calc-label">Total Gross Earnings</div>
           <div class="calc-val green" id="earn-total">$70.00</div>
+        </div>
+      </div>
+
+      <div class="card" id="chore-agreement-card">
+        <div class="card-title" id="chore-agreement-title">HOUSEHOLD CHORES AGREEMENT ($50.00 BASE FULFILLMENT)</div>
+        <div class="print-only" style="font-weight:700; margin-bottom:6px;">Participant: <span id="agreement-participant-name"></span></div>
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:8px;">
+          <span id="chore-completion-text" style="font-size:11px; font-weight:700;">0 of 0 completed</span>
+          <span id="chore-qualification-status" class="chore-status pending">Pending / Incomplete</span>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="chore-table">
+            <thead><tr><th style="width:26%;">Task & Frequency</th><th>Acceptance Standard / Instructions</th><th style="width:18%;">Current Status</th></tr></thead>
+            <tbody id="chore-agreement-body"></tbody>
+          </table>
+        </div>
+        <p style="font-size:10px; line-height:1.45; margin-top:10px; font-style:italic;">
+          Completion of all daily and periodic chore responsibilities by 8:00 PM without repeated reminders is a mandatory prerequisite to qualify for the full $50.00 Base Allowance stipend. Incomplete duties will result in prorated or forfeit base disbursements upon parental review.
+        </p>
+        <div style="margin-top:10px; padding-top:8px; border-top:1px solid var(--border-color);">
+          <strong style="font-size:11px;">Administrator Verification</strong>
+          <label style="display:block; margin-top:6px; font-size:11px;"><input class="admin-control" type="radio" name="base-verification" value="approved" onchange="setBaseVerification(this.value)" /> Approved – Full $50 Base Met</label>
+          <label style="display:block; margin-top:5px; font-size:11px;"><input class="admin-control" type="radio" name="base-verification" value="partial" onchange="setBaseVerification(this.value)" /> Partial / Incomplete</label>
+        </div>
+        <div class="signature-grid">
+          <div class="signature-line">Participant Signature</div><div class="signature-line">Parent / Administrator Signature</div>
+          <div class="signature-line">Week Commencing: <span id="agreement-week-date"></span></div><div class="signature-line">Verification Date</div>
         </div>
       </div>
 
@@ -559,6 +617,13 @@
       </div>
 
       <div class="card">
+        <div class="card-title">3. Settlement Banking Allocations</div>
+        <div class="calc-row"><div class="calc-label">Direct Cash (70%)</div><div class="calc-val green" id="split-direct">$0.00</div></div>
+        <div class="calc-row"><div class="calc-label">Long-Term Savings (20%)</div><div class="calc-val green" id="split-savings">$0.00</div></div>
+        <div class="calc-row"><div class="calc-label">Giving / Tithe (10%)</div><div class="calc-val green" id="split-giving">$0.00</div></div>
+      </div>
+
+      <div class="card">
         <div class="card-title">Incident Count / Proof (Weekly Select)</div>
         <div class="form-group">
           <label>Select or Add Incident Proof Summary</label>
@@ -570,7 +635,8 @@
       </div>
 
       <div class="card write-control">
-        <button class="btn-action" onclick="saveWeekData()">Save & Finalize Week</button>
+        <button class="btn-action admin-control" onclick="saveWeekData()">Save & Finalize Week</button>
+        <button class="btn-action secondary" onclick="window.print()">Print / Save PDF Receipt</button>
       </div>
     </div>
 
@@ -588,7 +654,7 @@
         <div class="card-title">Conduct Effort Bonus</div>
         <div class="form-group">
           <label>Additional Study Conduct Increase ($)</label>
-          <input type="number" id="study-conduct-bonus" class="write-control" min="0" max="10" step="1" value="0" />
+          <input type="number" id="study-conduct-bonus" class="admin-control" min="0" max="25" step="1" value="0" />
         </div>
       </div>
     </div>
@@ -781,6 +847,34 @@
         <div id="incentive-admin-list" class="tag-list" style="margin-top:12px;"></div>
       </div>
 
+      <div class="card" id="admin-chore-card">
+        <div class="card-title">Household Chore Customizer</div>
+        <div class="form-group"><label>Task Title</label><input type="text" id="new-chore-title" maxlength="100" placeholder="e.g. Clean guest bathroom" /></div>
+        <div class="form-group"><label>Instructions / Acceptance Standard</label><textarea id="new-chore-instructions" rows="3" maxlength="500" placeholder="Describe what completed means"></textarea></div>
+        <div class="form-group"><label>Frequency</label><select id="new-chore-frequency"><option>Daily</option><option>Every 3 Days</option><option>Weekly</option><option>Periodic</option><option>As Needed</option></select></div>
+        <button class="btn-action" onclick="addMasterChore()">Add Chore</button>
+        <div id="chore-admin-list" class="tag-list" style="margin-top:12px;"></div>
+      </div>
+
+      <div class="card" id="admin-formula-card">
+        <div class="card-title">Settlement Formula & Ledger Splits</div>
+        <div class="form-group"><label>Base Allowance ($)</label><input type="number" id="config-base" min="0" step="0.01" /></div>
+        <div class="form-group"><label>Daily Verified Study Rate ($)</label><input type="number" id="config-study-rate" min="0" step="0.01" /></div>
+        <div class="form-group"><label>Weekly Tablet Credit ($)</label><input type="number" id="config-tablet" min="0" step="0.01" /></div>
+        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:8px;">
+          <div class="form-group"><label>Direct %</label><input type="number" id="config-direct" min="0" max="100" step="1" /></div>
+          <div class="form-group"><label>Savings %</label><input type="number" id="config-savings" min="0" max="100" step="1" /></div>
+          <div class="form-group"><label>Giving %</label><input type="number" id="config-giving" min="0" max="100" step="1" /></div>
+        </div>
+        <button class="btn-action" onclick="saveSettlementConfig()">Save Formula</button>
+        <div id="config-status" style="font-size:11px; margin-top:8px; min-height:16px;" aria-live="polite"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Finalized Settlement Archive</div>
+        <div style="overflow-x:auto;"><table class="user-table"><thead><tr><th>Week</th><th>Participant</th><th>Chores</th><th>Net</th><th>Finalized</th></tr></thead><tbody id="settlement-archive-body"></tbody></table></div>
+      </div>
+
       <div class="card" id="admin-firebase-card">
         <div class="card-title">Firebase Cloud Sync <span id="firebase-sync-badge" class="role-badge role-readonly">LOCAL ONLY</span></div>
         <p style="font-size:11px; color:var(--text-muted); line-height:1.5; margin-bottom:10px;">
@@ -922,6 +1016,22 @@
       ]
     };
 
+    const DEFAULT_CHORES = [
+      ['Dish Duty Rotation', 'Load, run, unload, and store clean dishes promptly.', 'Every 3 Days'],
+      ['Dog Care', 'Feed and provide fresh water in the morning and evening.', 'Daily'],
+      ['Bedroom Upkeep', 'Keep personal bedroom clean and organized, with the bed made.', 'Daily'],
+      ['Living Room Maintenance', 'Keep the common living room tidy, picked up, and free of shoes or clutter.', 'Daily'],
+      ['Kitchen Counters & Stove', 'Wipe surfaces after meal preparation; leave no crumbs or grease buildup.', 'Daily'],
+      ['Indoor Trash & Liners', 'Empty indoor cans nightly or when full and replace liners promptly.', 'Daily'],
+      ['Curbside Bins', 'Move trash and recycling to the curb for collection and return the bins afterward.', 'Weekly'],
+      ['Floor Care', 'Vacuum carpets and rugs; mop hard floors when needed.', 'Weekly'],
+      ['Laundry & Clothing', 'Wash, dry, fold, and store clean clothes promptly.', 'Weekly'],
+      ['Separate Socks', 'Separate, sort, pair, and store clean socks.', 'Weekly'],
+      ['Dusting', 'Dust ceiling fan blades and window sills.', 'Periodic'],
+      ['Parental Immediate Help (Mom)', 'Willingly assist Mom with immediate household tasks she requests.', 'As Needed'],
+      ['Parental Immediate Help (Dad)', 'Willingly assist Dad with immediate household tasks he requests.', 'As Needed']
+    ].map((item, index) => ({ id: `chore-${index + 1}`, title: item[0], instructions: item[1], frequency: item[2], active: true }));
+
     let state = {
       currentUser: 'usr-1',
       accounts: JSON.parse(JSON.stringify(DEFAULT_ACCOUNTS)),
@@ -937,6 +1047,11 @@
       incidentStatus: '',
       incentives: [],
       appliedIncentiveIds: [],
+      activeParticipantId: 'usr-2',
+      masterChores: JSON.parse(JSON.stringify(DEFAULT_CHORES)),
+      userRecords: {},
+      settlementArchive: [],
+      config: { baseAllowance: 50, dailyStudyRate: 1, tabletCredit: 15, splitDirect: 0.70, splitSavings: 0.20, splitGiving: 0.10 },
       customOptions: JSON.parse(JSON.stringify(DEFAULT_OPTIONS))
     };
 
@@ -954,6 +1069,28 @@
 
     function getCurrentUser() {
       return state.accounts.find(a => a.id === state.currentUser) || state.accounts[0];
+    }
+
+    function getActiveParticipant() {
+      return state.accounts.find(account => account.id === state.activeParticipantId) || getCurrentUser();
+    }
+
+    function renderParticipantSelector() {
+      const currentUser = getCurrentUser();
+      if (currentUser.role !== 'admin') state.activeParticipantId = currentUser.id;
+      const select = document.getElementById('active-participant-select');
+      select.innerHTML = state.accounts.map(account => `<option value="${account.id}">${escapeHtml(account.name)} (@${escapeHtml(account.username)})</option>`).join('');
+      if (!state.accounts.some(account => account.id === state.activeParticipantId)) state.activeParticipantId = state.accounts[0].id;
+      select.value = state.activeParticipantId;
+      document.getElementById('participant-selector-card').style.display = currentUser.role === 'admin' ? 'block' : 'none';
+    }
+
+    function changeActiveParticipant(userId) {
+      if (getCurrentUser().role !== 'admin' || !state.accounts.some(account => account.id === userId)) return;
+      state.activeParticipantId = userId;
+      saveToStorage();
+      renderChores();
+      calculateSettlement();
     }
 
     function applyRolePermissions() {
@@ -984,12 +1121,19 @@
           el.style.display = canWrite ? '' : 'none';
         }
       });
+      document.querySelectorAll('.admin-control').forEach(el => {
+        el.disabled = !isAdmin;
+        el.style.opacity = isAdmin ? '1' : '0.55';
+      });
 
       // Admin only card
       document.getElementById('admin-user-management-card').style.display = isAdmin ? 'block' : 'none';
       document.getElementById('admin-incentive-card').style.display = isAdmin ? 'block' : 'none';
+      document.getElementById('admin-chore-card').style.display = isAdmin ? 'block' : 'none';
+      document.getElementById('admin-formula-card').style.display = isAdmin ? 'block' : 'none';
       document.getElementById('admin-firebase-card').style.display = isAdmin ? 'block' : 'none';
       document.getElementById('admin-supabase-card').style.display = isAdmin ? 'block' : 'none';
+      renderParticipantSelector();
     }
 
     function renderUserAdminSection() {
@@ -1055,6 +1199,8 @@
         applyRolePermissions();
         renderDays();
         renderIncentives();
+        renderChores();
+        calculateSettlement();
         alert(`Welcome back, ${found.name}! Logged in as [${found.role.toUpperCase()}].`);
       } else {
         document.getElementById('login-error').textContent = 'Invalid username or password. Please try again.';
@@ -1099,6 +1245,7 @@
         return;
       }
       state.accounts = state.accounts.filter(a => a.id !== userId);
+      delete state.userRecords[userId];
       if (state.currentUser === userId) {
         state.currentUser = state.accounts[0].id;
       }
@@ -1284,16 +1431,126 @@
         <span class="tag-item">${escapeHtml(incentive.name)} ($${Number(incentive.amount).toFixed(2)}) <button onclick="removeIncentive('${incentive.id}')">×</button></span>`).join('') : '<span style="font-size:11px; color:var(--text-muted);">No incentives added.</span>';
     }
 
+    function getActiveUserRecord() {
+      const userId = getActiveParticipant().id;
+      const existing = state.userRecords[userId];
+      if (!existing || existing.weekStart !== state.weekStart) {
+        state.userRecords[userId] = { weekStart: state.weekStart, choresCompleted: {}, baseVerification: 'pending' };
+      }
+      return state.userRecords[userId];
+    }
+
+    function getChoreSummary() {
+      const activeChores = state.masterChores.filter(chore => chore.active !== false);
+      const completed = getActiveUserRecord().choresCompleted;
+      const completedCount = activeChores.filter(chore => completed[chore.id] === true).length;
+      const percentage = activeChores.length ? Math.round((completedCount / activeChores.length) * 100) : 100;
+      return { activeChores, completedCount, percentage };
+    }
+
+    function toggleChore(choreId, completed) {
+      if (getCurrentUser().role === 'readonly') return;
+      getActiveUserRecord().choresCompleted[choreId] = completed;
+      saveToStorage();
+      renderChores();
+      calculateSettlement();
+    }
+
+    function setBaseVerification(value) {
+      if (getCurrentUser().role !== 'admin') return;
+      getActiveUserRecord().baseVerification = value;
+      saveToStorage();
+      renderChores();
+      calculateSettlement();
+    }
+
+    function addMasterChore() {
+      if (getCurrentUser().role !== 'admin') return;
+      const title = document.getElementById('new-chore-title').value.trim();
+      const instructions = document.getElementById('new-chore-instructions').value.trim();
+      const frequency = document.getElementById('new-chore-frequency').value;
+      if (!title || !instructions) { alert('Enter both a chore title and its acceptance standard.'); return; }
+      state.masterChores.push({ id: `chore-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, title, instructions, frequency, active: true });
+      document.getElementById('new-chore-title').value = '';
+      document.getElementById('new-chore-instructions').value = '';
+      saveToStorage();
+      renderChores();
+      calculateSettlement();
+    }
+
+    function removeMasterChore(choreId) {
+      if (getCurrentUser().role !== 'admin') return;
+      const chore = state.masterChores.find(item => item.id === choreId);
+      if (!chore || !confirm(`Remove "${chore.title}" from every participant roster?`)) return;
+      state.masterChores = state.masterChores.filter(item => item.id !== choreId);
+      Object.values(state.userRecords).forEach(record => { if (record.choresCompleted) delete record.choresCompleted[choreId]; });
+      saveToStorage();
+      renderChores();
+      calculateSettlement();
+    }
+
+    function renderChores() {
+      const record = getActiveUserRecord();
+      const { activeChores, completedCount, percentage } = getChoreSummary();
+      const canWrite = getCurrentUser().role !== 'readonly';
+      document.getElementById('chore-agreement-body').innerHTML = activeChores.map(chore => `
+        <tr><td><strong>${escapeHtml(chore.title)}</strong><br><span class="frequency-tag">${escapeHtml(chore.frequency)}</span></td>
+        <td>${escapeHtml(chore.instructions)}</td>
+        <td><label><input class="write-control" type="checkbox" ${record.choresCompleted[chore.id] ? 'checked' : ''} ${canWrite ? '' : 'disabled'} onchange="toggleChore('${chore.id}', this.checked)" /> ${record.choresCompleted[chore.id] ? 'Completed' : 'Pending'}</label></td></tr>`).join('');
+      document.getElementById('chore-completion-text').textContent = `${completedCount} of ${activeChores.length} completed (${percentage}%)`;
+      const status = document.getElementById('chore-qualification-status');
+      status.textContent = percentage === 100 ? `100% Met ($${Number(state.config.baseAllowance).toFixed(0)} Qualified)` : 'Pending / Incomplete';
+      status.className = `chore-status ${percentage === 100 ? 'met' : 'pending'}`;
+      document.getElementById('agreement-week-date').textContent = state.weekStart || '—';
+      document.getElementById('agreement-participant-name').textContent = getActiveParticipant().name;
+      document.querySelectorAll('input[name="base-verification"]').forEach(input => { input.checked = input.value === record.baseVerification; });
+      document.getElementById('chore-admin-list').innerHTML = state.masterChores.length ? state.masterChores.map(chore => `<span class="tag-item">${escapeHtml(chore.title)} · ${escapeHtml(chore.frequency)} <button onclick="removeMasterChore('${chore.id}')">×</button></span>`).join('') : '<span style="font-size:11px; color:var(--text-muted);">No chores configured.</span>';
+    }
+
+    function renderSettlementArchive() {
+      const body = document.getElementById('settlement-archive-body');
+      const rows = [...state.settlementArchive].reverse();
+      body.innerHTML = rows.length ? rows.map(item => `<tr><td>${escapeHtml(item.weekStart)}</td><td>${escapeHtml(item.participantName)}</td><td>${escapeHtml(item.choresSummary)}</td><td>${escapeHtml(item.netPayoutText)}</td><td>${new Date(item.finalizedAt).toLocaleDateString()}</td></tr>`).join('') : '<tr><td colspan="5">No finalized settlements yet.</td></tr>';
+    }
+
+    function renderSettlementConfig() {
+      document.getElementById('config-base').value = state.config.baseAllowance;
+      document.getElementById('config-study-rate').value = state.config.dailyStudyRate;
+      document.getElementById('config-tablet').value = state.config.tabletCredit;
+      document.getElementById('config-direct').value = state.config.splitDirect * 100;
+      document.getElementById('config-savings').value = state.config.splitSavings * 100;
+      document.getElementById('config-giving').value = state.config.splitGiving * 100;
+      document.getElementById('chore-agreement-title').textContent = `HOUSEHOLD CHORES AGREEMENT ($${Number(state.config.baseAllowance).toFixed(2)} BASE FULFILLMENT)`;
+    }
+
+    function saveSettlementConfig() {
+      if (getCurrentUser().role !== 'admin') return;
+      const values = ['config-base', 'config-study-rate', 'config-tablet', 'config-direct', 'config-savings', 'config-giving'].map(id => Number(document.getElementById(id).value));
+      const status = document.getElementById('config-status');
+      status.style.color = 'var(--red-text)';
+      if (values.some(value => !Number.isFinite(value) || value < 0)) { status.textContent = 'Enter valid non-negative formula values.'; return; }
+      if (Math.abs(values[3] + values[4] + values[5] - 100) > 0.001) { status.textContent = 'Direct, Savings, and Giving percentages must total 100%.'; return; }
+      state.config = { baseAllowance: values[0], dailyStudyRate: values[1], tabletCredit: values[2], splitDirect: values[3] / 100, splitSavings: values[4] / 100, splitGiving: values[5] / 100 };
+      saveToStorage();
+      renderSettlementConfig();
+      renderChores();
+      calculateSettlement();
+      status.style.color = 'var(--green-text)';
+      status.textContent = 'Settlement formula saved.';
+    }
+
     function calculateSettlement() {
       const outingsCount = state.days.filter(d => d.serviceOuting).length;
-      const baseEarned = 50.00;
+      const choreSummary = getChoreSummary();
+      const baseApproved = getActiveUserRecord().baseVerification === 'approved';
+      const baseEarned = choreSummary.percentage === 100 && baseApproved ? Number(state.config.baseAllowance) : 0;
 
       const studyDaysCount = state.days.filter(d => d.studyProof && d.minutes >= 15).length;
-      const studyEarned = studyDaysCount * 1.00;
-      const studyBonus = parseFloat(state.studyConductBonus) || 0.00;
+      const studyEarned = studyDaysCount * Number(state.config.dailyStudyRate);
+      const studyBonus = Math.min(25, Math.max(0, parseFloat(state.studyConductBonus) || 0));
       const totalStudyEarned = studyEarned + studyBonus;
 
-      const tabletEarned = 15.00;
+      const tabletEarned = Number(state.config.tabletCredit);
 
       let mediaEarned = 0.00;
       if (state.hiphopCount === 0) {
@@ -1337,12 +1594,16 @@
       document.getElementById('earn-tablet').textContent = `$${tabletEarned.toFixed(2)}`;
       document.getElementById('earn-media').textContent = `$${mediaEarned.toFixed(2)}`;
       document.getElementById('earn-total').textContent = `$${grossEarnings.toFixed(2)}`;
+      document.getElementById('split-direct').textContent = `$${(netPayout * Number(state.config.splitDirect)).toFixed(2)}`;
+      document.getElementById('split-savings').textContent = `$${(netPayout * Number(state.config.splitSavings)).toFixed(2)}`;
+      document.getElementById('split-giving').textContent = `$${(netPayout * Number(state.config.splitGiving)).toFixed(2)}`;
 
       document.getElementById('ded-lang').textContent = `-$${langDed.toFixed(2)}`;
       document.getElementById('ded-excess-lang').textContent = `-$${excessLangDed.toFixed(2)}`;
       document.getElementById('ded-respect').textContent = `-$${respectDed.toFixed(2)}`;
       document.getElementById('ded-hiphop').textContent = `-$${hiphopDed.toFixed(2)}`;
       document.getElementById('ded-total').textContent = `-$${totalDeductions.toFixed(2)}`;
+      return { grossEarnings, totalDeductions, netPayout, baseEarned, studyEarned, studyBonus, tabletEarned, mediaEarned, choreSummary };
     }
 
     function switchTab(tabId, el) {
@@ -1380,6 +1641,8 @@
     document.getElementById('week-start-date').addEventListener('change', (e) => {
       state.weekStart = e.target.value;
       renderDays();
+      renderChores();
+      calculateSettlement();
       saveToStorage();
     });
 
@@ -1410,6 +1673,11 @@
         if (!state.customOptions) state.customOptions = JSON.parse(JSON.stringify(DEFAULT_OPTIONS));
         if (!Array.isArray(state.incentives)) state.incentives = [];
         if (!Array.isArray(state.appliedIncentiveIds)) state.appliedIncentiveIds = [];
+        if (!Array.isArray(state.masterChores) || state.masterChores.length === 0) state.masterChores = JSON.parse(JSON.stringify(DEFAULT_CHORES));
+        if (!state.userRecords || typeof state.userRecords !== 'object') state.userRecords = {};
+        if (!Array.isArray(state.settlementArchive)) state.settlementArchive = [];
+        if (!state.activeParticipantId || !state.accounts.some(account => account.id === state.activeParticipantId)) state.activeParticipantId = state.accounts.find(account => account.role !== 'admin')?.id || state.accounts[0].id;
+        state.config = { baseAllowance: 50, dailyStudyRate: 1, tabletCredit: 15, splitDirect: 0.70, splitSavings: 0.20, splitGiving: 0.10, ...(state.config || {}) };
       } else {
         const today = new Date();
         const day = today.getDay();
@@ -1432,6 +1700,9 @@
       renderSelectDropdowns();
       renderDays();
       renderIncentives();
+      renderChores();
+      renderSettlementArchive();
+      renderSettlementConfig();
       calculateSettlement();
       loadFirebaseSettingsIntoForm();
       loadSupabaseSettingsIntoForm();
@@ -1441,6 +1712,8 @@
         state.currentUser = sessionUserId;
         document.getElementById('login-modal').classList.remove('active');
         applyRolePermissions();
+        renderChores();
+        calculateSettlement();
       } else {
         showLoginModal();
       }
@@ -1745,7 +2018,12 @@
       try {
         const cloudState = JSON.parse(JSON.stringify(state));
         cloudState.accounts = cloudState.accounts.map(({ password, ...account }) => account);
-        const response = await fetch(`${settings.projectUrl}/rest/v1/app_snapshots?on_conflict=household_id`, {
+        let response = await fetch(`${settings.projectUrl}/rest/v1/households?id=eq.${encodeURIComponent(settings.householdId)}`, {
+          method: 'PATCH', headers: supabaseHeaders(settings, session.accessToken, 'return=minimal'),
+          body: JSON.stringify({ config: state.config, master_chores: state.masterChores })
+        });
+        if (!response.ok) throw new Error(await supabaseErrorMessage(response));
+        response = await fetch(`${settings.projectUrl}/rest/v1/app_snapshots?on_conflict=household_id`, {
           method: 'POST', headers: supabaseHeaders(settings, session.accessToken, 'resolution=merge-duplicates,return=minimal'),
           body: JSON.stringify({ household_id: settings.householdId, schema_version: 1, state: cloudState, updated_at: new Date().toISOString() })
         });
@@ -1786,9 +2064,62 @@
       supabaseUploadTimer = setTimeout(() => pushToSupabase({ silent: true }), 1200);
     }
 
-    function saveWeekData() {
+    async function ensureSupabaseStructuredMember(settings, session) {
+      const user = getActiveParticipant();
+      const response = await fetch(`${settings.projectUrl}/rest/v1/members?on_conflict=household_id,username`, {
+        method: 'POST', headers: supabaseHeaders(settings, session.accessToken, 'resolution=merge-duplicates,return=representation'),
+        body: JSON.stringify({ household_id: settings.householdId, username: user.username, display_name: user.name, role: user.role })
+      });
+      if (!response.ok) throw new Error(await supabaseErrorMessage(response));
+      return (await response.json())[0].id;
+    }
+
+    async function syncFinalizedSettlementToSupabase(archiveEntry) {
+      const settings = getSupabaseSettings();
+      const session = getSupabaseSession();
+      if (!settings.householdId || !session.accessToken) return false;
+      const memberId = await ensureSupabaseStructuredMember(settings, session);
+      const record = getActiveUserRecord();
+      let response = await fetch(`${settings.projectUrl}/rest/v1/weekly_records?on_conflict=member_id,week_start_date`, {
+        method: 'POST', headers: supabaseHeaders(settings, session.accessToken, 'resolution=merge-duplicates,return=minimal'),
+        body: JSON.stringify({ household_id: settings.householdId, member_id: memberId, week_start_date: state.weekStart, days: state.days, chores_completed: record.choresCompleted, study_conduct_bonus: Number(state.studyConductBonus) || 0, vulg_count: state.vulgCount, warnings_count: state.warningsCount, respect_offenses: state.respectOffenses, hiphop_count: state.hiphopCount, attitude_rating: state.attitudeRating, net_payout: archiveEntry.netPayout, updated_at: new Date().toISOString() })
+      });
+      if (!response.ok) throw new Error(await supabaseErrorMessage(response));
+      response = await fetch(`${settings.projectUrl}/rest/v1/settlement_ledger?on_conflict=member_id,week_start_date`, {
+        method: 'POST', headers: supabaseHeaders(settings, session.accessToken, 'resolution=merge-duplicates,return=minimal'),
+        body: JSON.stringify({ household_id: settings.householdId, member_id: memberId, week_start_date: state.weekStart, participant_name: archiveEntry.participantName, net_payout_text: archiveEntry.netPayoutText, direct_cash_text: archiveEntry.directCashText, savings_text: archiveEntry.savingsText, chores_summary: archiveEntry.choresSummary, finalized_at: archiveEntry.finalizedAt })
+      });
+      if (!response.ok) throw new Error(await supabaseErrorMessage(response));
+      return true;
+    }
+
+    async function saveWeekData() {
+      if (getCurrentUser().role !== 'admin') { alert('Only an administrator can finalize a weekly settlement.'); return; }
+      const record = getActiveUserRecord();
+      const totals = calculateSettlement();
+      if (record.baseVerification === 'pending') { alert('Choose an administrator verification status before finalizing.'); return; }
+      if (record.baseVerification === 'approved' && totals.choreSummary.percentage !== 100) { alert('Full base approval requires 100% chore completion. Mark the record Partial / Incomplete or finish the roster.'); return; }
+      const user = getActiveParticipant();
+      const entry = {
+        userId: user.id, weekStart: state.weekStart, participantName: user.name,
+        choresSummary: `${totals.choreSummary.completedCount}/${totals.choreSummary.activeChores.length} (${totals.choreSummary.percentage}%)`,
+        netPayout: totals.netPayout, netPayoutText: `$${totals.netPayout.toFixed(2)}`,
+        directCashText: `$${(totals.netPayout * state.config.splitDirect).toFixed(2)}`,
+        savingsText: `$${(totals.netPayout * state.config.splitSavings).toFixed(2)}`,
+        givingText: `$${(totals.netPayout * state.config.splitGiving).toFixed(2)}`,
+        finalizedAt: new Date().toISOString()
+      };
+      state.settlementArchive = state.settlementArchive.filter(item => !(item.userId === user.id && item.weekStart === state.weekStart));
+      state.settlementArchive.push(entry);
       saveToStorage();
-      alert('Weekly settlement data successfully saved to device!');
+      renderSettlementArchive();
+      let message = 'Weekly settlement finalized and saved on this device.';
+      try {
+        if (await syncFinalizedSettlementToSupabase(entry)) message += ' Supabase records were updated.';
+      } catch (error) {
+        message += ` Cloud sync needs attention: ${error.message}`;
+      }
+      alert(message);
     }
 
     document.getElementById('login-password').addEventListener('keydown', event => {
